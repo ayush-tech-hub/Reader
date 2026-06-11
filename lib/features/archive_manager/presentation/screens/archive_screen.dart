@@ -46,12 +46,18 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
               : p.basename(widget.archivePath!),
         ),
         actions: [
-          if (widget.archivePath != null)
+          if (widget.archivePath != null) ...[
             IconButton(
               tooltip: l10n.extract,
               icon: const Icon(Icons.unarchive),
               onPressed: () => _extract(widget.archivePath!),
             ),
+            IconButton(
+              tooltip: l10n.extractInBackground,
+              icon: const Icon(Icons.schedule),
+              onPressed: () => _extractInBackground(widget.archivePath!),
+            ),
+          ],
         ],
       ),
       body: Column(
@@ -145,6 +151,28 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
           destinationDir: destinationDir,
           password: password,
         );
+  }
+
+  Future<void> _extractInBackground(String archivePath) async {
+    final l10n = AppLocalizations.of(context);
+    final destinationDir = await FilePicker.platform.getDirectoryPath();
+    if (destinationDir == null || !mounted) return;
+    String? password;
+    if (ArchiveFormat.fromPath(archivePath) == ArchiveFormat.zip) {
+      password = await _promptOptionalPassword();
+      if (!mounted) return;
+    }
+    final queued =
+        await ref.read(archiveScreenProvider.notifier).extractInBackground(
+              archivePath: archivePath,
+              destinationDir: destinationDir,
+              password: password,
+            );
+    if (queued && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.backgroundJobQueued)),
+      );
+    }
   }
 
   Future<String?> _promptOptionalPassword() async {

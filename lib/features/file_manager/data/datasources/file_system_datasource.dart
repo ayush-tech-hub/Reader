@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/platform/native_channels.dart';
 import '../../domain/entities/file_entry.dart';
@@ -64,20 +63,30 @@ class FileSystemDataSource {
   }
 
   /// Streams matches from a recursive, case-insensitive name search.
+  /// Unreadable subtrees (permission denied, vanished dirs) are skipped
+  /// instead of killing the whole search.
   Stream<FileEntry> search(String rootPath, String query) async* {
     final needle = query.toLowerCase();
     if (needle.isEmpty) return;
-    final root = Directory(rootPath);
-    await for (final entity
-        in root.list(recursive: true, followLinks: false)) {
-      if (p.basename(entity.path).toLowerCase().contains(needle)) {
-        final entry = await _toEntry(entity);
-        if (entry != null) yield entry;
+    final pending = <Directory>[Directory(rootPath)];
+    while (pending.isNotEmpty) {
+      final dir = pending.removeLast();
+      try {
+        await for (final entity in dir.list(followLinks: false)) {
+          if (entity is Directory) pending.add(entity);
+          if (p.basename(entity.path).toLowerCase().contains(needle)) {
+            final entry = await _toEntry(entity);
+            if (entry != null) yield entry;
+          }
+        }
+      } on FileSystemException {
+        continue;
       }
     }
   }
 
   Future<void> copy(List<String> sources, String destinationDir) async {
+    _ensureNotIntoSelf(sources, destinationDir);
     for (final source in sources) {
       final target = p.join(destinationDir, p.basename(source));
       if (p.equals(source, target)) continue;
@@ -91,6 +100,7 @@ class FileSystemDataSource {
   }
 
   Future<void> move(List<String> sources, String destinationDir) async {
+    _ensureNotIntoSelf(sources, destinationDir);
     for (final source in sources) {
       final target = p.join(destinationDir, p.basename(source));
       if (p.equals(source, target)) continue;
@@ -140,6 +150,19 @@ class FileSystemDataSource {
     await Directory(p.join(parentPath, name)).create();
   }
 
+  /// Copying/moving a directory into itself (or into one of its own
+  /// descendants) would recurse forever and fill the disk.
+  void _ensureNotIntoSelf(List<String> sources, String destinationDir) {
+    for (final source in sources) {
+      if (p.equals(source, destinationDir) ||
+          p.isWithin(source, destinationDir)) {
+        throw FileSystemException2(
+          'Cannot copy or move a folder into itself',
+        );
+      }
+    }
+  }
+
   Future<FileEntry?> _toEntry(FileSystemEntity entity) async {
     try {
       final stat = await entity.stat();
@@ -170,18 +193,11 @@ class FileSystemDataSource {
     }
   }
 
-  /// Streamed copy with a bounded buffer so multi-GB files do not
-  /// exhaust memory.
+  /// Streamed copy so multi-GB files do not exhaust memory.
   Future<void> _copyFileStreamed(File source, File target) async {
     final sink = target.openWrite();
     try {
-      await sink.addStream(
-        source.openRead().map((chunk) {
-          // dart:io already chunks reads; cap is enforced by the VM.
-          assert(chunk.length <= AppConstants.ioBufferSize * 4);
-          return chunk;
-        }),
-      );
+      await sink.addStream(source.openRead());
     } finally {
       await sink.close();
     }

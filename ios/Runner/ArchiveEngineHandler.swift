@@ -113,13 +113,12 @@ final class ArchiveEngineHandler: NSObject, FlutterStreamHandler {
   private func createZip(
     jobId: String, sources: [URL], archivePath: String, password: String?
   ) throws {
-    // ZIPFoundation has no AES encryption; password-protected ZIPs are
-    // produced via PLzmaSDK's zip encoder instead.
+    // ZIPFoundation has no AES encryption. Falling back to another
+    // container would silently produce a non-ZIP file with a .zip
+    // name, so fail honestly instead.
     if password != nil {
-      try createWithPlzma(
-        jobId: jobId, sources: sources, archivePath: archivePath,
-        fileType: .sevenZ, password: password)
-      return
+      throw ArchiveError.unsupported(
+        "Password-protected ZIP creation is not supported on iOS yet")
     }
     let archiveURL = URL(fileURLWithPath: archivePath)
     let archive = try Archive(url: archiveURL, accessMode: .create)
@@ -170,6 +169,14 @@ final class ArchiveEngineHandler: NSObject, FlutterStreamHandler {
     guard let source = sources.first, sources.count == 1 else {
       throw ArchiveError.invalid("GZIP compresses a single file")
     }
+    // This implementation buffers the input; refuse sizes that would
+    // pressure memory until a compression_stream-based path lands.
+    if let size = try FileManager.default.attributesOfItem(atPath: source.path)[.size]
+      as? Int64, size > 1 << 30
+    {
+      throw ArchiveError.invalid(
+        "GZIP of files larger than 1 GiB is not supported on iOS yet")
+    }
     let data = try Data(contentsOf: source, options: .mappedIfSafe)
     let compressed = try (data as NSData).compressed(using: .zlib)
     // Wrap raw deflate in a gzip container (header + trailer).
@@ -194,7 +201,13 @@ final class ArchiveEngineHandler: NSObject, FlutterStreamHandler {
     let password = args["password"] as? String
     let lower = archivePath.lowercased()
 
-    if lower.hasSuffix(".zip") && password == nil {
+    if lower.hasSuffix(".zip") {
+      // PLzmaSDK can't read ZIP containers, so an encrypted ZIP has no
+      // working decode path on iOS yet — fail honestly.
+      if password != nil {
+        throw ArchiveError.unsupported(
+          "Password-protected ZIP extraction is not supported on iOS yet")
+      }
       let archiveURL = URL(fileURLWithPath: archivePath)
       let destinationURL = URL(fileURLWithPath: destination)
       let total = (try? FileManager.default.attributesOfItem(atPath: archivePath)[.size]
@@ -209,12 +222,25 @@ final class ArchiveEngineHandler: NSObject, FlutterStreamHandler {
       defer { observation.invalidate() }
       try FileManager.default.unzipItem(at: archiveURL, to: destinationURL, progress: progress)
     } else {
-      // 7z / tar / encrypted zip via PLzmaSDK.
+      // 7z / tar via PLzmaSDK.
       let decoder = try Decoder(
         stream: InStream(path: try Path(archivePath)),
         fileType: Self.plzmaType(for: lower))
       if let password { try decoder.setPassword(password) }
       _ = try decoder.open()
+      // PLzmaSDK gives no documented Zip-Slip guarantee: reject any
+      // entry whose path is absolute or contains a ".." component
+      // before extracting.
+      let items = try decoder.items()
+      for index in 0..<items.count {
+        let entryPath = items[index].path().description
+        if entryPath.hasPrefix("/")
+          || entryPath.split(separator: "/").contains("..")
+          || entryPath.split(separator: "\\").contains("..")
+        {
+          throw ArchiveError.invalid("Archive entry escapes destination: \(entryPath)")
+        }
+      }
       if isCancelled(jobId) { throw ArchiveError.cancelled }
       _ = try decoder.extract(to: try Path(destination))
       emitProgress(jobId: jobId, done: 1, total: 1, entry: "")
@@ -229,7 +255,9 @@ final class ArchiveEngineHandler: NSObject, FlutterStreamHandler {
     let password = args["password"] as? String
     let lower = archivePath.lowercased()
 
-    if lower.hasSuffix(".zip") && password == nil {
+    if lower.hasSuffix(".zip") {
+      // ZIP central-directory listings are readable even for encrypted
+      // archives; only entry contents are protected.
       let archive = try Archive(url: URL(fileURLWithPath: archivePath), accessMode: .read)
       return archive.map { entry in
         [

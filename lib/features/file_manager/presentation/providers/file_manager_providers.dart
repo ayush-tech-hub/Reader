@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/failures.dart';
@@ -81,10 +84,37 @@ class BrowserNotifier extends AutoDisposeNotifier<BrowserState> {
     return const BrowserState(currentPath: '');
   }
 
+  /// Re-runs permission + root discovery (used by the error-state retry).
+  Future<void> retryInit() => _init();
+
   Future<void> _init() async {
+    if (!await ensureStorageAccess()) {
+      state = state.copyWith(
+        entries: AsyncValue.error(
+          const PermissionFailure(
+            'Storage permission is required to browse files. '
+            'Grant it in system settings and pull to refresh.',
+          ),
+          StackTrace.current,
+        ),
+      );
+      return;
+    }
     final roots = await ref.read(fileManagerRepositoryProvider).getStorageRoots();
     final rootPath = roots.fold((_) => '/', (list) => list.first.path);
     await navigateTo(rootPath);
+  }
+
+  /// Android 11+ file managers need MANAGE_EXTERNAL_STORAGE (granted via
+  /// a system settings screen); older devices use the legacy storage
+  /// permission. iOS is sandboxed to the app container — nothing to ask.
+  static Future<bool> ensureStorageAccess() async {
+    if (!Platform.isAndroid) return true;
+    if (await Permission.manageExternalStorage.isGranted) return true;
+    final manage = await Permission.manageExternalStorage.request();
+    if (manage.isGranted) return true;
+    final legacy = await Permission.storage.request();
+    return legacy.isGranted;
   }
 
   Future<void> navigateTo(String path) async {
@@ -185,13 +215,19 @@ class BrowserNotifier extends AutoDisposeNotifier<BrowserState> {
     }
     state = state.copyWith(searchResults: const []);
     final results = <FileEntry>[];
+    // Batch state updates: one rebuild per ~200ms instead of one per hit.
+    final stopwatch = Stopwatch()..start();
     await for (final entry in ref
         .read(fileManagerRepositoryProvider)
         .search(state.currentPath, query)) {
       results.add(entry);
-      state = state.copyWith(searchResults: List.of(results));
+      if (stopwatch.elapsedMilliseconds >= 200) {
+        stopwatch.reset();
+        state = state.copyWith(searchResults: List.of(results));
+      }
       if (results.length >= 500) break; // soft cap; keep UI responsive
     }
+    state = state.copyWith(searchResults: List.of(results));
   }
 
   Future<void> recordAccess(String path) =>

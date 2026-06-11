@@ -8,6 +8,9 @@ sealed class Failure extends Equatable {
 
   @override
   List<Object?> get props => [message];
+
+  @override
+  String toString() => message;
 }
 
 class FileSystemFailure extends Failure {
@@ -20,10 +23,6 @@ class PermissionFailure extends Failure {
 
 class PdfFailure extends Failure {
   const PdfFailure(super.message);
-}
-
-class PdfPasswordRequiredFailure extends Failure {
-  const PdfPasswordRequiredFailure(super.message);
 }
 
 class ArchiveFailure extends Failure {

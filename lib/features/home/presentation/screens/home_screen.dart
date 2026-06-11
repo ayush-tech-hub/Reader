@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../generated/app_localizations.dart';
@@ -93,6 +94,7 @@ class _DashboardTab extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final recents = ref.watch(recentDocumentsProvider);
     final favorites = ref.watch(favoritesProvider);
+    final recentFiles = ref.watch(recentFilesProvider);
     final themeMode = ref.watch(themeModeProvider);
 
     return Scaffold(
@@ -123,6 +125,7 @@ class _DashboardTab extends ConsumerWidget {
         onRefresh: () async {
           ref.invalidate(recentDocumentsProvider);
           ref.invalidate(favoritesProvider);
+          ref.invalidate(recentFilesProvider);
         },
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -203,6 +206,50 @@ class _DashboardTab extends ConsumerWidget {
                                 queryParameters: {'path': favorite.path},
                               ).toString(),
                             ),
+                          ),
+                      ],
+                    ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              l10n.recentFiles,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            recentFiles.when(
+              loading: () => const LinearProgressIndicator(),
+              error: (error, _) => Text(error.toString()),
+              data: (files) => files.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Text(l10n.noRecentFiles),
+                    )
+                  : Column(
+                      children: [
+                        for (final file in files.take(10))
+                          ListTile(
+                            leading: const Icon(Icons.history),
+                            title: Text(
+                              file.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            onTap: () {
+                              final route = AppConstants.pdfExtensions
+                                      .contains(file.extension)
+                                  ? Routes.reader
+                                  : AppConstants.archiveExtensions
+                                          .contains(file.extension)
+                                      ? Routes.archive
+                                      : null;
+                              if (route == null) return;
+                              context.push(
+                                Uri(
+                                  path: route,
+                                  queryParameters: {'path': file.path},
+                                ).toString(),
+                              );
+                            },
                           ),
                       ],
                     ),

@@ -23,6 +23,15 @@ abstract interface class ArchiveEngine {
     String? password,
   });
 
+  /// Queues a battery-aware OS background job (WorkManager /
+  /// BGProcessingTask) that survives app death. No progress stream;
+  /// the OS runs it when constraints allow.
+  Future<void> extractInBackground({
+    required String archivePath,
+    required String destinationDir,
+    String? password,
+  });
+
   Future<List<ArchiveEntry>> list(String archivePath, {String? password});
 
   Future<void> cancel(String jobId);

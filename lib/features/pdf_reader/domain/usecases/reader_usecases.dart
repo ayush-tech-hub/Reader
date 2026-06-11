@@ -65,19 +65,3 @@ class ToggleBookmark {
     return added.fold(Err.new, (_) => const Ok(true));
   }
 }
-
-class AddAnnotation {
-  const AddAnnotation(this._repository);
-  final PdfReaderRepository _repository;
-
-  Future<Result<Annotation>> call(Annotation annotation) =>
-      _repository.addAnnotation(annotation);
-}
-
-class GetAnnotations {
-  const GetAnnotations(this._repository);
-  final PdfReaderRepository _repository;
-
-  Future<Result<List<Annotation>>> call(String documentPath) =>
-      _repository.getAnnotations(documentPath);
-}

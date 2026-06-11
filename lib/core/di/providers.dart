@@ -84,7 +84,9 @@ final listDirectoryProvider = Provider<ListDirectory>(
 final archiveEngineProvider = Provider<ArchiveEngine>((ref) {
   // Native engine on mobile; pure-Dart fallback elsewhere (dev/tests).
   if (Platform.isAndroid || Platform.isIOS) return NativeArchiveEngine();
-  return DartArchiveEngine();
+  final engine = DartArchiveEngine();
+  ref.onDispose(engine.dispose);
+  return engine;
 });
 
 final archiveJobsDataSourceProvider = Provider<ArchiveJobsDataSource>(

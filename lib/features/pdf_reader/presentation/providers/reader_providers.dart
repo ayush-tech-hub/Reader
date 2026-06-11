@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,9 +39,6 @@ class ReaderState {
   bool get isCurrentPageBookmarked =>
       bookmarks.any((b) => b.page == currentPage);
 
-  List<Annotation> annotationsForPage(int page) =>
-      annotations.where((a) => a.page == page).toList();
-
   ReaderState copyWith({
     int? currentPage,
     int? totalPages,
@@ -71,8 +70,18 @@ final readerProvider = NotifierProvider.autoDispose
     .family<ReaderNotifier, ReaderState, String>(ReaderNotifier.new);
 
 class ReaderNotifier extends AutoDisposeFamilyNotifier<ReaderState, String> {
+  Timer? _saveDebounce;
+  int? _pendingPage;
+  double? _pendingZoom;
+  late SaveReadingPosition _savePosition;
+
   @override
   ReaderState build(String arg) {
+    _savePosition = ref.read(saveReadingPositionProvider);
+    ref.onDispose(() {
+      _saveDebounce?.cancel();
+      _flushPosition();
+    });
     Future.microtask(_loadPersisted);
     return ReaderState(documentPath: arg);
   }
@@ -94,11 +103,23 @@ class ReaderNotifier extends AutoDisposeFamilyNotifier<ReaderState, String> {
         .recordDocumentOpened(path: arg, totalPages: totalPages);
   }
 
-  Future<void> onPageChanged(int page, double zoom) async {
+  /// Updates UI state immediately but debounces the SQLite write so a
+  /// fast fling through a long document doesn't cause a write storm.
+  void onPageChanged(int page, double zoom) {
     state = state.copyWith(currentPage: page);
-    await ref
-        .read(saveReadingPositionProvider)
-        .call(path: arg, page: page, zoom: zoom);
+    _pendingPage = page;
+    _pendingZoom = zoom;
+    _saveDebounce?.cancel();
+    _saveDebounce = Timer(const Duration(milliseconds: 500), _flushPosition);
+  }
+
+  void _flushPosition() {
+    final page = _pendingPage;
+    final zoom = _pendingZoom;
+    if (page == null || zoom == null) return;
+    _pendingPage = null;
+    _pendingZoom = null;
+    unawaited(_savePosition(path: arg, page: page, zoom: zoom));
   }
 
   void setPageMode(ReaderPageMode mode) =>

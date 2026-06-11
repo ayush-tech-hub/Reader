@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:image/image.dart' as img;
 import 'package:pdf/pdf.dart';
@@ -10,6 +11,41 @@ import '../../../../core/utils/result.dart';
 import '../../domain/entities/pdf_tool_entities.dart';
 import '../../domain/repositories/pdf_tools_repository.dart';
 import '../datasources/pdf_tools_engine.dart';
+
+/// Top-level so it can run via [Isolate.run]. Exposed for tests.
+Future<String> buildPdfFromImages(
+  List<String> imagePaths,
+  String outputPath,
+) async {
+  const maxDimension = 2480; // ~A4 @ 300dpi
+  final doc = pw.Document();
+  for (final path in imagePaths) {
+    final bytes = await File(path).readAsBytes();
+    var decoded = img.decodeImage(bytes);
+    if (decoded == null) {
+      throw NativeEngineException('Not a supported image: $path');
+    }
+    if (decoded.width > maxDimension || decoded.height > maxDimension) {
+      decoded = img.copyResize(
+        decoded,
+        width: decoded.width >= decoded.height ? maxDimension : null,
+        height: decoded.height > decoded.width ? maxDimension : null,
+      );
+    }
+    final jpg = img.encodeJpg(decoded, quality: 90);
+    final image = pw.MemoryImage(jpg);
+    doc.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (context) => pw.Center(
+          child: pw.Image(image, fit: pw.BoxFit.contain),
+        ),
+      ),
+    );
+  }
+  await File(outputPath).writeAsBytes(await doc.save());
+  return outputPath;
+}
 
 class PdfToolsRepositoryImpl implements PdfToolsRepository {
   const PdfToolsRepositoryImpl(this._engine);
@@ -50,42 +86,15 @@ class PdfToolsRepositoryImpl implements PdfToolsRepository {
       _guard(() => _engine.compress(source, outputPath, quality));
 
   /// Pure Dart: decode each image (downscaling very large ones) and lay
-  /// it out one per page, fitted to A4.
+  /// it out one per page, fitted to A4. Decoding/encoding is CPU-bound
+  /// (seconds per large photo), so it runs on a background isolate to
+  /// keep the UI responsive.
   @override
   Future<Result<String>> imagesToPdf({
     required List<String> imagePaths,
     required String outputPath,
   }) =>
-      _guard(() async {
-        const maxDimension = 2480; // ~A4 @ 300dpi
-        final doc = pw.Document();
-        for (final path in imagePaths) {
-          final bytes = await File(path).readAsBytes();
-          var decoded = img.decodeImage(bytes);
-          if (decoded == null) {
-            throw NativeEngineException('Not a supported image: $path');
-          }
-          if (decoded.width > maxDimension || decoded.height > maxDimension) {
-            decoded = img.copyResize(
-              decoded,
-              width: decoded.width >= decoded.height ? maxDimension : null,
-              height: decoded.height > decoded.width ? maxDimension : null,
-            );
-          }
-          final jpg = img.encodeJpg(decoded, quality: 90);
-          final image = pw.MemoryImage(jpg);
-          doc.addPage(
-            pw.Page(
-              pageFormat: PdfPageFormat.a4,
-              build: (context) => pw.Center(
-                child: pw.Image(image, fit: pw.BoxFit.contain),
-              ),
-            ),
-          );
-        }
-        await File(outputPath).writeAsBytes(await doc.save());
-        return outputPath;
-      });
+      _guard(() => Isolate.run(() => buildPdfFromImages(imagePaths, outputPath)));
 
   @override
   Future<Result<String>> reorderPages({

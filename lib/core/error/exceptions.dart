@@ -14,10 +14,6 @@ class FileSystemException2 extends AppException {
   const FileSystemException2(super.message, [super.cause]);
 }
 
-class PermissionDeniedException extends AppException {
-  const PermissionDeniedException(super.message, [super.cause]);
-}
-
 class PdfOpenException extends AppException {
   const PdfOpenException(super.message, [super.cause]);
 }

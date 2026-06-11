@@ -15,6 +15,7 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
 
     private lateinit var archiveHandler: ArchiveEngineHandler
+    private lateinit var pdfToolsHandler: PdfToolsHandler
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -26,15 +27,17 @@ class MainActivity : FlutterActivity() {
         EventChannel(messenger, "opendocs/archive_progress")
             .setStreamHandler(archiveHandler)
 
+        pdfToolsHandler = PdfToolsHandler(applicationContext)
         MethodChannel(messenger, "opendocs/pdf_tools")
-            .setMethodCallHandler(PdfToolsHandler(applicationContext))
+            .setMethodCallHandler(pdfToolsHandler)
 
         MethodChannel(messenger, "opendocs/storage")
             .setMethodCallHandler(StorageHandler(applicationContext))
     }
 
     override fun onDestroy() {
-        archiveHandler.shutdown()
+        if (::archiveHandler.isInitialized) archiveHandler.shutdown()
+        if (::pdfToolsHandler.isInitialized) pdfToolsHandler.shutdown()
         super.onDestroy()
     }
 }

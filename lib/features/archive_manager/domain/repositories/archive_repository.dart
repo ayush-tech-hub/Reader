@@ -19,6 +19,14 @@ abstract interface class ArchiveRepository {
     String? password,
   });
 
+  /// Queues an OS-scheduled, battery-aware background extraction that
+  /// survives app death (Android WorkManager; not supported elsewhere).
+  Future<Result<void>> extractInBackground({
+    required String archivePath,
+    required String destinationDir,
+    String? password,
+  });
+
   Future<Result<List<ArchiveEntry>>> listEntries(
     String archivePath, {
     String? password,

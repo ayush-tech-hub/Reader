@@ -88,6 +88,26 @@ class ArchiveRepositoryImpl implements ArchiveRepository {
     );
   }
 
+  @override
+  Future<Result<void>> extractInBackground({
+    required String archivePath,
+    required String destinationDir,
+    String? password,
+  }) async {
+    try {
+      await _engine.extractInBackground(
+        archivePath: archivePath,
+        destinationDir: destinationDir,
+        password: password,
+      );
+      return const Ok(null);
+    } on ArchiveException catch (e) {
+      return Err(ArchiveFailure(e.message));
+    } catch (e) {
+      return Err(UnexpectedFailure(e.toString()));
+    }
+  }
+
   /// Records the job, starts the engine and persists the terminal
   /// state. The engine call itself returns when the native side has
   /// *accepted or finished* the job; progress flows on [progressStream].

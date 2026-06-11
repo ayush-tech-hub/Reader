@@ -70,6 +70,18 @@ class NativeArchiveEngine implements ArchiveEngine {
       });
 
   @override
+  Future<void> extractInBackground({
+    required String archivePath,
+    required String destinationDir,
+    String? password,
+  }) =>
+      _invoke(ArchiveMethods.extractInBackground, {
+        'archivePath': archivePath,
+        'destinationDir': destinationDir,
+        'password': password,
+      });
+
+  @override
   Future<List<ArchiveEntry>> list(
     String archivePath, {
     String? password,

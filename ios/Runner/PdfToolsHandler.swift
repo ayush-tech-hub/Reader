@@ -142,6 +142,11 @@ final class PdfToolsHandler {
     let outputPath = args["outputPath"] as! String
     let toDelete = Set(args["pages"] as! [Int])
     let document = try open(source)
+    // PDFKit opens some malformed PDFs with pageCount == 0; Swift's
+    // `1...0` range traps, so guard before iterating.
+    guard document.pageCount > 0 else {
+      throw PdfToolsError.cannotOpen("\(source) has no pages")
+    }
     let output = PDFDocument()
     for pageNumber in 1...document.pageCount where !toDelete.contains(pageNumber) {
       guard let page = document.page(at: pageNumber - 1) else { continue }
@@ -171,8 +176,14 @@ final class PdfToolsHandler {
     let start = args["start"] as! Int
     let end = args["end"] as! Int
     let document = try open(source)
+    let last = min(end, document.pageCount)
+    // An empty or inverted range would trap (`start...last` requires
+    // start <= last); reject it as a normal error instead.
+    guard start >= 1, start <= last else {
+      throw PdfToolsError.cannotOpen("Page range \(start)-\(end) is out of bounds")
+    }
     let output = PDFDocument()
-    for pageNumber in start...min(end, document.pageCount) {
+    for pageNumber in start...last {
       guard let page = document.page(at: pageNumber - 1) else { continue }
       output.insert(page, at: output.pageCount)
     }

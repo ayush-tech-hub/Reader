@@ -169,7 +169,22 @@ class _FileBrowserScreenState extends ConsumerState<FileBrowserScreen> {
     }
     return state.entries.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => Center(child: Text(error.toString())),
+      error: (error, _) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(error.toString(), textAlign: TextAlign.center),
+            ),
+            FilledButton.icon(
+              icon: const Icon(Icons.refresh),
+              label: Text(l10n.retry),
+              onPressed: _notifier.retryInit,
+            ),
+          ],
+        ),
+      ),
       data: (entries) => entries.isEmpty
           ? Center(child: Text(l10n.emptyFolder))
           : RefreshIndicator(

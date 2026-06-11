@@ -30,8 +30,18 @@ class PdfToolsHandler(
     private val executor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
 
+    companion object {
+        /** Cap on rendered bitmap edges; malformed PDFs can declare
+         *  arbitrarily large MediaBoxes and OOM the process otherwise. */
+        private const val MAX_RENDER_DIMENSION = 4096f
+    }
+
     init {
         PDFBoxResourceLoader.init(context)
+    }
+
+    fun shutdown() {
+        executor.shutdown()
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -54,7 +64,10 @@ class PdfToolsHandler(
                     }
                 }
                 mainHandler.post { result.success(outcome) }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
+                // Throwable, not Exception: malformed PDFs can trigger
+                // OutOfMemoryError, which must become a channel error
+                // instead of killing the process.
                 mainHandler.post { result.error("PDF_TOOLS_ERROR", e.message, null) }
             }
         }
@@ -112,21 +125,32 @@ class PdfToolsHandler(
             val renderer = PDFRenderer(document)
             PDDocument().use { output ->
                 for (index in 0 until document.numberOfPages) {
-                    val bitmap: Bitmap = renderer.renderImage(index, scale)
                     val sourcePage = document.getPage(index)
-                    val page = PDPage(sourcePage.mediaBox)
-                    output.addPage(page)
-                    val image = JPEGFactory.createFromImage(output, bitmap, jpegQuality)
-                    PDPageContentStream(output, page).use { stream ->
-                        stream.drawImage(
-                            image,
-                            0f,
-                            0f,
-                            page.mediaBox.width,
-                            page.mediaBox.height,
-                        )
+                    val mediaBox = sourcePage.mediaBox
+                    val maxEdge = maxOf(mediaBox.width, mediaBox.height)
+                    val safeScale = if (maxEdge * scale > MAX_RENDER_DIMENSION) {
+                        MAX_RENDER_DIMENSION / maxEdge
+                    } else {
+                        scale
                     }
-                    bitmap.recycle()
+                    val bitmap: Bitmap = renderer.renderImage(index, safeScale)
+                    try {
+                        val page = PDPage(mediaBox)
+                        output.addPage(page)
+                        val image =
+                            JPEGFactory.createFromImage(output, bitmap, jpegQuality)
+                        PDPageContentStream(output, page).use { stream ->
+                            stream.drawImage(
+                                image,
+                                0f,
+                                0f,
+                                page.mediaBox.width,
+                                page.mediaBox.height,
+                            )
+                        }
+                    } finally {
+                        bitmap.recycle()
+                    }
                 }
                 output.save(outputPath)
             }

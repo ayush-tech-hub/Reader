@@ -81,5 +81,11 @@
   "metaKeywords": "कीवर्ड",
   "pageRangesHint": "पृष्ठ सीमाएँ (जैसे 1-3, 5)",
   "pageListHint": "पृष्ठ (जैसे 1, 3, 5)",
-  "outputCreated": "आउटपुट बन गया"
+  "outputCreated": "आउटपुट बन गया",
+  "retry": "पुनः प्रयास करें",
+  "splitScreen": "विभाजित स्क्रीन",
+  "extractInBackground": "पृष्ठभूमि में निकालें",
+  "backgroundJobQueued": "निष्कर्षण कतारबद्ध; यह पृष्ठभूमि में चलेगा।",
+  "recentFiles": "हाल की फ़ाइलें",
+  "noRecentFiles": "आपकी खोली फ़ाइलें यहाँ दिखेंगी।"
 }

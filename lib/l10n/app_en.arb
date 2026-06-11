@@ -112,5 +112,11 @@
   "metaKeywords": "Keywords",
   "pageRangesHint": "Page ranges (e.g. 1-3, 5)",
   "pageListHint": "Pages (e.g. 1, 3, 5)",
-  "outputCreated": "Output created"
+  "outputCreated": "Output created",
+  "retry": "Retry",
+  "splitScreen": "Split screen",
+  "extractInBackground": "Extract in background",
+  "backgroundJobQueued": "Extraction queued; it will run in the background.",
+  "recentFiles": "Recent files",
+  "noRecentFiles": "Files you open will appear here."
 }

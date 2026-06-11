@@ -17,8 +17,6 @@ class FileManagerRepositoryImpl implements FileManagerRepository {
   Future<Result<T>> _guard<T>(Future<T> Function() body) async {
     try {
       return Ok(await body());
-    } on PermissionDeniedException catch (e) {
-      return Err(PermissionFailure(e.message));
     } on FileSystemException2 catch (e) {
       return Err(FileSystemFailure(e.message));
     } on FileSystemException catch (e) {

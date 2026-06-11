@@ -87,6 +87,29 @@ class ArchiveScreenNotifier extends AutoDisposeNotifier<ArchiveScreenState> {
     _applyJobResult(result);
   }
 
+  /// Returns true when the background job was queued successfully.
+  Future<bool> extractInBackground({
+    required String archivePath,
+    required String destinationDir,
+    String? password,
+  }) async {
+    final result = await ref.read(archiveRepositoryProvider).extractInBackground(
+          archivePath: archivePath,
+          destinationDir: destinationDir,
+          password: password,
+        );
+    return result.fold(
+      (failure) {
+        state = state.copyWith(lastError: failure.message);
+        return false;
+      },
+      (_) {
+        state = state.copyWith(clearError: true);
+        return true;
+      },
+    );
+  }
+
   Future<void> cancelActiveJob() async {
     final job = state.activeJob;
     if (job == null) return;

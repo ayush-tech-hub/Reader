@@ -1,9 +1,11 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as p;
 import 'package:pdfrx/pdfrx.dart';
-import 'package:share_plus/share_plus.dart';
 
+import '../../../../core/router/app_router.dart';
 import '../../../../generated/app_localizations.dart';
 import '../../domain/entities/reader_entities.dart';
 import '../providers/reader_providers.dart';
@@ -21,7 +23,7 @@ class ReaderScreen extends ConsumerStatefulWidget {
 
 class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   final _controller = PdfViewerController();
-  late final _searcher = PdfTextSearcher(_controller)..addListener(_onSearch);
+  late final _searcher = PdfTextSearcher(_controller);
   final _searchFieldController = TextEditingController();
   int _quarterTurns = 0;
   List<PdfOutlineNode> _outline = const [];
@@ -31,14 +33,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
 
   @override
   void dispose() {
-    _searcher
-      ..removeListener(_onSearch)
-      ..dispose();
+    _searcher.dispose();
     _searchFieldController.dispose();
     super.dispose();
   }
-
-  void _onSearch() => setState(() {});
 
   Future<String?> _askPassword() async {
     if (!mounted) return null;
@@ -72,6 +70,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   }
 
   void _fitToWidth() {
+    if (!_controller.isReady) return;
     final pages = _controller.pages;
     final state = ref.read(readerProvider(widget.path));
     if (pages.isEmpty) return;
@@ -83,11 +82,18 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final state = ref.watch(readerProvider(widget.path));
+    // Narrow selects so page turns (currentPage changes) don't rebuild
+    // the viewer subtree; page-dependent widgets use their own Consumer.
+    final provider = readerProvider(widget.path);
+    final isSearching = ref.watch(provider.select((s) => s.isSearching));
+    final pageMode = ref.watch(provider.select((s) => s.pageMode));
+    final activeTool = ref.watch(provider.select((s) => s.activeTool));
+    final toolColor = ref.watch(provider.select((s) => s.toolColor));
+    final annotations = ref.watch(provider.select((s) => s.annotations));
 
     return Scaffold(
       appBar: AppBar(
-        title: state.isSearching
+        title: isSearching
             ? TextField(
                 controller: _searchFieldController,
                 autofocus: true,
@@ -102,18 +108,28 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               )
             : Text(p.basename(widget.path), overflow: TextOverflow.ellipsis),
         actions: [
-          if (state.isSearching) ...[
-            IconButton(
-              tooltip: l10n.previousMatch,
-              icon: const Icon(Icons.keyboard_arrow_up),
-              onPressed:
-                  _searcher.hasMatches ? _searcher.goToPrevMatch : null,
-            ),
-            IconButton(
-              tooltip: l10n.nextMatch,
-              icon: const Icon(Icons.keyboard_arrow_down),
-              onPressed:
-                  _searcher.hasMatches ? _searcher.goToNextMatch : null,
+          if (isSearching) ...[
+            // Scoped to the searcher: match ticks repaint these two
+            // buttons, not the whole screen.
+            ListenableBuilder(
+              listenable: _searcher,
+              builder: (context, _) => Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: l10n.previousMatch,
+                    icon: const Icon(Icons.keyboard_arrow_up),
+                    onPressed:
+                        _searcher.hasMatches ? _searcher.goToPrevMatch : null,
+                  ),
+                  IconButton(
+                    tooltip: l10n.nextMatch,
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    onPressed:
+                        _searcher.hasMatches ? _searcher.goToNextMatch : null,
+                  ),
+                ],
+              ),
             ),
             IconButton(
               icon: const Icon(Icons.close),
@@ -129,14 +145,19 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               icon: const Icon(Icons.search),
               onPressed: () => _notifier.setSearching(true),
             ),
-            IconButton(
-              tooltip: l10n.bookmarkPage,
-              icon: Icon(
-                state.isCurrentPageBookmarked
-                    ? Icons.bookmark
-                    : Icons.bookmark_outline,
-              ),
-              onPressed: _notifier.toggleBookmark,
+            Consumer(
+              builder: (context, ref, _) {
+                final bookmarked = ref.watch(
+                  provider.select((s) => s.isCurrentPageBookmarked),
+                );
+                return IconButton(
+                  tooltip: l10n.bookmarkPage,
+                  icon: Icon(
+                    bookmarked ? Icons.bookmark : Icons.bookmark_outline,
+                  ),
+                  onPressed: _notifier.toggleBookmark,
+                );
+              },
             ),
             PopupMenuButton<String>(
               onSelected: _onMenuAction,
@@ -152,7 +173,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 PopupMenuItem(
                   value: 'pageMode',
                   child: Text(
-                    state.pageMode == ReaderPageMode.continuous
+                    pageMode == ReaderPageMode.continuous
                         ? l10n.pageByPage
                         : l10n.continuousScroll,
                   ),
@@ -161,6 +182,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 PopupMenuItem(
                   value: 'fitWidth',
                   child: Text(l10n.fitToWidth),
+                ),
+                PopupMenuItem(
+                  value: 'split',
+                  child: Text(l10n.splitScreen),
                 ),
               ],
             ),
@@ -174,7 +199,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
           controller: _controller,
           passwordProvider: _askPassword,
           params: PdfViewerParams(
-            layoutPages: state.pageMode == ReaderPageMode.single
+            layoutPages: pageMode == ReaderPageMode.single
                 ? _singlePageLayout
                 : null,
             onViewerReady: (document, controller) async {
@@ -197,22 +222,24 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                   child: CustomPaint(
                     size: pageRect.size,
                     painter: AnnotationPainter(
-                      annotations: state.annotationsForPage(page.pageNumber),
+                      annotations: annotations
+                          .where((a) => a.page == page.pageNumber)
+                          .toList(),
                       scale: scale,
                     ),
                   ),
                 ),
-                if (state.activeTool == ReaderTool.ink)
+                if (activeTool == ReaderTool.ink)
                   InkCaptureOverlay(
                     scale: scale,
-                    color: Color(state.toolColor),
+                    color: Color(toolColor),
                     onStrokeFinished: (stroke) => _notifier.addAnnotation(
                       page: page.pageNumber,
                       type: AnnotationType.ink,
                       strokes: [stroke],
                     ),
                   ),
-                if (state.activeTool == ReaderTool.note)
+                if (activeTool == ReaderTool.note)
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTapUp: (details) => _addNoteAt(
@@ -245,13 +272,19 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         ),
       ),
       bottomNavigationBar: _AnnotationToolbar(path: widget.path),
-      floatingActionButton: state.totalPages > 0
-          ? _PageIndicator(
-              current: state.currentPage,
-              total: state.totalPages,
-              onJump: (page) => _controller.goToPage(pageNumber: page),
-            )
-          : null,
+      floatingActionButton: Consumer(
+        builder: (context, ref, _) {
+          final (current, total) = ref.watch(
+            provider.select((s) => (s.currentPage, s.totalPages)),
+          );
+          if (total == 0) return const SizedBox.shrink();
+          return _PageIndicator(
+            current: current,
+            total: total,
+            onJump: (page) => _controller.goToPage(pageNumber: page),
+          );
+        },
+      ),
     );
   }
 
@@ -332,7 +365,25 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         setState(() => _quarterTurns = (_quarterTurns + 1) % 4);
       case 'fitWidth':
         _fitToWidth();
+      case 'split':
+        _openSplitView();
     }
+  }
+
+  /// Picks a second document and opens it side-by-side with this one.
+  Future<void> _openSplitView() async {
+    final picked = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    final other = picked?.files.single.path;
+    if (other == null || !mounted) return;
+    context.push(
+      Uri(
+        path: Routes.splitReader,
+        queryParameters: {'left': widget.path, 'right': other},
+      ).toString(),
+    );
   }
 
   void _showOutline() {
@@ -426,7 +477,9 @@ class _AnnotationToolbar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(readerProvider(path));
+    final (activeTool, toolColor) = ref.watch(
+      readerProvider(path).select((s) => (s.activeTool, s.toolColor)),
+    );
     final notifier = ref.read(readerProvider(path).notifier);
     final l10n = AppLocalizations.of(context);
 
@@ -434,7 +487,7 @@ class _AnnotationToolbar extends ConsumerWidget {
         IconButton(
           tooltip: tooltip,
           icon: Icon(icon),
-          isSelected: state.activeTool == tool,
+          isSelected: activeTool == tool,
           onPressed: () => notifier.setTool(tool),
         );
 
@@ -466,9 +519,7 @@ class _AnnotationToolbar extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: Color(color),
                   shape: BoxShape.circle,
-                  border: state.toolColor == color
-                      ? Border.all(width: 2)
-                      : null,
+                  border: toolColor == color ? Border.all(width: 2) : null,
                 ),
               ),
             ),
@@ -548,6 +599,3 @@ class SplitReaderScreen extends StatelessWidget {
     );
   }
 }
-
-/// Share/extract previously selected text (used by the selection menu).
-Future<void> shareExtractedText(String text) => Share.share(text);

@@ -6,9 +6,6 @@ abstract final class AppConstants {
   static const int maxRecentDocuments = 50;
   static const int maxRecentFiles = 100;
 
-  /// Buffer size used by Dart-side streamed file copies.
-  static const int ioBufferSize = 1024 * 1024; // 1 MiB
-
   static const Set<String> pdfExtensions = {'.pdf'};
   static const Set<String> archiveExtensions = {
     '.zip',

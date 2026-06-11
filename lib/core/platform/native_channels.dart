@@ -10,6 +10,7 @@ abstract final class NativeChannels {
 abstract final class ArchiveMethods {
   static const String create = 'create';
   static const String extract = 'extract';
+  static const String extractInBackground = 'extractInBackground';
   static const String list = 'list';
   static const String cancel = 'cancel';
 }

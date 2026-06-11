@@ -81,5 +81,11 @@
   "metaKeywords": "Palabras clave",
   "pageRangesHint": "Rangos de páginas (p. ej. 1-3, 5)",
   "pageListHint": "Páginas (p. ej. 1, 3, 5)",
-  "outputCreated": "Archivo creado"
+  "outputCreated": "Archivo creado",
+  "retry": "Reintentar",
+  "splitScreen": "Pantalla dividida",
+  "extractInBackground": "Extraer en segundo plano",
+  "backgroundJobQueued": "Extracción en cola; se ejecutará en segundo plano.",
+  "recentFiles": "Archivos recientes",
+  "noRecentFiles": "Los archivos que abras aparecerán aquí."
 }

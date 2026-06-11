@@ -21,6 +21,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import net.lingala.zip4j.ZipFile
 import net.lingala.zip4j.model.ZipParameters
+import net.lingala.zip4j.progress.ProgressMonitor
 import net.lingala.zip4j.model.enums.AesKeyStrength
 import net.lingala.zip4j.model.enums.CompressionLevel
 import net.lingala.zip4j.model.enums.EncryptionMethod
@@ -88,11 +89,20 @@ class ArchiveEngineHandler(
         when (call.method) {
             "create" -> runJob(call, result) { create(call) }
             "extract" -> runJob(call, result) { extract(call) }
+            "extractInBackground" -> {
+                ArchiveWorker.enqueueExtraction(
+                    context,
+                    call.argument<String>("archivePath")!!,
+                    call.argument<String>("destinationDir")!!,
+                    call.argument<String>("password"),
+                )
+                result.success(null)
+            }
             "list" -> scope.launch {
                 try {
                     val entries = list(call)
                     mainHandler.post { result.success(entries) }
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     mainHandler.post {
                         result.error("ARCHIVE_ERROR", e.message, null)
                     }
@@ -117,7 +127,10 @@ class ArchiveEngineHandler(
                 mainHandler.post { result.success(null) }
             } catch (e: CancelledJobException) {
                 mainHandler.post { result.error("CANCELLED", "Cancelled", null) }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
+                // Throwable, not Exception: a corrupt archive can drive the
+                // codecs into OutOfMemoryError and that must surface as a
+                // channel error, not kill the process.
                 mainHandler.post { result.error("ARCHIVE_ERROR", e.message, null) }
             } finally {
                 call.argument<String>("jobId")?.let(cancelledJobs::remove)
@@ -174,16 +187,42 @@ class ArchiveEngineHandler(
                     aesKeyStrength = AesKeyStrength.KEY_STRENGTH_256
                 }
             }
+            // Run zip4j's task on its own thread and poll the monitor so
+            // huge single files still report progress and stay cancellable.
+            it.isRunInThread = true
+            val monitor = it.progressMonitor
             var done = 0L
             for (source in sources) {
                 checkCancelled(jobId)
+                val sourceBytes = if (source.isDirectory) {
+                    source.walkBottomUp().filter(File::isFile).sumOf(File::length)
+                } else {
+                    source.length()
+                }
                 if (source.isDirectory) {
                     it.addFolder(source, parameters)
-                    done += source.walkBottomUp().filter(File::isFile).sumOf(File::length)
                 } else {
                     it.addFile(source, parameters)
-                    done += source.length()
                 }
+                while (monitor.state == ProgressMonitor.State.BUSY) {
+                    if (cancelledJobs.contains(jobId)) {
+                        monitor.isCancelAllTasks = true
+                    }
+                    emitProgress(
+                        jobId,
+                        done + monitor.workCompleted,
+                        totalBytes,
+                        monitor.fileName ?: source.name,
+                    )
+                    Thread.sleep(150)
+                }
+                when (monitor.result) {
+                    ProgressMonitor.Result.ERROR ->
+                        throw monitor.exception ?: RuntimeException("zip failed")
+                    ProgressMonitor.Result.CANCELLED -> throw CancelledJobException()
+                    else -> Unit
+                }
+                done += sourceBytes
                 emitProgress(jobId, done, totalBytes, source.name)
             }
         }
@@ -371,6 +410,13 @@ class ArchiveEngineHandler(
             var entry = tar.nextEntry
             while (entry != null) {
                 checkCancelled(jobId)
+                // Link entries are skipped: materializing symlinks would
+                // let later entries write through them outside the
+                // destination (link-based traversal).
+                if (entry.isSymbolicLink || entry.isLink) {
+                    entry = tar.nextEntry
+                    continue
+                }
                 val target = safeResolve(destinationDir, entry.name)
                 if (entry.isDirectory) {
                     target.mkdirs()
