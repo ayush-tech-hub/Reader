@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VERSION: "3.27.x"
+  FLUTTER_VERSION: "3.44.x"
 
 jobs:
   analyze-and-test:
@@ -36,11 +36,8 @@ jobs:
       - name: Generate localizations
         run: flutter gen-l10n
 
-      # Informational until the tree has been through a formatter pass;
-      # flip to --set-exit-if-changed once `dart format` has been run.
-      - name: Check formatting (non-blocking)
-        run: dart format --output=none lib test
-        continue-on-error: true
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed lib test integration_test
 
       - name: Analyze
         run: flutter analyze

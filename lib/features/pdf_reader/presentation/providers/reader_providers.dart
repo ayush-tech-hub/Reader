@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/di/providers.dart';
 import '../../domain/entities/reader_entities.dart';
+import '../../domain/usecases/reader_usecases.dart';
 
 enum ReaderPageMode { continuous, single }
 
@@ -185,8 +186,7 @@ class ReaderNotifier extends AutoDisposeFamilyNotifier<ReaderState, String> {
         await ref.read(pdfReaderRepositoryProvider).removeAnnotation(id);
     if (result.isOk) {
       state = state.copyWith(
-        annotations:
-            state.annotations.where((a) => a.id != id).toList(),
+        annotations: state.annotations.where((a) => a.id != id).toList(),
       );
     }
   }

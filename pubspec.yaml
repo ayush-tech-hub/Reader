@@ -42,7 +42,6 @@ dependencies:
   # PDF creation (images -> PDF) in Dart; heavy page surgery is
   # delegated to the native PdfTools engine
   pdf: ^3.11.1
-  image: ^4.3.0
 
   # Voice reading (offline OS voices)
   flutter_tts: ^4.2.0
@@ -50,9 +49,11 @@ dependencies:
   # Duplicate detection hashing
   crypto: ^3.0.6
 
-  # Extra document formats (plugin-registered readers)
+  # Extra document formats (plugin-registered readers).
+  # EPUB is parsed directly (zip + OPF spine via package:xml) — the
+  # ecosystem epub packages pin ancient image/^3 constraints.
   flutter_markdown: ^0.7.4
-  epubx: ^4.0.0
+  xml: ^6.5.0
 
   # Misc
   equatable: ^2.0.7

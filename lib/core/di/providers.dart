@@ -67,8 +67,7 @@ final fileSystemDataSourceProvider = Provider<FileSystemDataSource>(
   (ref) => FileSystemDataSource(),
 );
 
-final fileManagerLocalDataSourceProvider =
-    Provider<FileManagerLocalDataSource>(
+final fileManagerLocalDataSourceProvider = Provider<FileManagerLocalDataSource>(
   (ref) => FileManagerLocalDataSource(ref.watch(appDatabaseProvider)),
 );
 

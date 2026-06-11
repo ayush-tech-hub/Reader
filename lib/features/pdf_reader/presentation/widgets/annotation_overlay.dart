@@ -14,8 +14,7 @@ class AnnotationPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     for (final annotation in annotations) {
       final paint = Paint()
-        ..color = Color(annotation.color)
-            .withValues(alpha: annotation.opacity)
+        ..color = Color(annotation.color).withValues(alpha: annotation.opacity)
         ..strokeWidth = annotation.strokeWidth * scale
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round;

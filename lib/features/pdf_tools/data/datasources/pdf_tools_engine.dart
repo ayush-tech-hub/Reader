@@ -138,7 +138,8 @@ class PdfToolsEngine {
         ...metadata.toMap(),
       });
 
-  Future<String> _invokeForPath(String method, Map<String, Object?> args) async {
+  Future<String> _invokeForPath(
+      String method, Map<String, Object?> args) async {
     try {
       final path = await _channel.invokeMethod<String>(method, args);
       if (path == null) {

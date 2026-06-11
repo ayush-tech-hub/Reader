@@ -65,11 +65,9 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
           if (activeJob != null)
             _JobProgressBanner(
               job: activeJob,
-              progress:
-                  progress?.jobId == activeJob.id ? progress : null,
-              onCancel: () => ref
-                  .read(archiveScreenProvider.notifier)
-                  .cancelActiveJob(),
+              progress: progress?.jobId == activeJob.id ? progress : null,
+              onCancel: () =>
+                  ref.read(archiveScreenProvider.notifier).cancelActiveJob(),
             ),
           if (state.lastError != null)
             MaterialBanner(
@@ -79,8 +77,7 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
             ),
           Expanded(
             child: state.entries.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text(error.toString())),
               data: (entries) => entries.isEmpty
                   ? Center(child: Text(l10n.archiveEmpty))
@@ -213,12 +210,10 @@ class _JobProgressBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final label = job.type == ArchiveJobType.create
-        ? l10n.compressing
-        : l10n.extracting;
-    final fraction = job.status == ArchiveJobStatus.done
-        ? 1.0
-        : progress?.fraction;
+    final label =
+        job.type == ArchiveJobType.create ? l10n.compressing : l10n.extracting;
+    final fraction =
+        job.status == ArchiveJobStatus.done ? 1.0 : progress?.fraction;
     return Card(
       margin: const EdgeInsets.all(12),
       child: Padding(
@@ -230,9 +225,7 @@ class _JobProgressBanner extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    job.status == ArchiveJobStatus.done
-                        ? l10n.jobDone
-                        : label,
+                    job.status == ArchiveJobStatus.done ? l10n.jobDone : label,
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
@@ -323,8 +316,7 @@ class _CreateArchiveDialogState extends State<_CreateArchiveDialog> {
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration:
-                    InputDecoration(labelText: l10n.passwordOptional),
+                decoration: InputDecoration(labelText: l10n.passwordOptional),
               ),
             const SizedBox(height: 12),
             Text(l10n.compressionLevel(_level.round())),

@@ -47,7 +47,8 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
   }
 
   Future<void> merge(List<String> sources, String outputPath) => _run(
-        () => _single(() => _repo.merge(sources: sources, outputPath: outputPath)),
+        () => _single(
+            () => _repo.merge(sources: sources, outputPath: outputPath)),
       );
 
   Future<void> split(

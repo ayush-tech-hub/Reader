@@ -32,5 +32,6 @@ abstract final class SettingKeys {
   static const String fileSortField = 'file_sort_field'; // name | size | date
   static const String fileSortAscending = 'file_sort_ascending';
   static const String showHiddenFiles = 'show_hidden_files';
-  static const String readerPageMode = 'reader_page_mode'; // continuous | single
+  static const String readerPageMode =
+      'reader_page_mode'; // continuous | single
 }

@@ -52,14 +52,14 @@ class DocumentIndexService {
       whereArgs: [file.path],
     );
     if (existing.isNotEmpty &&
-        existing.first['modified_at'] ==
-            stat.modified.millisecondsSinceEpoch) {
+        existing.first['modified_at'] == stat.modified.millisecondsSinceEpoch) {
       return; // unchanged
     }
     try {
       final document = await PdfDocument.openFile(file.path);
       try {
-        await _db.delete('doc_index', where: 'path = ?', whereArgs: [file.path]);
+        await _db
+            .delete('doc_index', where: 'path = ?', whereArgs: [file.path]);
         final batch = _db.batch();
         for (final page in document.pages) {
           final text = await page.loadText();
@@ -83,7 +83,7 @@ class DocumentIndexService {
         );
         await batch.commit(noResult: true);
       } finally {
-        document.dispose();
+        await document.dispose();
       }
     } catch (_) {
       // Encrypted/corrupt PDFs are skipped; search simply won't see them.

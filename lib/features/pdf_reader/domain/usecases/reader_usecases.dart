@@ -38,8 +38,8 @@ class ToggleBookmark {
     final existing = await _repository.getBookmarks(documentPath);
     return switch (existing) {
       Err<List<Bookmark>>(:final failure) => Err(failure),
-      Ok<List<Bookmark>>(:final value) => await _toggle(
-          value, documentPath, page, label),
+      Ok<List<Bookmark>>(:final value) =>
+        await _toggle(value, documentPath, page, label),
     };
   }
 

@@ -100,7 +100,8 @@ class BrowserNotifier extends AutoDisposeNotifier<BrowserState> {
       );
       return;
     }
-    final roots = await ref.read(fileManagerRepositoryProvider).getStorageRoots();
+    final roots =
+        await ref.read(fileManagerRepositoryProvider).getStorageRoots();
     final rootPath = roots.fold((_) => '/', (list) => list.first.path);
     await navigateTo(rootPath);
   }
@@ -142,8 +143,7 @@ class BrowserNotifier extends AutoDisposeNotifier<BrowserState> {
     );
   }
 
-  void setViewMode(FileViewMode mode) =>
-      state = state.copyWith(viewMode: mode);
+  void setViewMode(FileViewMode mode) => state = state.copyWith(viewMode: mode);
 
   Future<void> setSort(FileSortField field) async {
     final ascending = state.sortField == field ? !state.sortAscending : true;
@@ -166,8 +166,7 @@ class BrowserNotifier extends AutoDisposeNotifier<BrowserState> {
 
   void stageClipboard({required bool isMove}) {
     state = state.copyWith(
-      clipboard:
-          FileClipboard(paths: state.selection.toList(), isMove: isMove),
+      clipboard: FileClipboard(paths: state.selection.toList(), isMove: isMove),
       selection: {},
     );
   }
@@ -230,8 +229,10 @@ class BrowserNotifier extends AutoDisposeNotifier<BrowserState> {
     state = state.copyWith(searchResults: List.of(results));
   }
 
-  Future<void> recordAccess(String path) =>
-      ref.read(fileManagerRepositoryProvider).recordFileAccess(path).then((_) {});
+  Future<void> recordAccess(String path) => ref
+      .read(fileManagerRepositoryProvider)
+      .recordFileAccess(path)
+      .then((_) {});
 }
 
 final favoritesProvider =

@@ -37,8 +37,8 @@ class TagsDataSource {
       conflictAlgorithm: ConflictAlgorithm.ignore,
     );
     if (id == 0) {
-      final existing = await _db
-          .query('tags', where: 'name = ?', whereArgs: [name], limit: 1);
+      final existing = await _db.query('tags',
+          where: 'name = ?', whereArgs: [name], limit: 1);
       final row = existing.first;
       return Tag(
         id: row['id'] as int,
@@ -63,8 +63,8 @@ class TagsDataSource {
   }
 
   Future<Set<int>> getFileTagIds(String path) async {
-    final rows = await _db
-        .query('file_tags', where: 'file_path = ?', whereArgs: [path]);
+    final rows =
+        await _db.query('file_tags', where: 'file_path = ?', whereArgs: [path]);
     return rows.map((r) => r['tag_id'] as int).toSet();
   }
 

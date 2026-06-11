@@ -204,9 +204,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
           controller: _controller,
           passwordProvider: _askPassword,
           params: PdfViewerParams(
-            layoutPages: pageMode == ReaderPageMode.single
-                ? _singlePageLayout
-                : null,
+            layoutPages:
+                pageMode == ReaderPageMode.single ? _singlePageLayout : null,
             onViewerReady: (document, controller) async {
               await _notifier.onDocumentOpened(document.pages.length);
               final outline = await document.loadOutline();
@@ -315,7 +314,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       );
       x += page.width + params.margin;
     }
-    return PdfPageLayout(pageLayouts: pageLayouts, documentSize: Size(x, height));
+    return PdfPageLayout(
+        pageLayouts: pageLayouts, documentSize: Size(x, height));
   }
 
   Future<void> _addNoteAt(int pageNumber, Offset local, double scale) async {

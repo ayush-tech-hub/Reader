@@ -1,8 +1,7 @@
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:image/image.dart' as img;
-import 'package:pdf/pdf.dart';
+import 'package:pdf/pdf.dart' show PdfPageFormat;
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../../../core/error/exceptions.dart';
@@ -13,27 +12,21 @@ import '../../domain/repositories/pdf_tools_repository.dart';
 import '../datasources/pdf_tools_engine.dart';
 
 /// Top-level so it can run via [Isolate.run]. Exposed for tests.
+/// Embeds the original JPEG/PNG bytes (the pdf package decodes them);
+/// each image is fitted to an A4 page.
 Future<String> buildPdfFromImages(
   List<String> imagePaths,
   String outputPath,
 ) async {
-  const maxDimension = 2480; // ~A4 @ 300dpi
   final doc = pw.Document();
   for (final path in imagePaths) {
     final bytes = await File(path).readAsBytes();
-    var decoded = img.decodeImage(bytes);
-    if (decoded == null) {
+    final pw.MemoryImage image;
+    try {
+      image = pw.MemoryImage(bytes);
+    } catch (_) {
       throw NativeEngineException('Not a supported image: $path');
     }
-    if (decoded.width > maxDimension || decoded.height > maxDimension) {
-      decoded = img.copyResize(
-        decoded,
-        width: decoded.width >= decoded.height ? maxDimension : null,
-        height: decoded.height > decoded.width ? maxDimension : null,
-      );
-    }
-    final jpg = img.encodeJpg(decoded, quality: 90);
-    final image = pw.MemoryImage(jpg);
     doc.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
@@ -94,7 +87,8 @@ class PdfToolsRepositoryImpl implements PdfToolsRepository {
     required List<String> imagePaths,
     required String outputPath,
   }) =>
-      _guard(() => Isolate.run(() => buildPdfFromImages(imagePaths, outputPath)));
+      _guard(
+          () => Isolate.run(() => buildPdfFromImages(imagePaths, outputPath)));
 
   @override
   Future<Result<String>> reorderPages({
@@ -121,7 +115,8 @@ class PdfToolsRepositoryImpl implements PdfToolsRepository {
   }) =>
       _guard(() {
         if (degrees % 90 != 0) {
-          throw const NativeEngineException('Rotation must be a multiple of 90');
+          throw const NativeEngineException(
+              'Rotation must be a multiple of 90');
         }
         return _engine.rotatePages(source, outputPath, pages, degrees % 360);
       });

@@ -49,8 +49,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             NavigationRail(
               selectedIndex: _index,
-              onDestinationSelected: (index) =>
-                  setState(() => _index = index),
+              onDestinationSelected: (index) => setState(() => _index = index),
               labelType: NavigationRailLabelType.all,
               destinations: [
                 for (final (icon, selectedIcon, label) in destinations)
@@ -222,9 +221,7 @@ class _DashboardTab extends ConsumerWidget {
                         for (final favorite in items)
                           ListTile(
                             leading: Icon(
-                              favorite.isDirectory
-                                  ? Icons.folder
-                                  : Icons.star,
+                              favorite.isDirectory ? Icons.folder : Icons.star,
                             ),
                             title: Text(favorite.name),
                             onTap: () => context.push(

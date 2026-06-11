@@ -1,11 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
-import 'package:epubx/epubx.dart' as epub;
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:path/path.dart' as p;
+import 'package:xml/xml.dart';
 
 import '../../../core/plugins/document_plugin.dart';
 
@@ -100,6 +101,91 @@ class MarkdownReaderScreen extends StatelessWidget {
 
 // ---- EPUB ------------------------------------------------------------
 
+/// Minimal offline EPUB model: an EPUB is a ZIP with an OPF manifest
+/// whose spine lists the XHTML chapters in reading order.
+class EpubBook {
+  const EpubBook({required this.title, required this.chapters});
+
+  final String title;
+  final List<(String title, String text)> chapters;
+
+  static Future<EpubBook> open(String path) async {
+    final inputStream = InputFileStream(path);
+    final zip = ZipDecoder().decodeBuffer(inputStream);
+    try {
+      String read(String name) {
+        final file = zip.files.firstWhere(
+          (f) => f.isFile && f.name == name,
+          orElse: () => throw const FormatException('Missing EPUB entry'),
+        );
+        return utf8.decode(file.content as List<int>, allowMalformed: true);
+      }
+
+      // META-INF/container.xml -> rootfile (the OPF package document).
+      final container = XmlDocument.parse(read('META-INF/container.xml'));
+      final opfPath = container
+          .findAllElements('rootfile')
+          .first
+          .getAttribute('full-path')!;
+      final opf = XmlDocument.parse(read(opfPath));
+      final opfDir = p.posix.dirname(opfPath);
+
+      final title = opf
+          .findAllElements('title', namespace: '*')
+          .map((e) => e.innerText)
+          .firstWhere((t) => t.isNotEmpty, orElse: () => '')
+          .trim();
+
+      final hrefById = {
+        for (final item in opf.findAllElements('item'))
+          item.getAttribute('id')!: item.getAttribute('href')!,
+      };
+      final chapters = <(String, String)>[];
+      for (final itemref in opf.findAllElements('itemref')) {
+        final href = hrefById[itemref.getAttribute('idref')];
+        if (href == null) continue;
+        final entry = p.posix.normalize(opfDir == '.' ? href : '$opfDir/$href');
+        try {
+          final html = read(Uri.decodeComponent(entry));
+          final text = htmlToText(html);
+          if (text.isEmpty) continue;
+          final heading = RegExp(r'<h[1-6][^>]*>(.*?)</h[1-6]>', dotAll: true)
+              .firstMatch(html)
+              ?.group(1);
+          chapters.add((
+            heading == null ? p.basename(entry) : htmlToText(heading),
+            text,
+          ));
+        } on FormatException {
+          continue;
+        }
+      }
+      return EpubBook(title: title, chapters: chapters);
+    } finally {
+      await inputStream.close();
+    }
+  }
+}
+
+final _tagPattern = RegExp(r'<[^>]+>', dotAll: true);
+final _blockPattern = RegExp(
+  r'</?(p|div|br|h[1-6]|li|tr)[^>]*>',
+  caseSensitive: false,
+);
+
+/// Basic HTML → text rendering: block tags become line breaks, the
+/// rest is stripped. Keeps the reader dependency-light and offline.
+String htmlToText(String html) => html
+    .replaceAll(RegExp(r'<(style|script)[^>]*>.*?</\1>', dotAll: true), '')
+    .replaceAll(_blockPattern, '\n')
+    .replaceAll(_tagPattern, '')
+    .replaceAll('&nbsp;', ' ')
+    .replaceAll('&amp;', '&')
+    .replaceAll('&lt;', '<')
+    .replaceAll('&gt;', '>')
+    .replaceAll(RegExp(r'\n{3,}'), '\n\n')
+    .trim();
+
 class EpubReaderScreen extends StatefulWidget {
   const EpubReaderScreen({super.key, required this.path});
 
@@ -110,42 +196,12 @@ class EpubReaderScreen extends StatefulWidget {
 }
 
 class _EpubReaderScreenState extends State<EpubReaderScreen> {
-  late final Future<epub.EpubBook> _book =
-      File(widget.path).readAsBytes().then(epub.EpubReader.readBook);
+  late final Future<EpubBook> _book = EpubBook.open(widget.path);
   int _chapterIndex = 0;
-
-  static final _tagPattern = RegExp(r'<[^>]+>');
-  static final _blockPattern =
-      RegExp(r'</?(p|div|br|h[1-6]|li|tr)[^>]*>', caseSensitive: false);
-
-  /// Basic HTML → text rendering: block tags become line breaks, the
-  /// rest is stripped. Keeps the reader dependency-light and offline.
-  static String htmlToText(String html) => html
-      .replaceAll(_blockPattern, '\n')
-      .replaceAll(_tagPattern, '')
-      .replaceAll('&nbsp;', ' ')
-      .replaceAll('&amp;', '&')
-      .replaceAll('&lt;', '<')
-      .replaceAll('&gt;', '>')
-      .replaceAll(RegExp(r'\n{3,}'), '\n\n')
-      .trim();
-
-  List<epub.EpubChapter> _flatChapters(epub.EpubBook book) {
-    final flat = <epub.EpubChapter>[];
-    void walk(List<epub.EpubChapter>? chapters) {
-      for (final chapter in chapters ?? const <epub.EpubChapter>[]) {
-        flat.add(chapter);
-        walk(chapter.SubChapters);
-      }
-    }
-
-    walk(book.Chapters);
-    return flat;
-  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<epub.EpubBook>(
+    return FutureBuilder<EpubBook>(
       future: _book,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -161,20 +217,23 @@ class _EpubReaderScreenState extends State<EpubReaderScreen> {
           );
         }
         final book = snapshot.data!;
-        final chapters = _flatChapters(book);
-        final index = _chapterIndex.clamp(0, chapters.length - 1);
-        final content = chapters.isEmpty
-            ? ''
-            : htmlToText(chapters[index].HtmlContent ?? '');
+        final chapters = book.chapters;
+        final index =
+            chapters.isEmpty ? 0 : _chapterIndex.clamp(0, chapters.length - 1);
+        final content = chapters.isEmpty ? '' : chapters[index].$2;
         return Scaffold(
           appBar: AppBar(
-            title: Text(book.Title ?? p.basename(widget.path)),
+            title: Text(
+              book.title.isEmpty ? p.basename(widget.path) : book.title,
+            ),
           ),
           drawer: Drawer(
             child: ListView.builder(
               itemCount: chapters.length,
               itemBuilder: (context, i) => ListTile(
-                title: Text(chapters[i].Title ?? 'Chapter ${i + 1}'),
+                title: Text(
+                  chapters[i].$1.isEmpty ? 'Chapter ${i + 1}' : chapters[i].$1,
+                ),
                 selected: i == index,
                 onTap: () {
                   setState(() => _chapterIndex = i);

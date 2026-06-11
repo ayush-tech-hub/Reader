@@ -89,8 +89,7 @@ class _DuplicatesScreenState extends ConsumerState<DuplicatesScreen> {
                                   ),
                                   trailing: IconButton(
                                     icon: const Icon(Icons.delete_outline),
-                                    onPressed: () =>
-                                        _delete(path, groupIndex),
+                                    onPressed: () => _delete(path, groupIndex),
                                   ),
                                 ),
                             ],
@@ -224,8 +223,8 @@ class _BatchToolsScreenState extends ConsumerState<BatchToolsScreen> {
             .read(fileManagerRepositoryProvider)
             .listDirectory(dir, showHidden: false);
         final archives = (entries.valueOrNull ?? [])
-            .where((e) =>
-                !e.isDirectory && ArchiveFormat.fromPath(e.path) != null)
+            .where(
+                (e) => !e.isDirectory && ArchiveFormat.fromPath(e.path) != null)
             .toList();
         final repo = ref.read(archiveRepositoryProvider);
         final lines = <String>[];
@@ -269,16 +268,14 @@ class _BatchToolsScreenState extends ConsumerState<BatchToolsScreen> {
         final paths = picked?.paths.whereType<String>().toList();
         if (paths == null || paths.isEmpty) return '';
         if (!mounted) return '';
-        final controller =
-            TextEditingController(text: '{name}_{n}{ext}');
+        final controller = TextEditingController(text: '{name}_{n}{ext}');
         final pattern = await showDialog<String>(
           context: context,
           builder: (context) => AlertDialog(
             title: Text(AppLocalizations.of(context).renamePattern),
             content: TextField(
               controller: controller,
-              decoration:
-                  const InputDecoration(helperText: '{name} {n} {ext}'),
+              decoration: const InputDecoration(helperText: '{name} {n} {ext}'),
             ),
             actions: [
               TextButton(
@@ -286,8 +283,7 @@ class _BatchToolsScreenState extends ConsumerState<BatchToolsScreen> {
                 child: Text(AppLocalizations.of(context).cancel),
               ),
               FilledButton(
-                onPressed: () =>
-                    Navigator.of(context).pop(controller.text),
+                onPressed: () => Navigator.of(context).pop(controller.text),
                 child: Text(AppLocalizations.of(context).ok),
               ),
             ],
@@ -378,10 +374,10 @@ class _FolderSyncScreenState extends ConsumerState<FolderSyncScreen> {
     final destination = await FilePicker.platform.getDirectoryPath();
     if (destination == null) return;
     await ref.read(appDatabaseProvider).db.insert(
-      'sync_pairs',
-      {'source': source, 'destination': destination, 'delete_orphans': 0},
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+          'sync_pairs',
+          {'source': source, 'destination': destination, 'delete_orphans': 0},
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
     await _load();
   }
 
@@ -393,11 +389,11 @@ class _FolderSyncScreenState extends ConsumerState<FolderSyncScreen> {
           deleteOrphans: (pair['delete_orphans'] as int) != 0,
         );
     await ref.read(appDatabaseProvider).db.update(
-      'sync_pairs',
-      {'last_synced_at': DateTime.now().millisecondsSinceEpoch},
-      where: 'id = ?',
-      whereArgs: [pair['id']],
-    );
+          'sync_pairs',
+          {'last_synced_at': DateTime.now().millisecondsSinceEpoch},
+          where: 'id = ?',
+          whereArgs: [pair['id']],
+        );
     if (mounted) {
       setState(() => _busy = false);
       ScaffoldMessenger.of(context).showSnackBar(

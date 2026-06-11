@@ -16,8 +16,7 @@ void main() {
     });
 
     test('keeps the original extension when the pattern has none', () {
-      final plan =
-          FileToolsService.planRename(['/x/photo.jpg'], 'holiday_{n}');
+      final plan = FileToolsService.planRename(['/x/photo.jpg'], 'holiday_{n}');
       expect(plan['/x/photo.jpg'], '/x/holiday_1.jpg');
     });
   });
@@ -30,8 +29,7 @@ void main() {
       await File(p.join(dir.path, 'b.txt')).writeAsString('same content');
       await File(p.join(dir.path, 'c.txt')).writeAsString('same size!!!');
 
-      final groups =
-          await const FileToolsService().findDuplicates(dir.path);
+      final groups = await const FileToolsService().findDuplicates(dir.path);
 
       expect(groups, hasLength(1));
       expect(groups.single, hasLength(2));

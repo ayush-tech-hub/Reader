@@ -37,8 +37,9 @@ class ArchiveScreenState {
       );
 }
 
-final archiveScreenProvider = NotifierProvider.autoDispose<
-    ArchiveScreenNotifier, ArchiveScreenState>(ArchiveScreenNotifier.new);
+final archiveScreenProvider =
+    NotifierProvider.autoDispose<ArchiveScreenNotifier, ArchiveScreenState>(
+        ArchiveScreenNotifier.new);
 
 class ArchiveScreenNotifier extends AutoDisposeNotifier<ArchiveScreenState> {
   @override
@@ -93,11 +94,12 @@ class ArchiveScreenNotifier extends AutoDisposeNotifier<ArchiveScreenState> {
     required String destinationDir,
     String? password,
   }) async {
-    final result = await ref.read(archiveRepositoryProvider).extractInBackground(
-          archivePath: archivePath,
-          destinationDir: destinationDir,
-          password: password,
-        );
+    final result =
+        await ref.read(archiveRepositoryProvider).extractInBackground(
+              archivePath: archivePath,
+              destinationDir: destinationDir,
+              password: password,
+            );
     return result.fold(
       (failure) {
         state = state.copyWith(lastError: failure.message);

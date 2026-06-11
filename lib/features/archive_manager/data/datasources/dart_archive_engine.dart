@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:archive/archive_io.dart';
+import 'package:archive/archive_io.dart' hide ArchiveException;
 import 'package:path/path.dart' as p;
 
 import '../../../../core/error/exceptions.dart';
@@ -52,7 +52,8 @@ class DartArchiveEngine implements ArchiveEngine {
     _checkCancelled(jobId);
     switch (format) {
       case ArchiveFormat.zip:
-        await Isolate.run(() => _createZip(sources, archivePath, compressionLevel));
+        await Isolate.run(
+            () => _createZip(sources, archivePath, compressionLevel));
       case ArchiveFormat.tar:
         await Isolate.run(() => _createTar(sources, archivePath));
       case ArchiveFormat.gzip:

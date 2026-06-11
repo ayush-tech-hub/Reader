@@ -23,13 +23,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byType(NavigationBar).evaluate().isNotEmpty ||
-        find.byType(NavigationRail).evaluate().isNotEmpty, isTrue);
+    expect(
+        find.byType(NavigationBar).evaluate().isNotEmpty ||
+            find.byType(NavigationRail).evaluate().isNotEmpty,
+        isTrue);
     expect(find.text('OpenDocs Manager'), findsWidgets);
   });
 
-  testWidgets('navigates to PDF tools and shows the tool grid',
-      (tester) async {
+  testWidgets('navigates to PDF tools and shows the tool grid', (tester) async {
     final database = AppDatabase();
     await database.open();
     addTearDown(database.close);

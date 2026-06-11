@@ -56,7 +56,8 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
 
   Future<String> _documentText() async {
     final path = _documentPath;
-    if (path == null) throw Exception(AppLocalizations.of(context).pickDocument);
+    if (path == null)
+      throw Exception(AppLocalizations.of(context).pickDocument);
     final index = ref.read(documentIndexServiceProvider);
     var text = await index.documentText(path);
     if (text.trim().isEmpty) {

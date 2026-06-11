@@ -124,9 +124,7 @@ class _SmartSearchScreenState extends ConsumerState<SmartSearchScreen> {
                   leading: const Icon(Icons.picture_as_pdf),
                   title: Text(hit.name),
                   subtitle: Text(
-                    hit.snippet.isNotEmpty
-                        ? hit.snippet
-                        : hit.content,
+                    hit.snippet.isNotEmpty ? hit.snippet : hit.content,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),

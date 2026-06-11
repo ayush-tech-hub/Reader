@@ -195,10 +195,8 @@ class ReaderLocalDataSource {
       rects: decodeRects(geometry),
       strokes: decodeStrokes(geometry),
       note: row['note'] as String,
-      createdAt:
-          DateTime.fromMillisecondsSinceEpoch(row['created_at'] as int),
-      updatedAt:
-          DateTime.fromMillisecondsSinceEpoch(row['updated_at'] as int),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(row['created_at'] as int),
+      updatedAt: DateTime.fromMillisecondsSinceEpoch(row['updated_at'] as int),
     );
   }
 
@@ -227,8 +225,7 @@ class ReaderLocalDataSource {
           ),
       ];
 
-  static List<List<PagePoint>> decodeStrokes(Map<String, dynamic> geometry) =>
-      [
+  static List<List<PagePoint>> decodeStrokes(Map<String, dynamic> geometry) => [
         for (final stroke in (geometry['strokes'] as List<dynamic>? ?? []))
           [
             for (final raw in stroke as List<dynamic>)

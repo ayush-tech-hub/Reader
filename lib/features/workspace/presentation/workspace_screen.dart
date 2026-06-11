@@ -21,8 +21,7 @@ class WorkspaceTabsNotifier extends Notifier<List<String>> {
     if (!state.contains(path)) state = [...state, path];
   }
 
-  void close(String path) =>
-      state = state.where((tab) => tab != path).toList();
+  void close(String path) => state = state.where((tab) => tab != path).toList();
 }
 
 class WorkspaceScreen extends ConsumerWidget {

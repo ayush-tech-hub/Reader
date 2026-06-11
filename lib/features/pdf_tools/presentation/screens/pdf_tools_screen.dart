@@ -139,7 +139,9 @@ class PdfToolsScreen extends ConsumerWidget {
     if (ranges == null || ranges.isEmpty) return;
     final dir = await _pickOutputDir();
     if (dir == null) return;
-    await ref.read(pdfToolsProvider.notifier).split(sources.single, ranges, dir);
+    await ref
+        .read(pdfToolsProvider.notifier)
+        .split(sources.single, ranges, dir);
   }
 
   static Future<void> _compress(BuildContext context, WidgetRef ref) async {

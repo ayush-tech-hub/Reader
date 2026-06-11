@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 
 /// Material Design 3 themes for light and dark modes.
@@ -25,13 +26,13 @@ abstract final class AppTheme {
       navigationBarTheme: const NavigationBarThemeData(
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
-      cardTheme: const CardTheme(
+      cardTheme: const CardThemeData(
         clipBehavior: Clip.antiAlias,
       ),
-      pageTransitionsTheme: const PageTransitionsTheme(
+      pageTransitionsTheme: PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.android: const PredictiveBackPageTransitionsBuilder(),
+          TargetPlatform.iOS: const CupertinoPageTransitionsBuilder(),
         },
       ),
     );

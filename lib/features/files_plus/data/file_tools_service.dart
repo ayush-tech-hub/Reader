@@ -84,8 +84,7 @@ class FileToolsService {
           .replaceAll('{ext}', ext)
           .replaceAll('{n}', '$counter');
       counter++;
-      final target =
-          newName.contains('.') ? newName : '$newName$ext';
+      final target = newName.contains('.') ? newName : '$newName$ext';
       plan[path] = p.join(dir, target);
     }
     return plan;

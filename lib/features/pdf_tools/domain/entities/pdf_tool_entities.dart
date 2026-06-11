@@ -71,7 +71,8 @@ class PdfMetadata extends Equatable {
       );
 
   @override
-  List<Object?> get props => [title, author, subject, keywords, creator, producer];
+  List<Object?> get props =>
+      [title, author, subject, keywords, creator, producer];
 }
 
 enum CompressionQuality { low, medium, high }

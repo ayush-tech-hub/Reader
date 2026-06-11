@@ -32,8 +32,7 @@ void main() {
           Ok(invocation.positionalArguments.single as Bookmark),
     );
 
-    final result =
-        await toggleBookmark(documentPath: documentPath, page: 7);
+    final result = await toggleBookmark(documentPath: documentPath, page: 7);
 
     expect(result.valueOrNull, isTrue);
     verify(() => repository.addBookmark(any())).called(1);
@@ -51,8 +50,7 @@ void main() {
     when(() => repository.removeBookmark(42))
         .thenAnswer((_) async => const Ok(null));
 
-    final result =
-        await toggleBookmark(documentPath: documentPath, page: 7);
+    final result = await toggleBookmark(documentPath: documentPath, page: 7);
 
     expect(result.valueOrNull, isFalse);
     verify(() => repository.removeBookmark(42)).called(1);

@@ -12,7 +12,8 @@ import '../../domain/entities/file_entry.dart';
 /// for enumerating volume roots (internal + removable).
 class FileSystemDataSource {
   FileSystemDataSource({MethodChannel? storageChannel})
-      : _storage = storageChannel ?? const MethodChannel(NativeChannels.storage);
+      : _storage =
+            storageChannel ?? const MethodChannel(NativeChannels.storage);
 
   final MethodChannel _storage;
 
