@@ -1,0 +1,40 @@
+package com.opendocs.manager
+
+import com.opendocs.manager.archive.ArchiveEngineHandler
+import com.opendocs.manager.pdf.PdfToolsHandler
+import com.opendocs.manager.storage.StorageHandler
+import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.MethodChannel
+
+/**
+ * Registers the native engines on the channels defined in
+ * lib/core/platform/native_channels.dart — keep names in sync.
+ */
+class MainActivity : FlutterActivity() {
+
+    private lateinit var archiveHandler: ArchiveEngineHandler
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        val messenger = flutterEngine.dartExecutor.binaryMessenger
+
+        archiveHandler = ArchiveEngineHandler(applicationContext)
+        MethodChannel(messenger, "opendocs/archive")
+            .setMethodCallHandler(archiveHandler)
+        EventChannel(messenger, "opendocs/archive_progress")
+            .setStreamHandler(archiveHandler)
+
+        MethodChannel(messenger, "opendocs/pdf_tools")
+            .setMethodCallHandler(PdfToolsHandler(applicationContext))
+
+        MethodChannel(messenger, "opendocs/storage")
+            .setMethodCallHandler(StorageHandler(applicationContext))
+    }
+
+    override fun onDestroy() {
+        archiveHandler.shutdown()
+        super.onDestroy()
+    }
+}

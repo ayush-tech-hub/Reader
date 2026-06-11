@@ -1,0 +1,116 @@
+{
+  "@@locale": "en",
+  "appTitle": "OpenDocs Manager",
+  "home": "Home",
+  "files": "Files",
+  "archives": "Archives",
+  "pdfTools": "PDF Tools",
+  "toggleTheme": "Toggle theme",
+  "recentDocuments": "Recent documents",
+  "noRecentDocuments": "Documents you read will appear here.",
+  "favorites": "Favorites",
+  "noFavorites": "No favorites yet.",
+  "pageOfPages": "Page {page} of {total}",
+  "@pageOfPages": {
+    "placeholders": {
+      "page": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "search": "Search",
+  "searchFiles": "Search files",
+  "searchInDocument": "Search in document",
+  "previousMatch": "Previous match",
+  "nextMatch": "Next match",
+  "bookmarkPage": "Bookmark this page",
+  "bookmarks": "Bookmarks",
+  "tableOfContents": "Table of contents",
+  "noTableOfContents": "This document has no table of contents.",
+  "pageByPage": "Page-by-page mode",
+  "continuousScroll": "Continuous scroll",
+  "rotate": "Rotate",
+  "fitToWidth": "Fit to width",
+  "goToPage": "Go to page",
+  "pageN": "Page {page}",
+  "@pageN": {
+    "placeholders": {
+      "page": {"type": "int"}
+    }
+  },
+  "highlight": "Highlight",
+  "underline": "Underline",
+  "strikethrough": "Strike-through",
+  "draw": "Draw",
+  "addNote": "Add note",
+  "copyText": "Copy text",
+  "passwordRequired": "Password required",
+  "password": "Password",
+  "passwordOptional": "Password (optional)",
+  "open": "Open",
+  "save": "Save",
+  "ok": "OK",
+  "cancel": "Cancel",
+  "create": "Create",
+  "delete": "Delete",
+  "deleteConfirm": "Delete {count} item(s)? This cannot be undone.",
+  "@deleteConfirm": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "rename": "Rename",
+  "copy": "Copy",
+  "move": "Move",
+  "pasteN": "Paste {count} item(s)",
+  "@pasteN": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "itemsSelected": "{count} selected",
+  "@itemsSelected": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "newFolder": "New folder",
+  "folderName": "Folder name",
+  "emptyFolder": "This folder is empty.",
+  "gridView": "Grid view",
+  "listView": "List view",
+  "sortByName": "Sort by name",
+  "sortBySize": "Sort by size",
+  "sortByDate": "Sort by date",
+  "showHiddenFiles": "Show hidden files",
+  "createArchive": "Create archive",
+  "archiveName": "Archive name",
+  "archiveEmpty": "Archive is empty or not yet loaded.",
+  "extract": "Extract",
+  "compressing": "Compressing…",
+  "extracting": "Extracting…",
+  "jobDone": "Done",
+  "compressionLevel": "Compression level: {level}",
+  "@compressionLevel": {
+    "placeholders": {
+      "level": {"type": "int"}
+    }
+  },
+  "mergePdf": "Merge PDFs",
+  "splitPdf": "Split PDF",
+  "compressPdf": "Compress PDF",
+  "imagesToPdf": "Images to PDF",
+  "reorderPages": "Reorder pages",
+  "deletePages": "Delete pages",
+  "rotatePages": "Rotate pages",
+  "extractPages": "Extract pages",
+  "watermarkPdf": "Watermark PDF",
+  "watermarkText": "Watermark text",
+  "editMetadata": "Edit metadata",
+  "metaTitle": "Title",
+  "metaAuthor": "Author",
+  "metaSubject": "Subject",
+  "metaKeywords": "Keywords",
+  "pageRangesHint": "Page ranges (e.g. 1-3, 5)",
+  "pageListHint": "Pages (e.g. 1, 3, 5)",
+  "outputCreated": "Output created"
+}
