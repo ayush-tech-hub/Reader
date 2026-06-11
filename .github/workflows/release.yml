@@ -11,6 +11,10 @@ jobs:
   android:
     name: Android release
     runs-on: ubuntu-latest
+    env:
+      # secrets are not allowed in step `if:` expressions; bridge
+      # through env so steps can condition on signing availability.
+      HAS_ANDROID_SIGNING: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -29,7 +33,7 @@ jobs:
         run: flutter create --org com.opendocs --project-name opendocs_manager .
 
       - name: Decode signing keystore
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: ${{ env.HAS_ANDROID_SIGNING == 'true' }}
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/release.keystore
           cat > android/key.properties <<EOF
@@ -56,6 +60,8 @@ jobs:
   ios:
     name: iOS release
     runs-on: macos-14
+    env:
+      HAS_IOS_SIGNING: ${{ secrets.IOS_CERT_BASE64 != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -69,7 +75,7 @@ jobs:
         run: flutter create --org com.opendocs --project-name opendocs_manager .
 
       - name: Import signing certificate & provisioning profile
-        if: ${{ secrets.IOS_CERT_BASE64 != '' }}
+        if: ${{ env.HAS_IOS_SIGNING == 'true' }}
         env:
           IOS_CERT_BASE64: ${{ secrets.IOS_CERT_BASE64 }}
           IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
@@ -94,7 +100,7 @@ jobs:
         run: |
           flutter pub get
           flutter gen-l10n
-          if [ -n "${{ secrets.IOS_CERT_BASE64 }}" ]; then
+          if [ "$HAS_IOS_SIGNING" = "true" ]; then
             flutter build ipa --release \
               --export-options-plist=ios/ExportOptions.plist
           else
@@ -104,7 +110,7 @@ jobs:
           fi
 
       - name: Upload to release
-        if: ${{ secrets.IOS_CERT_BASE64 != '' }}
+        if: ${{ env.HAS_IOS_SIGNING == 'true' }}
         uses: softprops/action-gh-release@v2
         with:
           files: build/ios/ipa/*.ipa
