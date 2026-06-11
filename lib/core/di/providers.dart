@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/ai/data/ml_engines.dart';
 import '../../features/archive_manager/data/datasources/archive_engine.dart';
 import '../../features/archive_manager/data/datasources/archive_jobs_datasource.dart';
 import '../../features/archive_manager/data/datasources/dart_archive_engine.dart';
@@ -15,6 +16,9 @@ import '../../features/file_manager/data/datasources/file_system_datasource.dart
 import '../../features/file_manager/data/repositories/file_manager_repository_impl.dart';
 import '../../features/file_manager/domain/repositories/file_manager_repository.dart';
 import '../../features/file_manager/domain/usecases/file_usecases.dart';
+import '../../features/files_plus/data/file_tools_service.dart';
+import '../../features/files_plus/data/tags_datasource.dart';
+import '../../features/library/data/document_index_service.dart';
 import '../../features/pdf_reader/data/datasources/reader_local_datasource.dart';
 import '../../features/pdf_reader/data/repositories/pdf_reader_repository_impl.dart';
 import '../../features/pdf_reader/domain/repositories/pdf_reader_repository.dart';
@@ -109,6 +113,31 @@ final pdfToolsEngineProvider = Provider<PdfToolsEngine>(
 final pdfToolsRepositoryProvider = Provider<PdfToolsRepository>(
   (ref) => PdfToolsRepositoryImpl(ref.watch(pdfToolsEngineProvider)),
 );
+
+// ---- Library, file intelligence & on-device AI ------------------------
+
+final documentIndexServiceProvider = Provider<DocumentIndexService>(
+  (ref) => DocumentIndexService(ref.watch(appDatabaseProvider)),
+);
+
+final fileToolsServiceProvider = Provider<FileToolsService>(
+  (ref) => const FileToolsService(),
+);
+
+final tagsDataSourceProvider = Provider<TagsDataSource>(
+  (ref) => TagsDataSource(ref.watch(appDatabaseProvider)),
+);
+
+final ocrEngineProvider = Provider<OcrEngine>((ref) => OcrEngine());
+
+final translateEngineProvider =
+    Provider<TranslateEngine>((ref) => TranslateEngine());
+
+final ttsServiceProvider = Provider<TtsService>((ref) {
+  final service = TtsService();
+  ref.onDispose(service.dispose);
+  return service;
+});
 
 // ---- Settings ------------------------------------------------------------
 

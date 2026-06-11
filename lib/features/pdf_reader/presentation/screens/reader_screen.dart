@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as p;
 import 'package:pdfrx/pdfrx.dart';
 
+import '../../../../core/di/providers.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../generated/app_localizations.dart';
 import '../../domain/entities/reader_entities.dart';
@@ -187,6 +188,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                   value: 'split',
                   child: Text(l10n.splitScreen),
                 ),
+                PopupMenuItem(
+                  value: 'readAloud',
+                  child: Text(l10n.readAloud),
+                ),
               ],
             ),
           ],
@@ -367,7 +372,26 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         _fitToWidth();
       case 'split':
         _openSplitView();
+      case 'readAloud':
+        _toggleReadAloud();
     }
+  }
+
+  /// Reads the current page aloud via the OS TTS engine; tapping the
+  /// menu item again stops playback.
+  Future<void> _toggleReadAloud() async {
+    final tts = ref.read(ttsServiceProvider);
+    if (tts.isSpeaking) {
+      await tts.stop();
+      return;
+    }
+    if (!_controller.isReady) return;
+    final pages = _controller.pages;
+    if (pages.isEmpty) return;
+    final current = ref.read(readerProvider(widget.path)).currentPage;
+    final text =
+        await pages[(current - 1).clamp(0, pages.length - 1)].loadText();
+    await tts.speak(text.fullText);
   }
 
   /// Picks a second document and opens it side-by-side with this one.

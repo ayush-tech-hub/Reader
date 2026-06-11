@@ -91,3 +91,38 @@ CREATE TABLE IF NOT EXISTS app_settings (
   key             TEXT PRIMARY KEY,
   value           TEXT NOT NULL
 );
+
+-- ===== v2 =================================================================
+
+-- File tagging.
+CREATE TABLE IF NOT EXISTS tags (
+  id    INTEGER PRIMARY KEY AUTOINCREMENT,
+  name  TEXT    NOT NULL UNIQUE,
+  color INTEGER NOT NULL DEFAULT 0xFF1565C0
+);
+CREATE TABLE IF NOT EXISTS file_tags (
+  file_path TEXT    NOT NULL,
+  tag_id    INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+  PRIMARY KEY (file_path, tag_id)
+);
+
+-- Full-text index over per-page PDF text (and OCR output); powers
+-- smart search, semantic reranking and the local document assistant.
+CREATE VIRTUAL TABLE IF NOT EXISTS doc_index USING fts5(
+  path UNINDEXED, page UNINDEXED, content
+);
+CREATE TABLE IF NOT EXISTS indexed_documents (
+  path        TEXT PRIMARY KEY,
+  modified_at INTEGER NOT NULL,   -- source mtime for incremental reindex
+  indexed_at  INTEGER NOT NULL,
+  pages       INTEGER NOT NULL
+);
+
+-- One-way folder mirror pairs.
+CREATE TABLE IF NOT EXISTS sync_pairs (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  source          TEXT    NOT NULL,
+  destination     TEXT    NOT NULL,
+  delete_orphans  INTEGER NOT NULL DEFAULT 0,
+  last_synced_at  INTEGER
+);

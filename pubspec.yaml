@@ -3,7 +3,7 @@ description: >-
   OpenDocs Manager — a fully offline PDF reader, file manager, archive
   manager and PDF toolbox. No ads, no paywall, no subscription.
 publish_to: "none"
-version: 1.0.0+1
+version: 1.1.0+2
 
 environment:
   sdk: ">=3.5.0 <4.0.0"
@@ -43,6 +43,16 @@ dependencies:
   # delegated to the native PdfTools engine
   pdf: ^3.11.1
   image: ^4.3.0
+
+  # Voice reading (offline OS voices)
+  flutter_tts: ^4.2.0
+
+  # Duplicate detection hashing
+  crypto: ^3.0.6
+
+  # Extra document formats (plugin-registered readers)
+  flutter_markdown: ^0.7.4
+  epubx: ^4.0.0
 
   # Misc
   equatable: ^2.0.7

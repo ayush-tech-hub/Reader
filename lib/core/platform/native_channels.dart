@@ -5,6 +5,8 @@ abstract final class NativeChannels {
   static const String archiveProgress = 'opendocs/archive_progress';
   static const String pdfTools = 'opendocs/pdf_tools';
   static const String storage = 'opendocs/storage';
+  static const String ocr = 'opendocs/ocr';
+  static const String translate = 'opendocs/translate';
 }
 
 abstract final class ArchiveMethods {

@@ -30,6 +30,12 @@ import UIKit
     FlutterMethodChannel(name: "opendocs/pdf_tools", binaryMessenger: messenger)
       .setMethodCallHandler(pdfTools.handle)
 
+    let ocr = OcrHandler()
+    FlutterMethodChannel(name: "opendocs/ocr", binaryMessenger: messenger)
+      .setMethodCallHandler(ocr.handle)
+    // Note: no "opendocs/translate" handler on iOS yet — the Dart side
+    // surfaces a clear "not available on this platform" error.
+
     FlutterMethodChannel(name: "opendocs/storage", binaryMessenger: messenger)
       .setMethodCallHandler { call, result in
         switch call.method {

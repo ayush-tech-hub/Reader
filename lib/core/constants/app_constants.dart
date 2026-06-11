@@ -1,7 +1,7 @@
 /// App-wide constants.
 abstract final class AppConstants {
   static const String databaseName = 'opendocs.db';
-  static const int databaseVersion = 1;
+  static const int databaseVersion = 2;
 
   static const int maxRecentDocuments = 50;
   static const int maxRecentFiles = 100;

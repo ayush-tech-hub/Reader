@@ -4,8 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/plugins/document_plugin.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../generated/app_localizations.dart';
+import '../../../files_plus/presentation/file_tools_screens.dart'
+    show showAssignTagsDialog;
 import '../../domain/entities/file_entry.dart';
 import '../providers/file_manager_providers.dart';
 import '../widgets/file_entry_tile.dart';
@@ -75,12 +78,22 @@ class _FileBrowserScreenState extends ConsumerState<FileBrowserScreen> {
                     icon: const Icon(Icons.delete),
                     onPressed: _confirmDelete,
                   ),
-                  if (state.selection.length == 1)
+                  if (state.selection.length == 1) ...[
                     IconButton(
                       tooltip: l10n.rename,
                       icon: const Icon(Icons.drive_file_rename_outline),
                       onPressed: _promptRename,
                     ),
+                    IconButton(
+                      tooltip: l10n.assignTags,
+                      icon: const Icon(Icons.label_outline),
+                      onPressed: () => showAssignTagsDialog(
+                        context,
+                        ref,
+                        state.selection.single,
+                      ),
+                    ),
+                  ],
                 ]
               : [
                   IconButton(
@@ -214,6 +227,8 @@ class _FileBrowserScreenState extends ConsumerState<FileBrowserScreen> {
       context.push('${Routes.reader}?${uri.query}');
     } else if (AppConstants.archiveExtensions.contains(entry.extension)) {
       context.push('${Routes.archive}?${uri.query}');
+    } else if (PluginRegistry.instance.forPath(entry.path) != null) {
+      context.push('${Routes.pluginView}?${uri.query}');
     }
   }
 

@@ -13,6 +13,9 @@ subscription**.
 | **File Manager** | internal + external storage, search, sort (name/size/date), grid & list views, copy/move/rename/delete, new folders, multi-select, favorites, recents, hidden-files toggle |
 | **Archive Manager** | create/extract ZIP, 7Z, TAR, GZIP; AES-encrypted ZIPs; streamed I/O for >10 GB archives; progress reporting; battery-efficient background jobs (WorkManager / BGTaskScheduler) |
 | **PDF Utilities** | merge, split, compress, images→PDF, reorder/delete/rotate/extract pages, watermark, metadata editor |
+| **Document Intelligence** | offline AI summarization & extractive Q&A (optional pluggable local model), on-device OCR (ML Kit / Vision), on-device translation (ML Kit, Android), voice reading (TTS), smart full-text + semantic search across all PDFs (SQLite FTS5 + TF-IDF) |
+| **Power Tools** | duplicate finder (SHA-256), storage analyzer, batch extract/convert/rename, one-way folder sync, workspace tabs, file tagging |
+| **More Formats** | Markdown, EPUB and CBZ comic readers — registered through an open plugin architecture (`DocumentPlugin`) |
 | **UX** | Material Design 3, adaptive tablet layout, gesture navigation, localization (en/es/hi), accessibility (semantics, large-text safe) |
 
 ## Architecture at a glance

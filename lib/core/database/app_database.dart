@@ -112,10 +112,51 @@ class AppDatabase {
         key             TEXT PRIMARY KEY,
         value           TEXT NOT NULL
       )''');
+    _createV2Tables(batch);
     await batch.commit(noResult: true);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // Sequential migrations: if (oldVersion < 2) { ... } etc.
+    if (oldVersion < 2) {
+      final batch = db.batch();
+      _createV2Tables(batch);
+      await batch.commit(noResult: true);
+    }
+  }
+
+  /// v2: tagging, full-text document index, folder sync pairs.
+  void _createV2Tables(Batch batch) {
+    batch.execute('''
+      CREATE TABLE tags (
+        id    INTEGER PRIMARY KEY AUTOINCREMENT,
+        name  TEXT    NOT NULL UNIQUE,
+        color INTEGER NOT NULL DEFAULT 0xFF1565C0
+      )''');
+    batch.execute('''
+      CREATE TABLE file_tags (
+        file_path TEXT    NOT NULL,
+        tag_id    INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+        PRIMARY KEY (file_path, tag_id)
+      )''');
+    // FTS5 ships in the bundled SQLite on both Android and iOS.
+    batch.execute('''
+      CREATE VIRTUAL TABLE doc_index USING fts5(
+        path UNINDEXED, page UNINDEXED, content
+      )''');
+    batch.execute('''
+      CREATE TABLE indexed_documents (
+        path        TEXT PRIMARY KEY,
+        modified_at INTEGER NOT NULL,
+        indexed_at  INTEGER NOT NULL,
+        pages       INTEGER NOT NULL
+      )''');
+    batch.execute('''
+      CREATE TABLE sync_pairs (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        source          TEXT    NOT NULL,
+        destination     TEXT    NOT NULL,
+        delete_orphans  INTEGER NOT NULL DEFAULT 0,
+        last_synced_at  INTEGER
+      )''');
   }
 }

@@ -97,6 +97,17 @@ class _DashboardTab extends ConsumerWidget {
     final recentFiles = ref.watch(recentFilesProvider);
     final themeMode = ref.watch(themeModeProvider);
 
+    final moreTools = <(IconData, String, String)>[
+      (Icons.auto_awesome, l10n.aiAssistant, Routes.aiTools),
+      (Icons.manage_search, l10n.smartSearch, Routes.smartSearch),
+      (Icons.tab, l10n.workspace, Routes.workspace),
+      (Icons.copy_all, l10n.duplicateFinder, Routes.duplicates),
+      (Icons.pie_chart_outline, l10n.storageAnalyzer, Routes.storageAnalyzer),
+      (Icons.dynamic_feed, l10n.batchTools, Routes.batchTools),
+      (Icons.sync, l10n.folderSync, Routes.folderSync),
+      (Icons.label_outline, l10n.tags, Routes.tags),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.appTitle),
@@ -130,6 +141,24 @@ class _DashboardTab extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            Text(
+              l10n.moreTools,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final (icon, label, route) in moreTools)
+                  ActionChip(
+                    avatar: Icon(icon, size: 18),
+                    label: Text(label),
+                    onPressed: () => context.push(route),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 24),
             Text(
               l10n.recentDocuments,
               style: Theme.of(context).textTheme.titleMedium,

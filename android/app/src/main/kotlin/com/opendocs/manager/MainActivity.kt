@@ -1,6 +1,8 @@
 package com.opendocs.manager
 
 import com.opendocs.manager.archive.ArchiveEngineHandler
+import com.opendocs.manager.ml.OcrHandler
+import com.opendocs.manager.ml.TranslateHandler
 import com.opendocs.manager.pdf.PdfToolsHandler
 import com.opendocs.manager.storage.StorageHandler
 import io.flutter.embedding.android.FlutterActivity
@@ -16,6 +18,8 @@ class MainActivity : FlutterActivity() {
 
     private lateinit var archiveHandler: ArchiveEngineHandler
     private lateinit var pdfToolsHandler: PdfToolsHandler
+    private lateinit var ocrHandler: OcrHandler
+    private lateinit var translateHandler: TranslateHandler
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -33,11 +37,21 @@ class MainActivity : FlutterActivity() {
 
         MethodChannel(messenger, "opendocs/storage")
             .setMethodCallHandler(StorageHandler(applicationContext))
+
+        ocrHandler = OcrHandler(applicationContext)
+        MethodChannel(messenger, "opendocs/ocr")
+            .setMethodCallHandler(ocrHandler)
+
+        translateHandler = TranslateHandler()
+        MethodChannel(messenger, "opendocs/translate")
+            .setMethodCallHandler(translateHandler)
     }
 
     override fun onDestroy() {
         if (::archiveHandler.isInitialized) archiveHandler.shutdown()
         if (::pdfToolsHandler.isInitialized) pdfToolsHandler.shutdown()
+        if (::ocrHandler.isInitialized) ocrHandler.shutdown()
+        if (::translateHandler.isInitialized) translateHandler.shutdown()
         super.onDestroy()
     }
 }
