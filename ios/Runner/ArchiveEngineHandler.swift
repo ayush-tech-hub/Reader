@@ -5,7 +5,7 @@ import ZIPFoundation
 
 /// Streamed compression engine for iOS: ZIPFoundation for ZIP (with
 /// progress), PLzmaSDK for 7z/tar, Apple compression for gzip. Long
-/// jobs run on a utility queue; pair with BGProcessingTask scheduling
+/// jobs run on a utility queue; pair with BGTaskScheduler scheduling
 /// (battery-friendly) when invoked from the background API.
 final class ArchiveEngineHandler: NSObject, FlutterStreamHandler {
 
@@ -214,7 +214,7 @@ final class ArchiveEngineHandler: NSObject, FlutterStreamHandler {
         as? Int64) ?? 0
       let progress = Progress()
       let observation = progress.observe(\.fractionCompleted) { [weak self] progress, _ in
-        guard let self, let total else { return }
+        guard let self, total > 0 else { return }
         self.emitProgress(
           jobId: jobId, done: Int64(progress.fractionCompleted * Double(total)),
           total: total, entry: "")
