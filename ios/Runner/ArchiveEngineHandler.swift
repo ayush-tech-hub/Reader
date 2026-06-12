@@ -214,7 +214,7 @@ final class ArchiveEngineHandler: NSObject, FlutterStreamHandler {
         as? Int64) ?? 0
       let progress = Progress()
       let observation = progress.observe(\.fractionCompleted) { [weak self] progress, _ in
-        guard let self, let total else { return }
+        guard let self, total > 0 else { return }
         self.emitProgress(
           jobId: jobId, done: Int64(progress.fractionCompleted * Double(total)),
           total: total, entry: "")
