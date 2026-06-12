@@ -233,7 +233,7 @@ final class ArchiveEngineHandler: NSObject, FlutterStreamHandler {
       // before extracting.
       let items = try decoder.items()
       for index in 0..<items.count {
-        let entryPath = items[index].path().description
+        let entryPath = try items.item(at: index).path().description
         if entryPath.hasPrefix("/")
           || entryPath.split(separator: "/").contains("..")
           || entryPath.split(separator: "\\").contains("..")
@@ -274,10 +274,10 @@ final class ArchiveEngineHandler: NSObject, FlutterStreamHandler {
     if let password { try decoder.setPassword(password) }
     _ = try decoder.open()
     let items = try decoder.items()
-    return (0..<items.count).map { index -> [String: Any] in
-      let item = items[index]
+    return try (0..<items.count).map { index -> [String: Any] in
+      let item = try items.item(at: index)
       return [
-        "name": item.path().description,
+        "name": try item.path().description,
         "isDirectory": item.isDir,
         "size": Int64(item.size),
         "compressedSize": Int64(item.packSize),
