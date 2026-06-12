@@ -55,9 +55,11 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
   }
 
   Future<String> _documentText() async {
+    final l10n = AppLocalizations.of(context);
     final path = _documentPath;
-    if (path == null)
-      throw Exception(AppLocalizations.of(context).pickDocument);
+    if (path == null) {
+      throw Exception(l10n.pickDocument);
+    }
     final index = ref.read(documentIndexServiceProvider);
     var text = await index.documentText(path);
     if (text.trim().isEmpty) {
@@ -66,7 +68,7 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
       text = await index.documentText(path);
     }
     if (text.trim().isEmpty) {
-      throw Exception(AppLocalizations.of(context).noTextInDocument);
+      throw Exception(l10n.noTextInDocument);
     }
     return text;
   }
@@ -79,12 +81,13 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
       });
 
   Future<void> _ask() => _run(() async {
+        final l10n = AppLocalizations.of(context);
         final question = _questionController.text.trim();
         if (question.isEmpty) return '';
         final index = ref.read(documentIndexServiceProvider);
         final candidates = await index.candidates(question);
         if (candidates.isEmpty) {
-          return AppLocalizations.of(context).noAnswerFound;
+          return l10n.noAnswerFound;
         }
         final ranked = ai.rankByTfIdf(
           question,
@@ -122,8 +125,8 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
       });
 
   Future<void> _translate() => _run(() async {
-        final source = _output.isNotEmpty ? _output : await _documentText();
         final target = Localizations.localeOf(context).languageCode;
+        final source = _output.isNotEmpty ? _output : await _documentText();
         return ref.read(translateEngineProvider).translate(
               text: source.length > 4000 ? source.substring(0, 4000) : source,
               sourceLanguage: 'en',

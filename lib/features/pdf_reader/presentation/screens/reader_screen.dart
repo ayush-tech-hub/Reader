@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -72,6 +74,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
 
   void _fitToWidth() {
     if (!_controller.isReady) return;
+    // ignore: deprecated_member_use — pages is the stable synchronous API
     final pages = _controller.pages;
     final state = ref.read(readerProvider(widget.path));
     if (pages.isEmpty) return;
@@ -254,21 +257,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                   ),
               ];
             },
+            // Default selection menu already offers copy/select-all —
+            // that's the "extract selected text" path.
             selectableRegionInjector: (context, child) => SelectionArea(
               contextMenuBuilder: (context, selectableRegionState) =>
                   AdaptiveTextSelectionToolbar.buttonItems(
                 anchors: selectableRegionState.contextMenuAnchors,
-                buttonItems: [
-                  ...selectableRegionState.contextMenuButtonItems,
-                  ContextMenuButtonItem(
-                    label: l10n.copyText,
-                    onPressed: () {
-                      selectableRegionState.copySelection(
-                        SelectionChangedCause.toolbar,
-                      );
-                    },
-                  ),
-                ],
+                buttonItems: selectableRegionState.contextMenuButtonItems,
               ),
               child: child,
             ),
@@ -371,9 +366,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       case 'fitWidth':
         _fitToWidth();
       case 'split':
-        _openSplitView();
+        unawaited(_openSplitView());
       case 'readAloud':
-        _toggleReadAloud();
+        unawaited(_toggleReadAloud());
     }
   }
 
@@ -386,6 +381,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       return;
     }
     if (!_controller.isReady) return;
+    // ignore: deprecated_member_use — pages is the stable synchronous API
     final pages = _controller.pages;
     if (pages.isEmpty) return;
     final current = ref.read(readerProvider(widget.path)).currentPage;
@@ -402,11 +398,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     );
     final other = picked?.files.single.path;
     if (other == null || !mounted) return;
-    context.push(
-      Uri(
-        path: Routes.splitReader,
-        queryParameters: {'left': widget.path, 'right': other},
-      ).toString(),
+    unawaited(
+      context.push(
+        Uri(
+          path: Routes.splitReader,
+          queryParameters: {'left': widget.path, 'right': other},
+        ).toString(),
+      ),
     );
   }
 

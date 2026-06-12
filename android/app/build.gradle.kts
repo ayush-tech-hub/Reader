@@ -16,7 +16,7 @@ val keystoreProperties = Properties().apply {
 
 android {
     namespace = "com.opendocs.manager"
-    compileSdk = 35
+    compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -24,14 +24,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     defaultConfig {
         applicationId = "com.opendocs.manager"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -61,6 +57,12 @@ android {
                 "proguard-rules.pro",
             )
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
 }
 
