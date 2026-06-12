@@ -3,6 +3,11 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release tag to create (e.g. v1.1.0)"
+        required: true
 
 env:
   FLUTTER_VERSION: "3.44.x"
@@ -53,6 +58,7 @@ jobs:
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.version || github.ref_name }}
           files: |
             build/app/outputs/bundle/release/app-release.aab
             build/app/outputs/flutter-apk/app-*-release.apk
@@ -145,4 +151,5 @@ jobs:
         if: ${{ env.HAS_IOS_SIGNING == 'true' }}
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.version || github.ref_name }}
           files: build/ios/ipa/*.ipa
