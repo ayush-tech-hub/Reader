@@ -40,7 +40,7 @@ class WorkspaceScreen extends ConsumerWidget {
     final tabs = ref.watch(workspaceTabsProvider);
 
     Future<void> addTab() async {
-      final picked = await FilePicker.platform.pickFiles(
+      final picked = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
       );

@@ -32,8 +32,8 @@ dependencies:
   # Filesystem & platform
   path: ^1.9.0
   path_provider: ^2.1.5
-  permission_handler: ^11.3.1
-  file_picker: ^8.1.6
+  permission_handler: ^12.0.3
+  file_picker: ^11.0.2
 
   # Pure-Dart archive fallback (zip/tar/gzip when native engine
   # is unavailable, e.g. desktop dev builds)

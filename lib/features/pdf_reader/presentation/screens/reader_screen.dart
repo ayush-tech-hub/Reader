@@ -392,7 +392,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
 
   /// Picks a second document and opens it side-by-side with this one.
   Future<void> _openSplitView() async {
-    final picked = await FilePicker.platform.pickFiles(
+    final picked = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );

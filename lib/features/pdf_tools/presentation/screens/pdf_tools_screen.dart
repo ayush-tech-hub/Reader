@@ -102,7 +102,7 @@ class PdfToolsScreen extends ConsumerWidget {
   // ---- Pickers -------------------------------------------------------
 
   static Future<List<String>?> _pickPdfs({bool multiple = true}) async {
-    final picked = await FilePicker.platform.pickFiles(
+    final picked = await FilePicker.pickFiles(
       allowMultiple: multiple,
       type: FileType.custom,
       allowedExtensions: ['pdf'],
@@ -111,8 +111,7 @@ class PdfToolsScreen extends ConsumerWidget {
     return (paths == null || paths.isEmpty) ? null : paths;
   }
 
-  static Future<String?> _pickOutputDir() =>
-      FilePicker.platform.getDirectoryPath();
+  static Future<String?> _pickOutputDir() => FilePicker.getDirectoryPath();
 
   static String _outPath(String dir, String source, String suffix) => p.join(
         dir,
@@ -157,7 +156,7 @@ class PdfToolsScreen extends ConsumerWidget {
   }
 
   static Future<void> _imagesToPdf(BuildContext context, WidgetRef ref) async {
-    final picked = await FilePicker.platform.pickFiles(
+    final picked = await FilePicker.pickFiles(
       allowMultiple: true,
       type: FileType.image,
     );

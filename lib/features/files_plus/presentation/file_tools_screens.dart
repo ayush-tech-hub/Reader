@@ -25,7 +25,7 @@ class _DuplicatesScreenState extends ConsumerState<DuplicatesScreen> {
   bool _busy = false;
 
   Future<void> _scan() async {
-    final root = await FilePicker.platform.getDirectoryPath();
+    final root = await FilePicker.getDirectoryPath();
     if (root == null) return;
     setState(() => _busy = true);
     final groups =
@@ -116,7 +116,7 @@ class _StorageAnalyzerScreenState extends ConsumerState<StorageAnalyzerScreen> {
   bool _busy = false;
 
   Future<void> _analyze() async {
-    final root = await FilePicker.platform.getDirectoryPath();
+    final root = await FilePicker.getDirectoryPath();
     if (root == null) return;
     setState(() => _busy = true);
     final report =
@@ -217,7 +217,7 @@ class _BatchToolsScreenState extends ConsumerState<BatchToolsScreen> {
 
   /// Extract every archive in a chosen folder into sibling directories.
   Future<void> _batchExtract() => _run(() async {
-        final dir = await FilePicker.platform.getDirectoryPath();
+        final dir = await FilePicker.getDirectoryPath();
         if (dir == null) return '';
         final entries = await ref
             .read(fileManagerRepositoryProvider)
@@ -245,7 +245,7 @@ class _BatchToolsScreenState extends ConsumerState<BatchToolsScreen> {
 
   /// Convert every image in a chosen folder into a single PDF.
   Future<void> _batchConvert() => _run(() async {
-        final dir = await FilePicker.platform.getDirectoryPath();
+        final dir = await FilePicker.getDirectoryPath();
         if (dir == null) return '';
         final entries = await ref
             .read(fileManagerRepositoryProvider)
@@ -264,7 +264,7 @@ class _BatchToolsScreenState extends ConsumerState<BatchToolsScreen> {
       });
 
   Future<void> _batchRename() => _run(() async {
-        final picked = await FilePicker.platform.pickFiles(allowMultiple: true);
+        final picked = await FilePicker.pickFiles(allowMultiple: true);
         final paths = picked?.paths.whereType<String>().toList();
         if (paths == null || paths.isEmpty) return '';
         if (!mounted) return '';
@@ -369,9 +369,9 @@ class _FolderSyncScreenState extends ConsumerState<FolderSyncScreen> {
   }
 
   Future<void> _addPair() async {
-    final source = await FilePicker.platform.getDirectoryPath();
+    final source = await FilePicker.getDirectoryPath();
     if (source == null) return;
-    final destination = await FilePicker.platform.getDirectoryPath();
+    final destination = await FilePicker.getDirectoryPath();
     if (destination == null) return;
     await ref.read(appDatabaseProvider).db.insert(
           'sync_pairs',

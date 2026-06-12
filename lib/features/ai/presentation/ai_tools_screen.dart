@@ -30,7 +30,7 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
   }
 
   Future<void> _pickDocument() async {
-    final picked = await FilePicker.platform.pickFiles(
+    final picked = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );

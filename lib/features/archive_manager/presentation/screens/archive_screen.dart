@@ -111,7 +111,7 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
   }
 
   Future<void> _create() async {
-    final picked = await FilePicker.platform.pickFiles(allowMultiple: true);
+    final picked = await FilePicker.pickFiles(allowMultiple: true);
     if (picked == null || picked.paths.isEmpty || !mounted) return;
     final sources = picked.paths.whereType<String>().toList();
     final options = await showDialog<_CreateOptions>(
@@ -121,7 +121,7 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
       ),
     );
     if (options == null || !mounted) return;
-    final destinationDir = await FilePicker.platform.getDirectoryPath();
+    final destinationDir = await FilePicker.getDirectoryPath();
     if (destinationDir == null || !mounted) return;
     await ref.read(archiveScreenProvider.notifier).create(
           sources: sources,
@@ -136,7 +136,7 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
   }
 
   Future<void> _extract(String archivePath) async {
-    final destinationDir = await FilePicker.platform.getDirectoryPath();
+    final destinationDir = await FilePicker.getDirectoryPath();
     if (destinationDir == null || !mounted) return;
     String? password;
     if (ArchiveFormat.fromPath(archivePath) == ArchiveFormat.zip) {
@@ -152,7 +152,7 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
 
   Future<void> _extractInBackground(String archivePath) async {
     final l10n = AppLocalizations.of(context);
-    final destinationDir = await FilePicker.platform.getDirectoryPath();
+    final destinationDir = await FilePicker.getDirectoryPath();
     if (destinationDir == null || !mounted) return;
     String? password;
     if (ArchiveFormat.fromPath(archivePath) == ArchiveFormat.zip) {
