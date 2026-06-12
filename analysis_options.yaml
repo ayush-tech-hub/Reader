@@ -1,0 +1,22 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - lib/generated/**
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    - always_declare_return_types
+    - avoid_dynamic_calls
+    - directives_ordering
+    - prefer_final_locals
+    - prefer_single_quotes
+    # require_trailing_commas is omitted: it conflicts with the Dart 3.8+
+    # formatter, which owns trailing-comma placement (CI enforces format).
+    - unawaited_futures
+    - cancel_subscriptions
+    - close_sinks

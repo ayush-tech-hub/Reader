@@ -1,0 +1,73 @@
+name: opendocs_manager
+description: >-
+  OpenDocs Manager — a fully offline PDF reader, file manager, archive
+  manager and PDF toolbox. No ads, no paywall, no subscription.
+publish_to: "none"
+version: 1.1.0+2
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State management & dependency injection
+  flutter_riverpod: ^2.6.1
+
+  # Navigation
+  go_router: ^14.6.2
+
+  # PDF rendering (pdfium-backed: fast for 1000+ page documents,
+  # password support, text search, outline/ToC, text selection)
+  pdfrx: ^1.0.94
+
+  # Persistence
+  sqflite: ^2.4.1
+  shared_preferences: ^2.3.4
+
+  # Filesystem & platform
+  path: ^1.9.0
+  path_provider: ^2.1.5
+  permission_handler: ^12.0.3
+  file_picker: ^11.0.2
+
+  # Pure-Dart archive fallback (zip/tar/gzip when native engine
+  # is unavailable, e.g. desktop dev builds)
+  archive: ^3.6.1
+
+  # PDF creation (images -> PDF) in Dart; heavy page surgery is
+  # delegated to the native PdfTools engine
+  pdf: ^3.11.1
+
+  # Voice reading (offline OS voices)
+  flutter_tts: ^4.2.0
+
+  # Duplicate detection hashing
+  crypto: ^3.0.6
+
+  # Extra document formats (plugin-registered readers).
+  # EPUB is parsed directly (zip + OPF spine via package:xml) — the
+  # ecosystem epub packages pin ancient image/^3 constraints.
+  flutter_markdown: ^0.7.4
+  xml: ^6.5.0
+
+  # Misc
+  equatable: ^2.0.7
+  collection: ^1.18.0
+  intl: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  mocktail: ^1.0.4
+
+flutter:
+  uses-material-design: true
+  generate: true # gen-l10n, see l10n.yaml
