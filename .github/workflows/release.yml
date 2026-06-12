@@ -74,6 +74,38 @@ jobs:
       - name: Scaffold platform boilerplate
         run: flutter create --org com.opendocs --project-name opendocs_manager .
 
+      # flutter create writes a fresh Runner.xcodeproj that only knows
+      # about AppDelegate.swift; register the custom native engines or
+      # the build fails at compile.
+      - name: Add native engine sources to Xcode project
+        run: |
+          cat > /tmp/add_sources.rb <<'EOF'
+          require 'xcodeproj'
+          project = Xcodeproj::Project.open('ios/Runner.xcodeproj')
+          target = project.targets.find { |t| t.name == 'Runner' }
+          group = project.main_group['Runner']
+          %w[ArchiveEngineHandler.swift PdfToolsHandler.swift OcrHandler.swift].each do |name|
+            next if group.files.any? { |f| f.path == name }
+            file_ref = group.new_reference(name)
+            target.add_file_references([file_ref])
+          end
+          project.save
+          EOF
+          ruby /tmp/add_sources.rb
+
+      - name: Merge Info.plist additions
+        run: |
+          python3 - <<'EOF'
+          import plistlib
+          with open('ios/Runner/Info-additions.plist', 'rb') as f:
+              additions = plistlib.load(f)
+          with open('ios/Runner/Info.plist', 'rb') as f:
+              base = plistlib.load(f)
+          base.update(additions)
+          with open('ios/Runner/Info.plist', 'wb') as f:
+              plistlib.dump(base, f)
+          EOF
+
       - name: Import signing certificate & provisioning profile
         if: ${{ env.HAS_IOS_SIGNING == 'true' }}
         env:
