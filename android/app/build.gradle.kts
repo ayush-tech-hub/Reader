@@ -2,9 +2,8 @@ import java.util.Properties
 
 plugins {
     id("com.android.application")
-    // No explicit Kotlin plugin: Flutter 3.44+/AGP 9 use built-in
-    // Kotlin; applying KGP here breaks plugin classpath resolution.
-    // The Flutter Gradle Plugin must be applied after the Android plugin.
+    id("org.jetbrains.kotlin.android")
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 

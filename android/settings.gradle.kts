@@ -18,9 +18,12 @@ pluginManagement {
 
 plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
-    // Keep aligned with the Flutter stable templates (gradle_utils.dart).
-    id("com.android.application") version "9.0.1" apply false
-    id("org.jetbrains.kotlin.android") version "2.3.20" apply false
+    // AGP 8.x + classic Kotlin plugin: AGP 9 removed kotlin-android
+    // support, which today's plugin ecosystem (file_picker,
+    // flutter_tts, ...) still requires. Revisit once plugins migrate
+    // to built-in Kotlin.
+    id("com.android.application") version "8.13.0" apply false
+    id("org.jetbrains.kotlin.android") version "2.1.20" apply false
 }
 
 include(":app")
