@@ -53,6 +53,13 @@ app.*.map.json
 *.keystore
 *.jks
 
+#Signing keys
+*.jks
+*.keystore
+key.properties
+keystore.txt
+
+
 # Flutter-generated registrants and environment (recreated per build)
 **/GeneratedPluginRegistrant.java
 **/GeneratedPluginRegistrant.h
