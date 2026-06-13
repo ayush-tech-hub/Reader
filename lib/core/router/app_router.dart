@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -33,6 +34,26 @@ abstract final class Routes {
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: Routes.home,
+    // Surface routing errors as a Scaffold rather than a blank screen.
+    errorBuilder: (context, state) => Scaffold(
+      appBar: AppBar(title: const Text('Navigation error')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.link_off, size: 48, color: Colors.orange),
+              const SizedBox(height: 16),
+              Text(
+                state.error?.toString() ?? 'Unknown routing error',
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
     routes: [
       GoRoute(
         path: Routes.home,
@@ -46,16 +67,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.reader,
-        builder: (context, state) => ReaderScreen(
-          path: state.uri.queryParameters['path']!,
-        ),
+        builder: (context, state) {
+          final path = state.uri.queryParameters['path'];
+          if (path == null || path.isEmpty) {
+            return _missingParam(context, Routes.reader, 'path');
+          }
+          return ReaderScreen(path: path);
+        },
       ),
       GoRoute(
         path: Routes.splitReader,
-        builder: (context, state) => SplitReaderScreen(
-          leftPath: state.uri.queryParameters['left']!,
-          rightPath: state.uri.queryParameters['right']!,
-        ),
+        builder: (context, state) {
+          final left = state.uri.queryParameters['left'];
+          final right = state.uri.queryParameters['right'];
+          if (left == null || right == null) {
+            return _missingParam(context, Routes.splitReader, 'left/right');
+          }
+          return SplitReaderScreen(leftPath: left, rightPath: right);
+        },
       ),
       GoRoute(
         path: Routes.archive,
@@ -103,10 +132,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.pluginView,
-        builder: (context, state) => PluginViewerScreen(
-          path: state.uri.queryParameters['path']!,
-        ),
+        builder: (context, state) {
+          final path = state.uri.queryParameters['path'];
+          if (path == null || path.isEmpty) {
+            return _missingParam(context, Routes.pluginView, 'path');
+          }
+          return PluginViewerScreen(path: path);
+        },
       ),
     ],
   );
 });
+
+/// Returns a Scaffold that describes the missing parameter rather than
+/// crashing with a Null check operator error in release builds.
+Widget _missingParam(BuildContext context, String route, String param) {
+  return Scaffold(
+    appBar: AppBar(title: const Text('Navigation error')),
+    body: Center(
+      child: Text('Route $route is missing required parameter: $param'),
+    ),
+  );
+}
