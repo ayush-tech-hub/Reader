@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--
+        LaunchTheme: shown by the OS during the Flutter engine warm-up.
+        windowBackground must match @color/launch_background so the
+        transition to Flutter's first frame is imperceptible.
+    -->
     <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">@drawable/launch_background</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
     </style>
+
+    <!--
+        NormalTheme: applied after the Flutter engine takes over.
+        windowBackground is transparent so Flutter draws the background;
+        keep it consistent with the launch colour to avoid any flash.
+    -->
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
-        <item name="android:windowBackground">?android:colorBackground</item>
+        <item name="android:windowBackground">@color/launch_background</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 </resources>

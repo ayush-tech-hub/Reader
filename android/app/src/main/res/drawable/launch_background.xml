@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Shown by the OS while the Flutter engine warms up (typically 1-2 s).
+    Using the app's exact surface colour avoids a jarring colour flash when
+    Flutter renders its first frame.  The colour matches AppTheme._seed's
+    Material 3 light-surface output (#FFFBFE).
+    The night variant in values-night/ uses the corresponding dark surface.
+-->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="?android:colorBackground" />
+    <item android:drawable="@color/launch_background" />
 </layer-list>

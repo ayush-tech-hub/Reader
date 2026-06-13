@@ -37,7 +37,21 @@ class PdfToolsHandler(
     }
 
     init {
-        PDFBoxResourceLoader.init(context)
+        // PDFBoxResourceLoader sets a static Application context used by
+        // font/CMap loaders.  Wrap in try-catch so that a missing asset
+        // (e.g. stripped by isShrinkResources) logs an error instead of
+        // propagating a Throwable out of configureFlutterEngine() and
+        // preventing the Flutter engine from starting.
+        try {
+            PDFBoxResourceLoader.init(context)
+            android.util.Log.d("PdfToolsHandler", "PDFBoxResourceLoader initialised")
+        } catch (e: Throwable) {
+            android.util.Log.e(
+                "PdfToolsHandler",
+                "PDFBoxResourceLoader.init failed — PDF tools may not work correctly",
+                e,
+            )
+        }
     }
 
     fun shutdown() {

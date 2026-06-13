@@ -32,8 +32,10 @@ migrate_working_dir/
 /build/
 coverage/
 
-# Generated localization output
-lib/generated/
+# Generated localization output is committed so the build never silently
+# breaks when flutter gen-l10n has not been run in a clean checkout.
+# Regenerate with: flutter gen-l10n
+# lib/generated/  ← intentionally NOT ignored
 
 # Symbolication related
 app.*.symbols

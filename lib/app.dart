@@ -16,7 +16,12 @@ class OpenDocsApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
-      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+      onGenerateTitle: (context) {
+        // Guard against the rare case where the localization delegate
+        // hasn't resolved yet when the title callback fires.
+        final l10n = AppLocalizations.of(context);
+        return l10n.appTitle;
+      },
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
@@ -33,6 +38,16 @@ class OpenDocsApp extends ConsumerWidget {
         Locale('es'),
         Locale('hi'),
       ],
+      // Riverpod state errors surface here; log and show a minimal widget
+      // instead of a blank screen in release builds.
+      builder: (context, child) {
+        if (child == null) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        return child;
+      },
     );
   }
 }

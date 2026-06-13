@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Material 3 surface colour generated from seed #1565C0 (dark mode).
+         Prevents a white flash on devices in dark theme. -->
+    <color name="launch_background">#141218</color>
+</resources>

@@ -1,5 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Network: ML Kit translation downloads language models (~30 MB each)
+         on first use. Without this permission the download fails silently
+         and translate returns an error; no other feature requires it. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Broad file access for the file manager (Play requires the
          all-files-access declaration form for file manager apps). -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
