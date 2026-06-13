@@ -1,6 +1,5 @@
 name: Release
 
-# action-gh-release creates the tag and the release.
 permissions:
   contents: write
 
@@ -23,9 +22,7 @@ jobs:
     name: Android release
     runs-on: ubuntu-latest
     env:
-      # secrets are not allowed in step `if:` expressions; bridge
-      # through env so steps can condition on signing availability.
-      HAS_ANDROID_SIGNING: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      HAS_ANDROID_SIGNING: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -51,15 +48,9 @@ jobs:
           channel: stable
           cache: true
 
-      # flutter create generates mipmap launcher icons and other missing
-      # boilerplate that is not committed to the repository.  It may also
-      # overwrite our custom AndroidManifest.xml and build.gradle, so we
-      # restore those from git immediately after.
       - name: Scaffold platform boilerplate
         run: |
           flutter create --org com.opendocs --project-name opendocs_manager .
-          # Restore all custom Android platform files that flutter create
-          # may have regenerated with wrong package names / missing content.
           git checkout android/app/src/main/AndroidManifest.xml
           git checkout android/app/build.gradle.kts
           git checkout android/app/proguard-rules.pro
@@ -101,7 +92,7 @@ jobs:
     name: iOS release
     runs-on: macos-14
     env:
-      HAS_IOS_SIGNING: ${{ secrets.IOS_CERT_BASE64 != '' }}
+      HAS_IOS_SIGNING: ${{ secrets.IOS_CERT_BASE64 != '' && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -123,11 +114,13 @@ jobs:
           cache: true
 
       - name: Scaffold platform boilerplate
-        run: flutter create --org com.opendocs --project-name opendocs_manager .
+        run: |
+          flutter create --org com.opendocs --project-name opendocs_manager .
+          # Crucial: Restore your tracked iOS configuration files & ExportOptions
+          git checkout ios/ExportOptions.plist 2>/dev/null || true 
+          flutter pub get
+          flutter gen-l10n
 
-      # flutter create writes a fresh Runner.xcodeproj that only knows
-      # about AppDelegate.swift; register the custom native engines or
-      # the build fails at compile.
       - name: Add native engine sources to Xcode project
         run: |
           cat > /tmp/add_sources.rb <<'EOF'
@@ -181,14 +174,9 @@ jobs:
 
       - name: Build IPA
         run: |
-          flutter pub get
-          flutter gen-l10n
           if [ "$HAS_IOS_SIGNING" = "true" ]; then
-            flutter build ipa --release \
-              --export-options-plist=ios/ExportOptions.plist
+            flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
           else
-            # No signing secrets configured: produce an unsigned build
-            # so the pipeline still validates compilation.
             flutter build ios --release --no-codesign
           fi
 
