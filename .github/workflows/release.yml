@@ -51,13 +51,23 @@ jobs:
           channel: stable
           cache: true
 
-      # flutter create is intentionally NOT run for the Android job.
-      # All platform files (AndroidManifest.xml, MainActivity.kt, build.gradle)
-      # are committed to the repository and must not be overwritten by
-      # a flutter create invocation that uses a different --org/--project-name
-      # combination (com.opendocs.opendocs_manager vs com.opendocs.manager).
-      # flutter pub get (run in the build step below) regenerates
-      # GeneratedPluginRegistrant.java without touching custom files.
+      # flutter create generates mipmap launcher icons and other missing
+      # boilerplate that is not committed to the repository.  It may also
+      # overwrite our custom AndroidManifest.xml and build.gradle, so we
+      # restore those from git immediately after.
+      - name: Scaffold platform boilerplate
+        run: |
+          flutter create --org com.opendocs --project-name opendocs_manager .
+          # Restore all custom Android platform files that flutter create
+          # may have regenerated with wrong package names / missing content.
+          git checkout android/app/src/main/AndroidManifest.xml
+          git checkout android/app/build.gradle.kts
+          git checkout android/app/proguard-rules.pro
+          git checkout android/app/src/main/res/values/styles.xml
+          git checkout android/app/src/main/res/values-night/styles.xml
+          git checkout android/app/src/main/res/drawable/launch_background.xml
+          git checkout android/app/src/main/kotlin/com/opendocs/manager/MainActivity.kt
+          git checkout android/app/src/main/kotlin/com/opendocs/manager/pdf/PdfToolsHandler.kt
 
       - name: Decode signing keystore
         if: ${{ env.HAS_ANDROID_SIGNING == 'true' }}
