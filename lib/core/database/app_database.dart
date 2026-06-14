@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
@@ -36,6 +37,9 @@ class AppDatabase {
   }
 
   Future<void> _onCreate(Database db, int version) async {
+    final ftsEngine = await _detectFtsEngine(db);
+    debugPrint('[AppDatabase] onCreate with FTS engine: $ftsEngine');
+
     final batch = db.batch();
     batch.execute('''
       CREATE TABLE recent_documents (
@@ -112,20 +116,51 @@ class AppDatabase {
         key             TEXT PRIMARY KEY,
         value           TEXT NOT NULL
       )''');
-    _createV2Tables(batch);
+    _createV2Tables(batch, ftsEngine: ftsEngine);
     await batch.commit(noResult: true);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
+      final ftsEngine = await _detectFtsEngine(db);
+      debugPrint('[AppDatabase] onUpgrade v$oldVersion→v$newVersion, FTS: $ftsEngine');
       final batch = db.batch();
-      _createV2Tables(batch);
+      _createV2Tables(batch, ftsEngine: ftsEngine);
       await batch.commit(noResult: true);
     }
   }
 
+  /// Probes SQLite for FTS5 support, falls back to FTS4, then to none.
+  ///
+  /// FTS5 is available in SQLite ≥ 3.9.0 (Android 6+ in AOSP builds) but
+  /// some OEM kernels compile SQLite without it.  FTS4 has been available
+  /// since SQLite 3.7.4 and is universally supported on Android.
+  static Future<_FtsEngine> _detectFtsEngine(Database db) async {
+    // Try FTS5 first.
+    try {
+      await db.execute(
+          'CREATE VIRTUAL TABLE _fts5_probe USING fts5(x)');
+      await db.execute('DROP TABLE IF EXISTS _fts5_probe');
+      return _FtsEngine.fts5;
+    } catch (_) {
+      // FTS5 not available.
+    }
+
+    // Fall back to FTS4.
+    try {
+      await db.execute(
+          'CREATE VIRTUAL TABLE _fts4_probe USING fts4(x)');
+      await db.execute('DROP TABLE IF EXISTS _fts4_probe');
+      return _FtsEngine.fts4;
+    } catch (_) {
+      // FTS4 not available either (extremely unlikely on any Android device).
+    }
+
+    return _FtsEngine.none;
+  }
+
   /// v2: tagging, full-text document index, folder sync pairs.
-  void _createV2Tables(Batch batch) {
+  void _createV2Tables(Batch batch, {_FtsEngine ftsEngine = _FtsEngine.fts5}) {
     batch.execute('''
       CREATE TABLE tags (
         id    INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -138,11 +173,32 @@ class AppDatabase {
         tag_id    INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
         PRIMARY KEY (file_path, tag_id)
       )''');
-    // FTS5 ships in the bundled SQLite on both Android and iOS.
-    batch.execute('''
-      CREATE VIRTUAL TABLE doc_index USING fts5(
-        path UNINDEXED, page UNINDEXED, content
-      )''');
+
+    switch (ftsEngine) {
+      case _FtsEngine.fts5:
+        // FTS5: supports UNINDEXED columns (path/page stored but not indexed).
+        batch.execute('''
+          CREATE VIRTUAL TABLE doc_index USING fts5(
+            path UNINDEXED, page UNINDEXED, content
+          )''');
+      case _FtsEngine.fts4:
+        // FTS4 fallback: notindexed option keeps path/page out of the index.
+        batch.execute('''
+          CREATE VIRTUAL TABLE doc_index USING fts4(
+            path, page, content,
+            notindexed=path, notindexed=page
+          )''');
+      case _FtsEngine.none:
+        // Last resort: plain table. Full-text search will be unavailable
+        // but the rest of the app functions normally.
+        batch.execute('''
+          CREATE TABLE doc_index (
+            path    TEXT NOT NULL,
+            page    INTEGER NOT NULL,
+            content TEXT NOT NULL
+          )''');
+    }
+
     batch.execute('''
       CREATE TABLE indexed_documents (
         path        TEXT PRIMARY KEY,
@@ -160,3 +216,5 @@ class AppDatabase {
       )''');
   }
 }
+
+enum _FtsEngine { fts5, fts4, none }
