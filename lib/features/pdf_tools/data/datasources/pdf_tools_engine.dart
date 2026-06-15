@@ -138,6 +138,33 @@ class PdfToolsEngine {
         ...metadata.toMap(),
       });
 
+  Future<String> encrypt(
+    String source,
+    String outputPath,
+    PdfEncryptSpec spec,
+  ) =>
+      _invokeForPath(PdfToolsMethods.encrypt, {
+        'source': source,
+        'outputPath': outputPath,
+        'userPassword': spec.userPassword,
+        'ownerPassword': spec.ownerPassword,
+        'allowPrinting': spec.allowPrinting,
+        'allowCopying': spec.allowCopying,
+        'allowEditing': spec.allowEditing,
+        'allowAnnotating': spec.allowAnnotating,
+      });
+
+  Future<String> decrypt(
+    String source,
+    String outputPath,
+    String password,
+  ) =>
+      _invokeForPath(PdfToolsMethods.decrypt, {
+        'source': source,
+        'outputPath': outputPath,
+        'password': password,
+      });
+
   Future<String> _invokeForPath(
       String method, Map<String, Object?> args) async {
     try {

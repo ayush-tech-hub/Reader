@@ -9,6 +9,9 @@ import com.tom_roush.pdfbox.multipdf.PDFMergerUtility
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.PDPage
 import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
+import com.tom_roush.pdfbox.pdmodel.encryption.AccessPermission
+import com.tom_roush.pdfbox.pdmodel.encryption.StandardDecryptionMaterial
+import com.tom_roush.pdfbox.pdmodel.encryption.StandardProtectionPolicy
 import com.tom_roush.pdfbox.pdmodel.font.PDType1Font
 import com.tom_roush.pdfbox.pdmodel.graphics.image.JPEGFactory
 import com.tom_roush.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState
@@ -72,6 +75,8 @@ class PdfToolsHandler(
                     "watermark" -> watermark(call)
                     "getMetadata" -> getMetadata(call)
                     "setMetadata" -> setMetadata(call)
+                    "encrypt" -> encrypt(call)
+                    "decrypt" -> decrypt(call)
                     else -> {
                         mainHandler.post { result.notImplemented() }
                         return@execute
@@ -297,6 +302,46 @@ class PdfToolsHandler(
                 creator = call.argument("creator")
                 producer = call.argument("producer")
             }
+            document.save(outputPath)
+        }
+        return outputPath
+    }
+
+    private fun encrypt(call: MethodCall): String {
+        val source = call.argument<String>("source")!!
+        val outputPath = call.argument<String>("outputPath")!!
+        val userPassword = call.argument<String>("userPassword") ?: ""
+        val ownerPassword = call.argument<String>("ownerPassword").let {
+            if (it.isNullOrEmpty()) userPassword + "_owner" else it
+        }
+        val allowPrinting = call.argument<Boolean>("allowPrinting") ?: true
+        val allowCopying = call.argument<Boolean>("allowCopying") ?: false
+        val allowEditing = call.argument<Boolean>("allowEditing") ?: false
+        val allowAnnotating = call.argument<Boolean>("allowAnnotating") ?: true
+
+        PDDocument.load(File(source)).use { document ->
+            val ap = AccessPermission().apply {
+                setCanPrint(allowPrinting)
+                setCanExtractContent(allowCopying)
+                setCanModify(allowEditing)
+                setCanModifyAnnotations(allowAnnotating)
+            }
+            val policy = StandardProtectionPolicy(ownerPassword, userPassword, ap).apply {
+                encryptionKeyLength = 256
+            }
+            document.protect(policy)
+            document.save(outputPath)
+        }
+        return outputPath
+    }
+
+    private fun decrypt(call: MethodCall): String {
+        val source = call.argument<String>("source")!!
+        val outputPath = call.argument<String>("outputPath")!!
+        val password = call.argument<String>("password") ?: ""
+
+        PDDocument.load(File(source), password).use { document ->
+            document.isAllSecurityToBeRemoved = true
             document.save(outputPath)
         }
         return outputPath

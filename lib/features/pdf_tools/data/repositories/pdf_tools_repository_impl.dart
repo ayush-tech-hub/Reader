@@ -148,4 +148,20 @@ class PdfToolsRepositoryImpl implements PdfToolsRepository {
     required PdfMetadata metadata,
   }) =>
       _guard(() => _engine.setMetadata(source, outputPath, metadata));
+
+  @override
+  Future<Result<String>> encrypt({
+    required String source,
+    required String outputPath,
+    required PdfEncryptSpec spec,
+  }) =>
+      _guard(() => _engine.encrypt(source, outputPath, spec));
+
+  @override
+  Future<Result<String>> decrypt({
+    required String source,
+    required String outputPath,
+    required String password,
+  }) =>
+      _guard(() => _engine.decrypt(source, outputPath, password));
 }

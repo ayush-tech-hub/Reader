@@ -57,6 +57,8 @@ jobs:
           git checkout android/app/src/main/res/values/styles.xml
           git checkout android/app/src/main/res/values-night/styles.xml
           git checkout android/app/src/main/res/drawable/launch_background.xml
+          git checkout android/app/src/main/res/values/colors.xml
+          git checkout android/app/src/main/res/values-night/colors.xml
           git checkout android/app/src/main/kotlin/com/opendocs/manager/MainActivity.kt
           git checkout android/app/src/main/kotlin/com/opendocs/manager/pdf/PdfToolsHandler.kt
 
