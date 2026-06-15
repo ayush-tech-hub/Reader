@@ -7,6 +7,7 @@ import '../../../../core/services/save_location_service.dart';
 import '../../../../generated/app_localizations.dart';
 import '../../domain/entities/pdf_tool_entities.dart';
 import '../providers/pdf_tools_providers.dart';
+import 'pdf_editor_screen.dart';
 import 'tool_result_screen.dart';
 
 /// Hub for all PDF utilities. Each tile picks inputs, runs the operation
@@ -178,14 +179,14 @@ class PdfToolsScreen extends ConsumerWidget {
   static Future<void> _merge(BuildContext context, WidgetRef ref) async {
     final sources = await _pickPdfs();
     if (sources == null || sources.length < 2) return;
-    final dir = await _saveDir();
-    await ref
-        .read(pdfToolsProvider.notifier)
-        .merge(sources, _outPath(dir, sources.first, 'merged'));
-    await _showResult(
-      context,
-      ref,
-      onProcessAnother: () => _merge(context, ref),
+    if (!context.mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => PdfEditorScreen(
+          mode: PdfEditorMode.merge,
+          sourcePaths: sources,
+        ),
+      ),
     );
   }
 
@@ -193,16 +194,13 @@ class PdfToolsScreen extends ConsumerWidget {
     final sources = await _pickPdfs(multiple: false);
     if (sources == null) return;
     if (!context.mounted) return;
-    final ranges = await _promptRanges(context);
-    if (ranges == null || ranges.isEmpty) return;
-    final dir = await _saveDir();
-    await ref
-        .read(pdfToolsProvider.notifier)
-        .split(sources.single, ranges, dir);
-    await _showResult(
-      context,
-      ref,
-      onProcessAnother: () => _split(context, ref),
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => PdfEditorScreen(
+          mode: PdfEditorMode.split,
+          sourcePaths: sources,
+        ),
+      ),
     );
   }
 
@@ -253,47 +251,15 @@ class PdfToolsScreen extends ConsumerWidget {
     final sources = await _pickPdfs(multiple: false);
     if (sources == null) return;
     if (!context.mounted) return;
-
-    final source = sources.single;
-    final dir = await _saveDir();
-    final notifier = ref.read(pdfToolsProvider.notifier);
-
-    switch (op) {
-      case _PagesOp.reorder:
-        final pages = await _promptPageList(context);
-        if (pages == null || pages.isEmpty) return;
-        await notifier.reorderPages(
-          source,
-          _outPath(dir, source, 'reordered'),
-          pages,
-        );
-      case _PagesOp.delete:
-        final pages = await _promptPageList(context);
-        if (pages == null || pages.isEmpty) return;
-        await notifier.deletePages(
-          source,
-          _outPath(dir, source, 'edited'),
-          pages,
-        );
-      case _PagesOp.rotate:
-        if (!context.mounted) return;
-        final degrees = await _promptRotation(context);
-        if (degrees == null) return;
-        if (!context.mounted) return;
-        final pages = await _promptPageListOrAll(context);
-        if (pages == null) return;
-        await notifier.rotatePages(
-          source,
-          _outPath(dir, source, 'rotated'),
-          pages,
-          degrees,
-        );
-    }
-
-    await _showResult(
-      context,
-      ref,
-      onProcessAnother: () => _pagesOp(context, ref, op),
+    final mode = switch (op) {
+      _PagesOp.reorder => PdfEditorMode.reorder,
+      _PagesOp.delete => PdfEditorMode.delete,
+      _PagesOp.rotate => PdfEditorMode.rotate,
+    };
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => PdfEditorScreen(mode: mode, sourcePaths: sources),
+      ),
     );
   }
 
@@ -301,20 +267,13 @@ class PdfToolsScreen extends ConsumerWidget {
     final sources = await _pickPdfs(multiple: false);
     if (sources == null) return;
     if (!context.mounted) return;
-    final ranges = await _promptRanges(context);
-    if (ranges == null || ranges.isEmpty) return;
-    final dir = await _saveDir();
-    await ref
-        .read(pdfToolsProvider.notifier)
-        .extractPages(
-          sources.single,
-          _outPath(dir, sources.single, 'extract'),
-          ranges.first,
-        );
-    await _showResult(
-      context,
-      ref,
-      onProcessAnother: () => _extractPages(context, ref),
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => PdfEditorScreen(
+          mode: PdfEditorMode.extract,
+          sourcePaths: sources,
+        ),
+      ),
     );
   }
 
@@ -449,74 +408,6 @@ class PdfToolsScreen extends ConsumerWidget {
   static Future<String?> _promptPassword(BuildContext context, String title) =>
       _promptText(context, title, obscure: true);
 
-  static Future<List<PageRange>?> _promptRanges(BuildContext context) async {
-    final raw = await _promptText(
-      context,
-      AppLocalizations.of(context).pageRangesHint,
-    );
-    if (raw == null) return null;
-    return parsePageRanges(raw);
-  }
-
-  static Future<List<int>?> _promptPageList(BuildContext context) async {
-    final raw = await _promptText(
-      context,
-      AppLocalizations.of(context).pageListHint,
-    );
-    if (raw == null) return null;
-    return [
-      for (final range in parsePageRanges(raw))
-        for (var page = range.start; page <= range.end; page++) page,
-    ];
-  }
-
-  /// Returns null if cancelled, empty list if user chose "all pages".
-  static Future<List<int>?> _promptPageListOrAll(BuildContext context) async {
-    final l10n = AppLocalizations.of(context);
-    final choice = await showDialog<_PageChoice>(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: Text(l10n.rotatePages),
-        children: [
-          SimpleDialogOption(
-            onPressed: () => Navigator.of(context).pop(_PageChoice.all),
-            child: const Text('All pages'),
-          ),
-          SimpleDialogOption(
-            onPressed: () => Navigator.of(context).pop(_PageChoice.select),
-            child: Text(l10n.pageListHint),
-          ),
-        ],
-      ),
-    );
-    if (choice == null) return null;
-    if (choice == _PageChoice.all) return const [];
-    return _promptPageList(context);
-  }
-
-  static Future<int?> _promptRotation(BuildContext context) {
-    return showDialog<int>(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: Text(AppLocalizations.of(context).rotate),
-        children: [
-          SimpleDialogOption(
-            onPressed: () => Navigator.of(context).pop(90),
-            child: const Text('90°'),
-          ),
-          SimpleDialogOption(
-            onPressed: () => Navigator.of(context).pop(180),
-            child: const Text('180°'),
-          ),
-          SimpleDialogOption(
-            onPressed: () => Navigator.of(context).pop(270),
-            child: const Text('270°'),
-          ),
-        ],
-      ),
-    );
-  }
-
   static Future<CompressionQuality?> _promptCompressionQuality(
     BuildContext context,
   ) {
@@ -582,8 +473,6 @@ List<PageRange> parsePageRanges(String input) {
 }
 
 enum _PagesOp { reorder, delete, rotate }
-
-enum _PageChoice { all, select }
 
 class _Tool {
   const _Tool(this.icon, this.label, this.onTap);
