@@ -70,8 +70,11 @@ class _ToolResultScreenState extends State<ToolResultScreen> {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  Icon(Icons.check_circle,
-                      color: colorScheme.onPrimaryContainer, size: 32),
+                  Icon(
+                    Icons.check_circle,
+                    color: colorScheme.onPrimaryContainer,
+                    size: 32,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -113,13 +116,13 @@ class _ToolResultScreenState extends State<ToolResultScreen> {
 
           // Output file(s)
           ..._paths.asMap().entries.map(
-                (entry) => _FileCard(
-                  path: entry.value,
-                  onRename: (newPath) =>
-                      setState(() => _paths[entry.key] = newPath),
-                  onDelete: () => setState(() => _paths.removeAt(entry.key)),
-                ),
-              ),
+            (entry) => _FileCard(
+              path: entry.value,
+              onRename: (newPath) =>
+                  setState(() => _paths[entry.key] = newPath),
+              onDelete: () => setState(() => _paths.removeAt(entry.key)),
+            ),
+          ),
 
           const SizedBox(height: 12),
 
@@ -153,7 +156,7 @@ class _ToolResultScreenState extends State<ToolResultScreen> {
               onPressed: () => _openFile(_paths.first),
             ),
             const SizedBox(height: 8),
-            FilledButton.tonal.icon(
+            FilledButton.tonalIcon(
               icon: const Icon(Icons.share),
               label: Text(l10n.shareFile),
               onPressed: () => _share(_paths.first),
@@ -165,7 +168,7 @@ class _ToolResultScreenState extends State<ToolResultScreen> {
               onPressed: () => _viewFolder(_paths.first),
             ),
           ] else ...[
-            FilledButton.tonal.icon(
+            FilledButton.tonalIcon(
               icon: const Icon(Icons.share),
               label: Text(l10n.shareFile),
               onPressed: () => _shareAll(_paths),
@@ -212,22 +215,24 @@ class _ToolResultScreenState extends State<ToolResultScreen> {
     const channel = MethodChannel('opendocs/file_open');
     channel.invokeMethod<void>('open', {'path': path}).catchError((_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(path)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(path)));
       }
     });
   }
 
   void _viewFolder(String filePath) {
     const channel = MethodChannel('opendocs/file_open');
-    channel.invokeMethod<void>('open', {'path': p.dirname(filePath)}).catchError((_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(p.dirname(filePath))),
-        );
-      }
-    });
+    channel
+        .invokeMethod<void>('open', {'path': p.dirname(filePath)})
+        .catchError((_) {
+          if (mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(p.dirname(filePath))));
+          }
+        });
   }
 }
 
@@ -266,8 +271,9 @@ class _SizeInfoCard extends StatelessWidget {
             if (saved > 0)
               Chip(
                 label: Text(l10n.savedSpace(percent)),
-                backgroundColor:
-                    Theme.of(context).colorScheme.secondaryContainer,
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.secondaryContainer,
               ),
           ],
         ),
@@ -291,16 +297,18 @@ class _SizeStat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(label,
-            style: Theme.of(context).textTheme.labelSmall,
-            textAlign: TextAlign.center),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall,
+          textAlign: TextAlign.center,
+        ),
         const SizedBox(height: 2),
         Text(
           _fmt(bytes),
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(color: color, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: color,
+            fontWeight: FontWeight.bold,
+          ),
           textAlign: TextAlign.center,
         ),
       ],
@@ -367,8 +375,10 @@ class _FileCard extends StatelessWidget {
             PopupMenuItem(
               value: _Action.delete,
               child: ListTile(
-                leading: Icon(Icons.delete_outline,
-                    color: Theme.of(context).colorScheme.error),
+                leading: Icon(
+                  Icons.delete_outline,
+                  color: Theme.of(context).colorScheme.error,
+                ),
                 title: Text(l10n.delete),
                 contentPadding: EdgeInsets.zero,
                 dense: true,
@@ -384,8 +394,9 @@ class _FileCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     switch (action) {
       case _Action.rename:
-        final controller =
-            TextEditingController(text: p.basenameWithoutExtension(path));
+        final controller = TextEditingController(
+          text: p.basenameWithoutExtension(path),
+        );
         final newName = await showDialog<String>(
           context: context,
           builder: (context) => AlertDialog(
@@ -415,9 +426,9 @@ class _FileCard extends StatelessWidget {
             onRename(newPath);
           } catch (e) {
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(e.toString())),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(e.toString())));
             }
           }
         }

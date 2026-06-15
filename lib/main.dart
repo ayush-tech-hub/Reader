@@ -38,7 +38,11 @@ Future<void> _boot() async {
       return const ColoredBox(
         color: Color(0xFFFFF8E1),
         child: Center(
-          child: Icon(Icons.warning_amber_rounded, size: 48, color: Color(0xFFF57F17)),
+          child: Icon(
+            Icons.warning_amber_rounded,
+            size: 48,
+            color: Color(0xFFF57F17),
+          ),
         ),
       );
     }
@@ -189,10 +193,7 @@ class _StartupErrorScreen extends StatelessWidget {
                 ),
                 child: Text(
                   error.toString(),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontFamily: 'monospace',
-                  ),
+                  style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
                 ),
               ),
               if (kDebugMode) ...[

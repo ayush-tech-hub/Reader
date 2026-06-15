@@ -30,20 +30,20 @@ class PdfToolsState {
 
   bool get hasResult => lastOutputs.isNotEmpty;
 
-  int? get savedBytes =>
-      (inputSizeBytes != null && outputSizeBytes != null)
-          ? inputSizeBytes! - outputSizeBytes!
-          : null;
+  int? get savedBytes => (inputSizeBytes != null && outputSizeBytes != null)
+      ? inputSizeBytes! - outputSizeBytes!
+      : null;
 
-  double? get savedPercent => (savedBytes != null && inputSizeBytes != null && inputSizeBytes! > 0)
+  double? get savedPercent =>
+      (savedBytes != null && inputSizeBytes != null && inputSizeBytes! > 0)
       ? (savedBytes! / inputSizeBytes!) * 100
       : null;
 }
 
 final pdfToolsProvider =
     NotifierProvider.autoDispose<PdfToolsNotifier, PdfToolsState>(
-  PdfToolsNotifier.new,
-);
+      PdfToolsNotifier.new,
+    );
 
 class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
   @override
@@ -92,17 +92,12 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
   }
 
   Future<void> merge(List<String> sources, String outputPath) => _run(
-        'mergePdf',
-        sources.isNotEmpty ? sources.first : null,
-        () => _single(
-            () => _repo.merge(sources: sources, outputPath: outputPath)),
-      );
+    'mergePdf',
+    sources.isNotEmpty ? sources.first : null,
+    () => _single(() => _repo.merge(sources: sources, outputPath: outputPath)),
+  );
 
-  Future<void> split(
-    String source,
-    List<PageRange> ranges,
-    String outputDir,
-  ) =>
+  Future<void> split(String source, List<PageRange> ranges, String outputDir) =>
       _run(
         'splitPdf',
         source,
@@ -113,52 +108,43 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
     String source,
     String outputPath,
     CompressionQuality quality,
-  ) =>
-      _run(
-        'compressPdf',
-        source,
-        () => _single(
-          () => _repo.compress(
-            source: source,
-            outputPath: outputPath,
-            quality: quality,
-          ),
-        ),
-      );
+  ) => _run(
+    'compressPdf',
+    source,
+    () => _single(
+      () => _repo.compress(
+        source: source,
+        outputPath: outputPath,
+        quality: quality,
+      ),
+    ),
+  );
 
   Future<void> imagesToPdf(List<String> imagePaths, String outputPath) => _run(
-        'imagesToPdf',
-        null,
-        () => _single(
-          () => _repo.imagesToPdf(
-            imagePaths: imagePaths,
-            outputPath: outputPath,
-          ),
-        ),
-      );
+    'imagesToPdf',
+    null,
+    () => _single(
+      () => _repo.imagesToPdf(imagePaths: imagePaths, outputPath: outputPath),
+    ),
+  );
 
   Future<void> reorderPages(
     String source,
     String outputPath,
     List<int> newOrder,
-  ) =>
-      _run(
-        'reorderPages',
-        source,
-        () => _single(
-          () => _repo.reorderPages(
-            source: source,
-            outputPath: outputPath,
-            newOrder: newOrder,
-          ),
-        ),
-      );
+  ) => _run(
+    'reorderPages',
+    source,
+    () => _single(
+      () => _repo.reorderPages(
+        source: source,
+        outputPath: outputPath,
+        newOrder: newOrder,
+      ),
+    ),
+  );
 
-  Future<void> deletePages(
-    String source,
-    String outputPath,
-    List<int> pages,
-  ) =>
+  Future<void> deletePages(String source, String outputPath, List<int> pages) =>
       _run(
         'deletePages',
         source,
@@ -176,53 +162,46 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
     String outputPath,
     List<int> pages,
     int degrees,
-  ) =>
-      _run(
-        'rotatePages',
-        source,
-        () => _single(
-          () => _repo.rotatePages(
-            source: source,
-            outputPath: outputPath,
-            pages: pages,
-            degrees: degrees,
-          ),
-        ),
-      );
+  ) => _run(
+    'rotatePages',
+    source,
+    () => _single(
+      () => _repo.rotatePages(
+        source: source,
+        outputPath: outputPath,
+        pages: pages,
+        degrees: degrees,
+      ),
+    ),
+  );
 
   Future<void> extractPages(
     String source,
     String outputPath,
     PageRange range,
-  ) =>
-      _run(
-        'extractPages',
-        source,
-        () => _single(
-          () => _repo.extractPages(
-            source: source,
-            outputPath: outputPath,
-            range: range,
-          ),
-        ),
-      );
+  ) => _run(
+    'extractPages',
+    source,
+    () => _single(
+      () => _repo.extractPages(
+        source: source,
+        outputPath: outputPath,
+        range: range,
+      ),
+    ),
+  );
 
   Future<void> watermark(
     String source,
     String outputPath,
     WatermarkSpec spec,
-  ) =>
-      _run(
-        'watermarkPdf',
-        source,
-        () => _single(
-          () => _repo.watermark(
-            source: source,
-            outputPath: outputPath,
-            spec: spec,
-          ),
-        ),
-      );
+  ) => _run(
+    'watermarkPdf',
+    source,
+    () => _single(
+      () => _repo.watermark(source: source, outputPath: outputPath, spec: spec),
+    ),
+  );
 
   Future<PdfMetadata?> getMetadata(String source) async {
     final result = await _repo.getMetadata(source);
@@ -233,41 +212,29 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
     String source,
     String outputPath,
     PdfMetadata metadata,
-  ) =>
-      _run(
-        'editMetadata',
-        source,
-        () => _single(
-          () => _repo.setMetadata(
-            source: source,
-            outputPath: outputPath,
-            metadata: metadata,
-          ),
-        ),
-      );
+  ) => _run(
+    'editMetadata',
+    source,
+    () => _single(
+      () => _repo.setMetadata(
+        source: source,
+        outputPath: outputPath,
+        metadata: metadata,
+      ),
+    ),
+  );
 
-  Future<void> encrypt(
-    String source,
-    String outputPath,
-    PdfEncryptSpec spec,
-  ) =>
+  Future<void> encrypt(String source, String outputPath, PdfEncryptSpec spec) =>
       _run(
         'encryptPdf',
         source,
         () => _single(
-          () => _repo.encrypt(
-            source: source,
-            outputPath: outputPath,
-            spec: spec,
-          ),
+          () =>
+              _repo.encrypt(source: source, outputPath: outputPath, spec: spec),
         ),
       );
 
-  Future<void> decrypt(
-    String source,
-    String outputPath,
-    String password,
-  ) =>
+  Future<void> decrypt(String source, String outputPath, String password) =>
       _run(
         'decryptPdf',
         source,

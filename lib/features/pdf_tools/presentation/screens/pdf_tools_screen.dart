@@ -80,8 +80,10 @@ class PdfToolsScreen extends ConsumerWidget {
           ],
           if (state.lastError != null)
             ListTile(
-              leading: Icon(Icons.error_outline,
-                  color: Theme.of(context).colorScheme.error),
+              leading: Icon(
+                Icons.error_outline,
+                color: Theme.of(context).colorScheme.error,
+              ),
               title: Text(state.lastError!),
             ),
           Expanded(
@@ -123,19 +125,15 @@ class PdfToolsScreen extends ConsumerWidget {
 
   static Future<String> _saveDir() => _saveService.getDefaultSaveDir();
 
-  static String _outPath(String dir, String source, String suffix) => p.join(
-        dir,
-        '${p.basenameWithoutExtension(source)}_$suffix.pdf',
-      );
+  static String _outPath(String dir, String source, String suffix) =>
+      p.join(dir, '${p.basenameWithoutExtension(source)}_$suffix.pdf');
 
   static Future<void> _changeOutputFolder(BuildContext context) async {
     final dir = await FilePicker.getDirectoryPath();
     if (dir == null) return;
     await _saveService.setCustomSaveDir(dir);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(dir)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(dir)));
     }
   }
 
@@ -184,8 +182,11 @@ class PdfToolsScreen extends ConsumerWidget {
     await ref
         .read(pdfToolsProvider.notifier)
         .merge(sources, _outPath(dir, sources.first, 'merged'));
-    await _showResult(context, ref,
-        onProcessAnother: () => _merge(context, ref));
+    await _showResult(
+      context,
+      ref,
+      onProcessAnother: () => _merge(context, ref),
+    );
   }
 
   static Future<void> _split(BuildContext context, WidgetRef ref) async {
@@ -198,8 +199,11 @@ class PdfToolsScreen extends ConsumerWidget {
     await ref
         .read(pdfToolsProvider.notifier)
         .split(sources.single, ranges, dir);
-    await _showResult(context, ref,
-        onProcessAnother: () => _split(context, ref));
+    await _showResult(
+      context,
+      ref,
+      onProcessAnother: () => _split(context, ref),
+    );
   }
 
   static Future<void> _compress(BuildContext context, WidgetRef ref) async {
@@ -209,13 +213,18 @@ class PdfToolsScreen extends ConsumerWidget {
     final quality = await _promptCompressionQuality(context);
     if (quality == null) return;
     final dir = await _saveDir();
-    await ref.read(pdfToolsProvider.notifier).compress(
+    await ref
+        .read(pdfToolsProvider.notifier)
+        .compress(
           sources.single,
           _outPath(dir, sources.single, 'compressed'),
           quality,
         );
-    await _showResult(context, ref,
-        onProcessAnother: () => _compress(context, ref));
+    await _showResult(
+      context,
+      ref,
+      onProcessAnother: () => _compress(context, ref),
+    );
   }
 
   static Future<void> _imagesToPdf(BuildContext context, WidgetRef ref) async {
@@ -229,8 +238,11 @@ class PdfToolsScreen extends ConsumerWidget {
     await ref
         .read(pdfToolsProvider.notifier)
         .imagesToPdf(images, _outPath(dir, images.first, 'images'));
-    await _showResult(context, ref,
-        onProcessAnother: () => _imagesToPdf(context, ref));
+    await _showResult(
+      context,
+      ref,
+      onProcessAnother: () => _imagesToPdf(context, ref),
+    );
   }
 
   static Future<void> _pagesOp(
@@ -251,12 +263,18 @@ class PdfToolsScreen extends ConsumerWidget {
         final pages = await _promptPageList(context);
         if (pages == null || pages.isEmpty) return;
         await notifier.reorderPages(
-            source, _outPath(dir, source, 'reordered'), pages);
+          source,
+          _outPath(dir, source, 'reordered'),
+          pages,
+        );
       case _PagesOp.delete:
         final pages = await _promptPageList(context);
         if (pages == null || pages.isEmpty) return;
         await notifier.deletePages(
-            source, _outPath(dir, source, 'edited'), pages);
+          source,
+          _outPath(dir, source, 'edited'),
+          pages,
+        );
       case _PagesOp.rotate:
         if (!context.mounted) return;
         final degrees = await _promptRotation(context);
@@ -265,30 +283,39 @@ class PdfToolsScreen extends ConsumerWidget {
         final pages = await _promptPageListOrAll(context);
         if (pages == null) return;
         await notifier.rotatePages(
-            source, _outPath(dir, source, 'rotated'), pages, degrees);
+          source,
+          _outPath(dir, source, 'rotated'),
+          pages,
+          degrees,
+        );
     }
 
-    await _showResult(context, ref,
-        onProcessAnother: () => _pagesOp(context, ref, op));
+    await _showResult(
+      context,
+      ref,
+      onProcessAnother: () => _pagesOp(context, ref, op),
+    );
   }
 
-  static Future<void> _extractPages(
-    BuildContext context,
-    WidgetRef ref,
-  ) async {
+  static Future<void> _extractPages(BuildContext context, WidgetRef ref) async {
     final sources = await _pickPdfs(multiple: false);
     if (sources == null) return;
     if (!context.mounted) return;
     final ranges = await _promptRanges(context);
     if (ranges == null || ranges.isEmpty) return;
     final dir = await _saveDir();
-    await ref.read(pdfToolsProvider.notifier).extractPages(
+    await ref
+        .read(pdfToolsProvider.notifier)
+        .extractPages(
           sources.single,
           _outPath(dir, sources.single, 'extract'),
           ranges.first,
         );
-    await _showResult(context, ref,
-        onProcessAnother: () => _extractPages(context, ref));
+    await _showResult(
+      context,
+      ref,
+      onProcessAnother: () => _extractPages(context, ref),
+    );
   }
 
   static Future<void> _watermark(BuildContext context, WidgetRef ref) async {
@@ -301,13 +328,18 @@ class PdfToolsScreen extends ConsumerWidget {
     );
     if (spec == null) return;
     final dir = await _saveDir();
-    await ref.read(pdfToolsProvider.notifier).watermark(
+    await ref
+        .read(pdfToolsProvider.notifier)
+        .watermark(
           sources.single,
           _outPath(dir, sources.single, 'watermarked'),
           spec,
         );
-    await _showResult(context, ref,
-        onProcessAnother: () => _watermark(context, ref));
+    await _showResult(
+      context,
+      ref,
+      onProcessAnother: () => _watermark(context, ref),
+    );
   }
 
   static Future<void> _metadata(BuildContext context, WidgetRef ref) async {
@@ -328,8 +360,11 @@ class PdfToolsScreen extends ConsumerWidget {
       _outPath(dir, sources.single, 'meta'),
       updated,
     );
-    await _showResult(context, ref,
-        onProcessAnother: () => _metadata(context, ref));
+    await _showResult(
+      context,
+      ref,
+      onProcessAnother: () => _metadata(context, ref),
+    );
   }
 
   static Future<void> _encrypt(BuildContext context, WidgetRef ref) async {
@@ -342,13 +377,18 @@ class PdfToolsScreen extends ConsumerWidget {
     );
     if (spec == null) return;
     final dir = await _saveDir();
-    await ref.read(pdfToolsProvider.notifier).encrypt(
+    await ref
+        .read(pdfToolsProvider.notifier)
+        .encrypt(
           sources.single,
           _outPath(dir, sources.single, 'encrypted'),
           spec,
         );
-    await _showResult(context, ref,
-        onProcessAnother: () => _encrypt(context, ref));
+    await _showResult(
+      context,
+      ref,
+      onProcessAnother: () => _encrypt(context, ref),
+    );
   }
 
   static Future<void> _decrypt(BuildContext context, WidgetRef ref) async {
@@ -361,19 +401,27 @@ class PdfToolsScreen extends ConsumerWidget {
     );
     if (password == null) return;
     final dir = await _saveDir();
-    await ref.read(pdfToolsProvider.notifier).decrypt(
+    await ref
+        .read(pdfToolsProvider.notifier)
+        .decrypt(
           sources.single,
           _outPath(dir, sources.single, 'unlocked'),
           password,
         );
-    await _showResult(context, ref,
-        onProcessAnother: () => _decrypt(context, ref));
+    await _showResult(
+      context,
+      ref,
+      onProcessAnother: () => _decrypt(context, ref),
+    );
   }
 
   // ---- Prompts --------------------------------------------------------
 
-  static Future<String?> _promptText(BuildContext context, String title,
-      {bool obscure = false}) {
+  static Future<String?> _promptText(
+    BuildContext context,
+    String title, {
+    bool obscure = false,
+  }) {
     final controller = TextEditingController();
     return showDialog<String>(
       context: context,
@@ -403,14 +451,18 @@ class PdfToolsScreen extends ConsumerWidget {
 
   static Future<List<PageRange>?> _promptRanges(BuildContext context) async {
     final raw = await _promptText(
-        context, AppLocalizations.of(context).pageRangesHint);
+      context,
+      AppLocalizations.of(context).pageRangesHint,
+    );
     if (raw == null) return null;
     return parsePageRanges(raw);
   }
 
   static Future<List<int>?> _promptPageList(BuildContext context) async {
-    final raw =
-        await _promptText(context, AppLocalizations.of(context).pageListHint);
+    final raw = await _promptText(
+      context,
+      AppLocalizations.of(context).pageListHint,
+    );
     if (raw == null) return null;
     return [
       for (final range in parsePageRanges(raw))
@@ -466,7 +518,8 @@ class PdfToolsScreen extends ConsumerWidget {
   }
 
   static Future<CompressionQuality?> _promptCompressionQuality(
-      BuildContext context) {
+    BuildContext context,
+  ) {
     final l10n = AppLocalizations.of(context);
     return showDialog<CompressionQuality>(
       context: context,
@@ -474,8 +527,7 @@ class PdfToolsScreen extends ConsumerWidget {
         title: Text(l10n.compressPdf),
         children: [
           SimpleDialogOption(
-            onPressed: () =>
-                Navigator.of(context).pop(CompressionQuality.high),
+            onPressed: () => Navigator.of(context).pop(CompressionQuality.high),
             child: const ListTile(
               title: Text('High quality (larger file)'),
               leading: Icon(Icons.hd),
@@ -494,8 +546,7 @@ class PdfToolsScreen extends ConsumerWidget {
             ),
           ),
           SimpleDialogOption(
-            onPressed: () =>
-                Navigator.of(context).pop(CompressionQuality.low),
+            onPressed: () => Navigator.of(context).pop(CompressionQuality.low),
             child: const ListTile(
               title: Text('Maximum compression (smaller file)'),
               leading: Icon(Icons.compress),
@@ -531,6 +582,7 @@ List<PageRange> parsePageRanges(String input) {
 }
 
 enum _PagesOp { reorder, delete, rotate }
+
 enum _PageChoice { all, select }
 
 class _Tool {
@@ -624,12 +676,12 @@ class _WatermarkDialogState extends State<_WatermarkDialog> {
           onPressed: _text.text.isEmpty
               ? null
               : () => Navigator.of(context).pop(
-                    WatermarkSpec(
-                      text: _text.text,
-                      opacity: _opacity,
-                      fontSize: _fontSize,
-                    ),
+                  WatermarkSpec(
+                    text: _text.text,
+                    opacity: _opacity,
+                    fontSize: _fontSize,
                   ),
+                ),
           child: Text(l10n.ok),
         ),
       ],
@@ -765,8 +817,10 @@ class _EncryptDialogState extends State<_EncryptDialog> {
               obscureText: true,
             ),
             const SizedBox(height: 12),
-            Text(l10n.permissions,
-                style: Theme.of(context).textTheme.labelLarge),
+            Text(
+              l10n.permissions,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
             CheckboxListTile(
               dense: true,
               title: Text(l10n.allowPrinting),
@@ -807,15 +861,15 @@ class _EncryptDialogState extends State<_EncryptDialog> {
           onPressed: _userPw.text.isEmpty
               ? null
               : () => Navigator.of(context).pop(
-                    PdfEncryptSpec(
-                      userPassword: _userPw.text,
-                      ownerPassword: _ownerPw.text,
-                      allowPrinting: _allowPrinting,
-                      allowCopying: _allowCopying,
-                      allowEditing: _allowEditing,
-                      allowAnnotating: _allowAnnotating,
-                    ),
+                  PdfEncryptSpec(
+                    userPassword: _userPw.text,
+                    ownerPassword: _ownerPw.text,
+                    allowPrinting: _allowPrinting,
+                    allowCopying: _allowCopying,
+                    allowEditing: _allowEditing,
+                    allowAnnotating: _allowAnnotating,
                   ),
+                ),
           child: Text(l10n.ok),
         ),
       ],
