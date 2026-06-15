@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,11 +14,30 @@ class PdfToolsState {
     this.isWorking = false,
     this.lastOutputs = const [],
     this.lastError,
+    this.processingTimeMs,
+    this.inputSizeBytes,
+    this.outputSizeBytes,
+    this.operationName,
   });
 
   final bool isWorking;
   final List<String> lastOutputs;
   final String? lastError;
+  final int? processingTimeMs;
+  final int? inputSizeBytes;
+  final int? outputSizeBytes;
+  final String? operationName;
+
+  bool get hasResult => lastOutputs.isNotEmpty;
+
+  int? get savedBytes =>
+      (inputSizeBytes != null && outputSizeBytes != null)
+          ? inputSizeBytes! - outputSizeBytes!
+          : null;
+
+  double? get savedPercent => (savedBytes != null && inputSizeBytes != null && inputSizeBytes! > 0)
+      ? (savedBytes! / inputSizeBytes!) * 100
+      : null;
 }
 
 final pdfToolsProvider =
@@ -30,13 +51,37 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
 
   PdfToolsRepository get _repo => ref.read(pdfToolsRepositoryProvider);
 
-  Future<void> _run(Future<Result<List<String>>> Function() operation) async {
-    state = const PdfToolsState(isWorking: true);
+  Future<void> _run(
+    String operationName,
+    String? sourcePath,
+    Future<Result<List<String>>> Function() operation,
+  ) async {
+    state = PdfToolsState(isWorking: true, operationName: operationName);
+    final inputSize = sourcePath != null ? _fileSize(sourcePath) : null;
+    final start = DateTime.now().millisecondsSinceEpoch;
     final result = await operation();
+    final elapsed = DateTime.now().millisecondsSinceEpoch - start;
     state = result.fold(
       (failure) => PdfToolsState(lastError: failure.message),
-      (outputs) => PdfToolsState(lastOutputs: outputs),
+      (outputs) {
+        final outSize = outputs.length == 1 ? _fileSize(outputs.first) : null;
+        return PdfToolsState(
+          lastOutputs: outputs,
+          processingTimeMs: elapsed,
+          inputSizeBytes: inputSize,
+          outputSizeBytes: outSize,
+          operationName: operationName,
+        );
+      },
     );
+  }
+
+  int? _fileSize(String path) {
+    try {
+      return File(path).statSync().size;
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<Result<List<String>>> _single(
@@ -47,6 +92,8 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
   }
 
   Future<void> merge(List<String> sources, String outputPath) => _run(
+        'mergePdf',
+        sources.isNotEmpty ? sources.first : null,
         () => _single(
             () => _repo.merge(sources: sources, outputPath: outputPath)),
       );
@@ -57,6 +104,8 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
     String outputDir,
   ) =>
       _run(
+        'splitPdf',
+        source,
         () => _repo.split(source: source, ranges: ranges, outputDir: outputDir),
       );
 
@@ -66,6 +115,8 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
     CompressionQuality quality,
   ) =>
       _run(
+        'compressPdf',
+        source,
         () => _single(
           () => _repo.compress(
             source: source,
@@ -76,6 +127,8 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
       );
 
   Future<void> imagesToPdf(List<String> imagePaths, String outputPath) => _run(
+        'imagesToPdf',
+        null,
         () => _single(
           () => _repo.imagesToPdf(
             imagePaths: imagePaths,
@@ -90,6 +143,8 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
     List<int> newOrder,
   ) =>
       _run(
+        'reorderPages',
+        source,
         () => _single(
           () => _repo.reorderPages(
             source: source,
@@ -105,6 +160,8 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
     List<int> pages,
   ) =>
       _run(
+        'deletePages',
+        source,
         () => _single(
           () => _repo.deletePages(
             source: source,
@@ -121,6 +178,8 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
     int degrees,
   ) =>
       _run(
+        'rotatePages',
+        source,
         () => _single(
           () => _repo.rotatePages(
             source: source,
@@ -137,6 +196,8 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
     PageRange range,
   ) =>
       _run(
+        'extractPages',
+        source,
         () => _single(
           () => _repo.extractPages(
             source: source,
@@ -152,6 +213,8 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
     WatermarkSpec spec,
   ) =>
       _run(
+        'watermarkPdf',
+        source,
         () => _single(
           () => _repo.watermark(
             source: source,
@@ -172,11 +235,47 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
     PdfMetadata metadata,
   ) =>
       _run(
+        'editMetadata',
+        source,
         () => _single(
           () => _repo.setMetadata(
             source: source,
             outputPath: outputPath,
             metadata: metadata,
+          ),
+        ),
+      );
+
+  Future<void> encrypt(
+    String source,
+    String outputPath,
+    PdfEncryptSpec spec,
+  ) =>
+      _run(
+        'encryptPdf',
+        source,
+        () => _single(
+          () => _repo.encrypt(
+            source: source,
+            outputPath: outputPath,
+            spec: spec,
+          ),
+        ),
+      );
+
+  Future<void> decrypt(
+    String source,
+    String outputPath,
+    String password,
+  ) =>
+      _run(
+        'decryptPdf',
+        source,
+        () => _single(
+          () => _repo.decrypt(
+            source: source,
+            outputPath: outputPath,
+            password: password,
           ),
         ),
       );

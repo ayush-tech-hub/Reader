@@ -55,6 +55,9 @@ dependencies:
   flutter_markdown: ^0.7.4
   xml: ^6.5.0
 
+  # File sharing / opening
+  share_plus: ^10.1.4
+
   # Misc
   equatable: ^2.0.7
   collection: ^1.18.0

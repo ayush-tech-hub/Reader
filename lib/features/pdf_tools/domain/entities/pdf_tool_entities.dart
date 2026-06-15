@@ -76,3 +76,31 @@ class PdfMetadata extends Equatable {
 }
 
 enum CompressionQuality { low, medium, high }
+
+class PdfEncryptSpec extends Equatable {
+  const PdfEncryptSpec({
+    required this.userPassword,
+    this.ownerPassword = '',
+    this.allowPrinting = true,
+    this.allowCopying = false,
+    this.allowEditing = false,
+    this.allowAnnotating = true,
+  });
+
+  final String userPassword;
+  final String ownerPassword;
+  final bool allowPrinting;
+  final bool allowCopying;
+  final bool allowEditing;
+  final bool allowAnnotating;
+
+  @override
+  List<Object?> get props => [
+        userPassword,
+        ownerPassword,
+        allowPrinting,
+        allowCopying,
+        allowEditing,
+        allowAnnotating,
+      ];
+}

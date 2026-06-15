@@ -28,6 +28,8 @@ abstract final class PdfToolsMethods {
   static const String watermark = 'watermark';
   static const String getMetadata = 'getMetadata';
   static const String setMetadata = 'setMetadata';
+  static const String encrypt = 'encrypt';
+  static const String decrypt = 'decrypt';
 }
 
 abstract final class StorageMethods {

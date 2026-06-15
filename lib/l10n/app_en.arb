@@ -152,5 +152,58 @@
   "assignTags": "Assign tags",
   "workspace": "Workspace",
   "openDocumentTab": "Open a document tab",
-  "readAloud": "Read aloud / stop"
+  "readAloud": "Read aloud / stop",
+  "encryptPdf": "Encrypt PDF",
+  "decryptPdf": "Remove Password",
+  "userPassword": "User password (to open)",
+  "ownerPassword": "Owner password (permissions)",
+  "allowPrinting": "Allow printing",
+  "allowCopying": "Allow copying text",
+  "allowEditing": "Allow editing",
+  "allowAnnotating": "Allow annotations",
+  "processingTime": "Processed in {ms} ms",
+  "@processingTime": {
+    "placeholders": {
+      "ms": {"type": "int"}
+    }
+  },
+  "inputSize": "Input",
+  "outputSize": "Output",
+  "savedSpace": "Saved {percent}%",
+  "@savedSpace": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "viewFolder": "View folder",
+  "processAnother": "Process another",
+  "shareFile": "Share",
+  "openFile": "Open",
+  "saveLocation": "Saved to",
+  "privacyNotice": "All processing happens entirely on your device. No data is uploaded.",
+  "renameFile": "Rename file",
+  "newFileName": "New file name",
+  "changeOutputFolder": "Change output folder",
+  "useDefaultFolder": "Reset to default",
+  "defaultSaveFolder": "Default save folder: Downloads/PDF & Image Tools/",
+  "permissions": "Permissions",
+  "noOutputYet": "Results will appear here after processing.",
+  "fileSizeBytes": "{bytes} B",
+  "@fileSizeBytes": {
+    "placeholders": {
+      "bytes": {"type": "int"}
+    }
+  },
+  "fileSizeKb": "{kb} KB",
+  "@fileSizeKb": {
+    "placeholders": {
+      "kb": {"type": "String"}
+    }
+  },
+  "fileSizeMb": "{mb} MB",
+  "@fileSizeMb": {
+    "placeholders": {
+      "mb": {"type": "String"}
+    }
+  }
 }
