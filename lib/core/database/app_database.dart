@@ -20,7 +20,8 @@ class AppDatabase {
 
   Future<void> open({String? overridePath}) async {
     if (_db != null) return;
-    final path = overridePath ??
+    final path =
+        overridePath ??
         p.join(await getDatabasesPath(), AppConstants.databaseName);
     _db = await openDatabase(
       path,
@@ -52,8 +53,10 @@ class AppDatabase {
         pinned          INTEGER NOT NULL DEFAULT 0,
         last_opened_at  INTEGER NOT NULL
       )''');
-    batch.execute('CREATE INDEX idx_recent_documents_opened '
-        'ON recent_documents (last_opened_at DESC)');
+    batch.execute(
+      'CREATE INDEX idx_recent_documents_opened '
+      'ON recent_documents (last_opened_at DESC)',
+    );
     batch.execute('''
       CREATE TABLE bookmarks (
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,8 +66,10 @@ class AppDatabase {
         created_at      INTEGER NOT NULL,
         UNIQUE (document_path, page)
       )''');
-    batch.execute('CREATE INDEX idx_bookmarks_document '
-        'ON bookmarks (document_path)');
+    batch.execute(
+      'CREATE INDEX idx_bookmarks_document '
+      'ON bookmarks (document_path)',
+    );
     batch.execute('''
       CREATE TABLE annotations (
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -79,8 +84,10 @@ class AppDatabase {
         created_at      INTEGER NOT NULL,
         updated_at      INTEGER NOT NULL
       )''');
-    batch.execute('CREATE INDEX idx_annotations_document_page '
-        'ON annotations (document_path, page)');
+    batch.execute(
+      'CREATE INDEX idx_annotations_document_page '
+      'ON annotations (document_path, page)',
+    );
     batch.execute('''
       CREATE TABLE favorites (
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -96,8 +103,10 @@ class AppDatabase {
         name            TEXT    NOT NULL,
         accessed_at     INTEGER NOT NULL
       )''');
-    batch.execute('CREATE INDEX idx_recent_files_accessed '
-        'ON recent_files (accessed_at DESC)');
+    batch.execute(
+      'CREATE INDEX idx_recent_files_accessed '
+      'ON recent_files (accessed_at DESC)',
+    );
     batch.execute('''
       CREATE TABLE archive_jobs (
         id              TEXT    PRIMARY KEY,
@@ -123,7 +132,9 @@ class AppDatabase {
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       final ftsEngine = await _detectFtsEngine(db);
-      debugPrint('[AppDatabase] onUpgrade v$oldVersion→v$newVersion, FTS: $ftsEngine');
+      debugPrint(
+        '[AppDatabase] onUpgrade v$oldVersion→v$newVersion, FTS: $ftsEngine',
+      );
       final batch = db.batch();
       _createV2Tables(batch, ftsEngine: ftsEngine);
       await batch.commit(noResult: true);
@@ -138,8 +149,7 @@ class AppDatabase {
   static Future<_FtsEngine> _detectFtsEngine(Database db) async {
     // Try FTS5 first.
     try {
-      await db.execute(
-          'CREATE VIRTUAL TABLE _fts5_probe USING fts5(x)');
+      await db.execute('CREATE VIRTUAL TABLE _fts5_probe USING fts5(x)');
       await db.execute('DROP TABLE IF EXISTS _fts5_probe');
       return _FtsEngine.fts5;
     } catch (_) {
@@ -148,8 +158,7 @@ class AppDatabase {
 
     // Fall back to FTS4.
     try {
-      await db.execute(
-          'CREATE VIRTUAL TABLE _fts4_probe USING fts4(x)');
+      await db.execute('CREATE VIRTUAL TABLE _fts4_probe USING fts4(x)');
       await db.execute('DROP TABLE IF EXISTS _fts4_probe');
       return _FtsEngine.fts4;
     } catch (_) {
