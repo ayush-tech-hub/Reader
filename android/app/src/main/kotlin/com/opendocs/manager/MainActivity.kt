@@ -85,7 +85,10 @@ class MainActivity : FlutterActivity() {
             translateHandler = handler
             MethodChannel(messenger, "opendocs/translate")
                 .setMethodCallHandler(handler)
-            Log.d(TAG, "TranslateHandler registered")
+            // Kick off background model downloads immediately so that
+            // translation is ready for offline use on the first attempt.
+            handler.prefetchModels()
+            Log.d(TAG, "TranslateHandler registered; model prefetch started")
         } catch (e: Throwable) {
             Log.e(TAG, "Failed to register translate channel — translation unavailable", e)
         }
