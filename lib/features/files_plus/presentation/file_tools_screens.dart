@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sqflite/sqflite.dart' show ConflictAlgorithm;
 
 import '../../../core/di/providers.dart';
@@ -25,7 +28,7 @@ class _DuplicatesScreenState extends ConsumerState<DuplicatesScreen> {
   bool _busy = false;
 
   Future<void> _scan() async {
-    final root = await FilePicker.getDirectoryPath();
+    final root = await _acquireRootPath();
     if (root == null) return;
     setState(() => _busy = true);
     final groups =
@@ -36,6 +39,18 @@ class _DuplicatesScreenState extends ConsumerState<DuplicatesScreen> {
         _busy = false;
       });
     }
+  }
+
+  static Future<String?> _acquireRootPath() async {
+    if (Platform.isAndroid) {
+      var status = await Permission.manageExternalStorage.status;
+      if (!status.isGranted) {
+        status = await Permission.manageExternalStorage.request();
+      }
+      if (status.isGranted) return '/storage/emulated/0';
+      // Fallback: let user pick a directory manually.
+    }
+    return FilePicker.getDirectoryPath();
   }
 
   Future<void> _delete(String path, int group) async {
@@ -114,11 +129,16 @@ class StorageAnalyzerScreen extends ConsumerStatefulWidget {
 class _StorageAnalyzerScreenState extends ConsumerState<StorageAnalyzerScreen> {
   StorageReport? _report;
   bool _busy = false;
+  // Tracks files deleted during the current session so they hide from the list.
+  final Set<String> _deleted = {};
 
   Future<void> _analyze() async {
-    final root = await FilePicker.getDirectoryPath();
+    final root = await _DuplicatesScreenState._acquireRootPath();
     if (root == null) return;
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _deleted.clear();
+    });
     final report =
         await ref.read(fileToolsServiceProvider).analyzeStorage(root);
     if (mounted) {
@@ -127,6 +147,75 @@ class _StorageAnalyzerScreenState extends ConsumerState<StorageAnalyzerScreen> {
         _busy = false;
       });
     }
+  }
+
+  Future<void> _deleteFile(String path) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete file?'),
+        content: Text(p.basename(path)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      File(path).deleteSync();
+    } catch (_) {}
+    if (mounted) setState(() => _deleted.add(path));
+  }
+
+  Future<void> _deleteByExtension(String ext) async {
+    final report = _report;
+    if (report == null) return;
+    final files = report.largestFiles
+        .where(
+          (e) =>
+              p.extension(e.$1).toLowerCase() == ext.toLowerCase() &&
+              !_deleted.contains(e.$1),
+        )
+        .map((e) => e.$1)
+        .toList();
+    if (files.isEmpty) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Delete all $ext files?'),
+        content: Text('${files.length} files will be deleted permanently.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Delete All'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    for (final path in files) {
+      try {
+        File(path).deleteSync();
+      } catch (_) {}
+    }
+    if (mounted) setState(() => _deleted.addAll(files));
   }
 
   @override
@@ -163,14 +252,31 @@ class _StorageAnalyzerScreenState extends ConsumerState<StorageAnalyzerScreen> {
                         dense: true,
                         leading: const Icon(Icons.category_outlined),
                         title: Text(entry.key),
-                        trailing: Text(formatBytes(entry.value)),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(formatBytes(entry.value)),
+                            const SizedBox(width: 4),
+                            IconButton(
+                              icon: Icon(
+                                Icons.delete_sweep_outlined,
+                                color: Theme.of(context).colorScheme.error,
+                                size: 20,
+                              ),
+                              tooltip: 'Delete all ${entry.key} files',
+                              onPressed: () =>
+                                  _deleteByExtension(entry.key),
+                            ),
+                          ],
+                        ),
                       ),
                     const SizedBox(height: 8),
                     Text(
                       l10n.largestFiles,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    for (final (path, size) in report.largestFiles)
+                    for (final (path, size) in report.largestFiles
+                        .where((e) => !_deleted.contains(e.$1)))
                       ListTile(
                         dense: true,
                         leading: const Icon(Icons.insert_drive_file),
@@ -179,7 +285,26 @@ class _StorageAnalyzerScreenState extends ConsumerState<StorageAnalyzerScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        trailing: Text(formatBytes(size)),
+                        subtitle: Text(
+                          p.dirname(path),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(formatBytes(size)),
+                            const SizedBox(width: 4),
+                            IconButton(
+                              icon: Icon(
+                                Icons.delete_outline,
+                                color: Theme.of(context).colorScheme.error,
+                                size: 20,
+                              ),
+                              onPressed: () => _deleteFile(path),
+                            ),
+                          ],
+                        ),
                       ),
                   ],
                 ),

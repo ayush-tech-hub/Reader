@@ -124,15 +124,58 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
         return pages.join('\n\n');
       });
 
-  Future<void> _translate() => _run(() async {
-        final target = Localizations.localeOf(context).languageCode;
-        final source = _output.isNotEmpty ? _output : await _documentText();
-        return ref.read(translateEngineProvider).translate(
-              text: source.length > 4000 ? source.substring(0, 4000) : source,
-              sourceLanguage: 'en',
-              targetLanguage: target,
-            );
-      });
+  static const _languages = [
+    ('Hindi', 'hi'),
+    ('Bengali', 'bn'),
+    ('Telugu', 'te'),
+    ('Marathi', 'mr'),
+    ('Tamil', 'ta'),
+    ('Gujarati', 'gu'),
+    ('Kannada', 'kn'),
+    ('Malayalam', 'ml'),
+    ('Punjabi', 'pa'),
+    ('Odia', 'or'),
+    ('Assamese', 'as'),
+    ('Maithili', 'mai'),
+    ('Sanskrit', 'sa'),
+    ('Urdu', 'ur'),
+    ('Sindhi', 'sd'),
+    ('Nepali', 'ne'),
+    ('Konkani', 'kok'),
+    ('Manipuri', 'mni'),
+    ('Bodo', 'brx'),
+    ('Dogri', 'doi'),
+    ('Kashmiri', 'ks'),
+    ('Santali', 'sat'),
+    ('Spanish', 'es'),
+    ('French', 'fr'),
+  ];
+
+  Future<void> _translate() async {
+    if (!mounted) return;
+    final picked = await showDialog<String>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text('Select target language'),
+        children: [
+          for (final (name, code) in _languages)
+            SimpleDialogOption(
+              onPressed: () => Navigator.of(ctx).pop(code),
+              child: Text(name),
+            ),
+        ],
+      ),
+    );
+    if (picked == null) return;
+    _run(() async {
+      final source = _output.isNotEmpty ? _output : await _documentText();
+      return ref.read(translateEngineProvider).translate(
+            text: source.length > 4000 ? source.substring(0, 4000) : source,
+            sourceLanguage: 'en',
+            targetLanguage: picked,
+          );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
