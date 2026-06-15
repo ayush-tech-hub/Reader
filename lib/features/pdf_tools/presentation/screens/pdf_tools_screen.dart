@@ -182,10 +182,8 @@ class PdfToolsScreen extends ConsumerWidget {
     if (!context.mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => PdfEditorScreen(
-          mode: PdfEditorMode.merge,
-          sourcePaths: sources,
-        ),
+        builder: (_) =>
+            PdfEditorScreen(mode: PdfEditorMode.merge, sourcePaths: sources),
       ),
     );
   }
@@ -196,10 +194,8 @@ class PdfToolsScreen extends ConsumerWidget {
     if (!context.mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => PdfEditorScreen(
-          mode: PdfEditorMode.split,
-          sourcePaths: sources,
-        ),
+        builder: (_) =>
+            PdfEditorScreen(mode: PdfEditorMode.split, sourcePaths: sources),
       ),
     );
   }
@@ -269,10 +265,8 @@ class PdfToolsScreen extends ConsumerWidget {
     if (!context.mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => PdfEditorScreen(
-          mode: PdfEditorMode.extract,
-          sourcePaths: sources,
-        ),
+        builder: (_) =>
+            PdfEditorScreen(mode: PdfEditorMode.extract, sourcePaths: sources),
       ),
     );
   }

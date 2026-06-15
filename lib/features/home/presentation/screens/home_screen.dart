@@ -106,13 +106,11 @@ class _DashboardTab extends ConsumerWidget {
         actions: [
           IconButton(
             tooltip: l10n.toggleTheme,
-            icon: Icon(
-              switch (themeMode) {
-                ThemeMode.light => Icons.light_mode,
-                ThemeMode.dark => Icons.dark_mode,
-                ThemeMode.system => Icons.brightness_auto,
-              },
-            ),
+            icon: Icon(switch (themeMode) {
+              ThemeMode.light => Icons.light_mode,
+              ThemeMode.dark => Icons.dark_mode,
+              ThemeMode.system => Icons.brightness_auto,
+            }),
             onPressed: () {
               final next = switch (themeMode) {
                 ThemeMode.system => ThemeMode.light,
@@ -127,10 +125,7 @@ class _DashboardTab extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            l10n.moreTools,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text(l10n.moreTools, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,

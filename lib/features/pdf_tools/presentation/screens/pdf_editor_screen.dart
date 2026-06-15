@@ -30,11 +30,11 @@ class _PageEntry {
   int pendingRotation; // 0 | 90 | 180 | 270
 
   _PageEntry copy() => _PageEntry(
-        sourcePath: sourcePath,
-        sourcePageIndex: sourcePageIndex,
-        markedForDeletion: markedForDeletion,
-        pendingRotation: pendingRotation,
-      );
+    sourcePath: sourcePath,
+    sourcePageIndex: sourcePageIndex,
+    markedForDeletion: markedForDeletion,
+    pendingRotation: pendingRotation,
+  );
 }
 
 class PdfEditorScreen extends ConsumerStatefulWidget {
@@ -141,9 +141,8 @@ class _PdfEditorScreenState extends ConsumerState<PdfEditorScreen> {
       case PdfEditorMode.delete:
         _pushHistory();
         setState(
-          () =>
-              _pages[index].markedForDeletion =
-                  !_pages[index].markedForDeletion,
+          () => _pages[index].markedForDeletion =
+              !_pages[index].markedForDeletion,
         );
       case PdfEditorMode.rotate:
         setState(() {
@@ -155,7 +154,8 @@ class _PdfEditorScreenState extends ConsumerState<PdfEditorScreen> {
         });
       case PdfEditorMode.extract:
         setState(() {
-          if (_extractStart == null || (_extractEnd != null && index < _extractStart!)) {
+          if (_extractStart == null ||
+              (_extractEnd != null && index < _extractStart!)) {
             _extractStart = index;
             _extractEnd = index;
           } else if (index >= _extractStart!) {
@@ -222,7 +222,12 @@ class _PdfEditorScreenState extends ConsumerState<PdfEditorScreen> {
               : _selectedForRotate
                     .map((i) => _pages[i].sourcePageIndex + 1)
                     .toList();
-          await notifier.rotatePages(source, out('rotated'), pages, _rotateDegrees);
+          await notifier.rotatePages(
+            source,
+            out('rotated'),
+            pages,
+            _rotateDegrees,
+          );
         case PdfEditorMode.extract:
           final start = _extractStart;
           final end = _extractEnd;
@@ -314,13 +319,13 @@ class _PdfEditorScreenState extends ConsumerState<PdfEditorScreen> {
   // ---- Build -------------------------------------------------------------
 
   String _modeTitle(AppLocalizations l10n) => switch (widget.mode) {
-        PdfEditorMode.merge => l10n.mergePdf,
-        PdfEditorMode.split => l10n.splitPdf,
-        PdfEditorMode.reorder => l10n.reorderPages,
-        PdfEditorMode.delete => l10n.deletePages,
-        PdfEditorMode.rotate => l10n.rotatePages,
-        PdfEditorMode.extract => l10n.extractPages,
-      };
+    PdfEditorMode.merge => l10n.mergePdf,
+    PdfEditorMode.split => l10n.splitPdf,
+    PdfEditorMode.reorder => l10n.reorderPages,
+    PdfEditorMode.delete => l10n.deletePages,
+    PdfEditorMode.rotate => l10n.rotatePages,
+    PdfEditorMode.extract => l10n.extractPages,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -350,12 +355,13 @@ class _PdfEditorScreenState extends ConsumerState<PdfEditorScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _loadError != null
-              ? _ErrorView(message: _loadError!)
-              : _isApplying
-                  ? const _ApplyingView()
-                  : _buildEditor(context),
-      bottomNavigationBar:
-          _loading || _isApplying || _loadError != null ? null : _buildBottomBar(l10n),
+          ? _ErrorView(message: _loadError!)
+          : _isApplying
+          ? const _ApplyingView()
+          : _buildEditor(context),
+      bottomNavigationBar: _loading || _isApplying || _loadError != null
+          ? null
+          : _buildBottomBar(l10n),
     );
   }
 
@@ -465,7 +471,8 @@ class _PdfEditorScreenState extends ConsumerState<PdfEditorScreen> {
         return const SizedBox.expand();
 
       case PdfEditorMode.extract:
-        final inRange = _extractStart != null &&
+        final inRange =
+            _extractStart != null &&
             _extractEnd != null &&
             i >= _extractStart! &&
             i <= _extractEnd!;
@@ -541,35 +548,35 @@ class _PdfEditorScreenState extends ConsumerState<PdfEditorScreen> {
     );
     return switch (widget.mode) {
       PdfEditorMode.merge => Text(
-          '${_pages.length} PDFs · drag to reorder · tap ✕ to remove',
-          style: style,
-        ),
+        '${_pages.length} PDFs · drag to reorder · tap ✕ to remove',
+        style: style,
+      ),
       PdfEditorMode.split => Text(
-          '${_splitBefore.length + 1} part(s) · tap page to set split point',
-          style: style,
-        ),
+        '${_splitBefore.length + 1} part(s) · tap page to set split point',
+        style: style,
+      ),
       PdfEditorMode.reorder => Text(
-          '${_pages.length} pages · drag to reorder',
-          style: style,
-        ),
+        '${_pages.length} pages · drag to reorder',
+        style: style,
+      ),
       PdfEditorMode.delete => Text(
-          '${_pages.where((p) => p.markedForDeletion).length} pages marked · tap to toggle',
-          style: style,
-        ),
+        '${_pages.where((p) => p.markedForDeletion).length} pages marked · tap to toggle',
+        style: style,
+      ),
       PdfEditorMode.rotate => Text(
-          _selectedForRotate.isEmpty
-              ? 'Tap pages to select (empty selection = all pages)'
-              : '${_selectedForRotate.length} pages selected',
-          style: style,
-        ),
+        _selectedForRotate.isEmpty
+            ? 'Tap pages to select (empty selection = all pages)'
+            : '${_selectedForRotate.length} pages selected',
+        style: style,
+      ),
       PdfEditorMode.extract => Text(
-          _extractStart == null
-              ? 'Tap first page of range'
-              : _extractEnd == _extractStart
-                  ? 'Start: p${_extractStart! + 1} · tap last page'
-                  : 'Pages ${_extractStart! + 1}–${_extractEnd! + 1} selected',
-          style: style,
-        ),
+        _extractStart == null
+            ? 'Tap first page of range'
+            : _extractEnd == _extractStart
+            ? 'Start: p${_extractStart! + 1} · tap last page'
+            : 'Pages ${_extractStart! + 1}–${_extractEnd! + 1} selected',
+        style: style,
+      ),
     };
   }
 }
@@ -823,9 +830,7 @@ class _PageThumbnailContentState extends State<_PageThumbnailContent> {
     if (image == null) {
       return Container(
         color: Colors.grey.shade200,
-        child: const Center(
-          child: CircularProgressIndicator(strokeWidth: 1.5),
-        ),
+        child: const Center(child: CircularProgressIndicator(strokeWidth: 1.5)),
       );
     }
     Widget rendered = RawImage(image: image, fit: BoxFit.cover);
@@ -835,4 +840,3 @@ class _PageThumbnailContentState extends State<_PageThumbnailContent> {
     return rendered;
   }
 }
-

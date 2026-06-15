@@ -11,6 +11,7 @@ import '../../features/library/presentation/smart_search_screen.dart';
 import '../../features/pdf_reader/presentation/screens/reader_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_tools_screen.dart';
 import '../../features/readers/presentation/reader_screens.dart';
+
 abstract final class Routes {
   static const String home = '/';
   static const String browser = '/browser';
@@ -58,9 +59,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.browser,
-        builder: (context, state) => FileBrowserScreen(
-          initialPath: state.uri.queryParameters['path'],
-        ),
+        builder: (context, state) =>
+            FileBrowserScreen(initialPath: state.uri.queryParameters['path']),
       ),
       GoRoute(
         path: Routes.reader,
@@ -85,9 +85,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.archive,
-        builder: (context, state) => ArchiveScreen(
-          archivePath: state.uri.queryParameters['path'],
-        ),
+        builder: (context, state) =>
+            ArchiveScreen(archivePath: state.uri.queryParameters['path']),
       ),
       GoRoute(
         path: Routes.pdfTools,
