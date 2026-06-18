@@ -2,19 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/about/presentation/about_screen.dart';
 import '../../features/ai/presentation/ai_tools_screen.dart';
 import '../../features/archive_manager/presentation/screens/archive_screen.dart';
+import '../../features/file_manager/presentation/screens/favorites_screen.dart';
 import '../../features/file_manager/presentation/screens/file_browser_screen.dart';
+import '../../features/files_plus/data/storage_scanner.dart';
 import '../../features/files_plus/presentation/file_tools_screens.dart';
+import '../../features/files_plus/presentation/storage_analyzer_screen.dart';
+import '../../features/files_plus/presentation/storage_category_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/library/presentation/smart_search_screen.dart';
+import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/pdf_reader/presentation/screens/reader_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_tools_screen.dart';
 import '../../features/readers/presentation/reader_screens.dart';
+import '../di/providers.dart';
 
 abstract final class Routes {
   static const String home = '/';
+  static const String onboarding = '/onboarding';
+  static const String about = '/about';
   static const String browser = '/browser';
+  static const String favorites = '/favorites';
   static const String reader = '/reader';
   static const String splitReader = '/reader/split';
   static const String archive = '/archive';
@@ -23,6 +33,7 @@ abstract final class Routes {
   static const String smartSearch = '/tools/search';
   static const String duplicates = '/tools/duplicates';
   static const String storageAnalyzer = '/tools/storage';
+  static const String storageCategory = '/tools/storage/category';
   static const String batchTools = '/tools/batch';
   static const String folderSync = '/tools/sync';
   static const String tags = '/tools/tags';
@@ -30,8 +41,9 @@ abstract final class Routes {
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final onboardingDone = ref.watch(onboardingCompleteProvider);
   return GoRouter(
-    initialLocation: Routes.home,
+    initialLocation: onboardingDone ? Routes.home : Routes.onboarding,
     // Surface routing errors as a Scaffold rather than a blank screen.
     errorBuilder: (context, state) => Scaffold(
       appBar: AppBar(title: const Text('Navigation error')),
@@ -58,9 +70,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const HomeScreen(),
       ),
       GoRoute(
+        path: Routes.onboarding,
+        builder: (context, state) =>
+            OnboardingScreen(onDone: () => context.go(Routes.home)),
+      ),
+      GoRoute(
+        path: Routes.about,
+        builder: (context, state) => const AboutScreen(),
+      ),
+      GoRoute(
         path: Routes.browser,
         builder: (context, state) =>
             FileBrowserScreen(initialPath: state.uri.queryParameters['path']),
+      ),
+      GoRoute(
+        path: Routes.favorites,
+        builder: (context, state) => const FavoritesScreen(),
       ),
       GoRoute(
         path: Routes.reader,
@@ -107,6 +132,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.storageAnalyzer,
         builder: (context, state) => const StorageAnalyzerScreen(),
+      ),
+      GoRoute(
+        path: Routes.storageCategory,
+        builder: (context, state) {
+          final code = state.uri.queryParameters['category'];
+          final category = StorageCategory.values.firstWhere(
+            (c) => c.name == code,
+            orElse: () => StorageCategory.largeFiles,
+          );
+          return StorageCategoryScreen(
+            category: category,
+            bucket: state.extra as CategoryBucket?,
+          );
+        },
       ),
       GoRoute(
         path: Routes.batchTools,

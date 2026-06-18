@@ -3,4 +3,6 @@
     <!-- Material 3 surface colour generated from seed #1565C0 (light mode).
          Keeps the splash and the first Flutter frame visually seamless. -->
     <color name="launch_background">#FFFBFE</color>
+    <!-- Adaptive launcher icon background, matches the app's indigo seed. -->
+    <color name="ic_launcher_background">#3F51B5</color>
 </resources>

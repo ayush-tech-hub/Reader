@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "OpenDocs Manager",
+  "appTitle": "PDF Editor & File Manager",
   "home": "Home",
   "files": "Files",
   "archives": "Archives",
@@ -205,5 +205,82 @@
     "placeholders": {
       "mb": {"type": "String"}
     }
-  }
+  },
+  "about": "About",
+  "versionLabel": "Version {version} ({build})",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {"type": "String"},
+      "build": {"type": "String"}
+    }
+  },
+  "aboutFeaturePdf": "Edit, merge, split & compress PDFs — fully offline",
+  "aboutFeatureFiles": "Browse, organize and manage every file on your device",
+  "aboutFeatureStorage": "Analyze storage usage by category and free up space",
+  "aboutFeatureArchive": "Create and extract ZIP, RAR, 7Z and TAR archives",
+  "openSourceLicenses": "Open-source licenses",
+  "skip": "Skip",
+  "next": "Next",
+  "getStarted": "Get started",
+  "onboardingTitle1": "Edit PDFs with ease",
+  "onboardingBody1": "Merge, split, compress, watermark and reorganize PDFs — entirely on your device.",
+  "onboardingTitle2": "Manage every file",
+  "onboardingBody2": "Browse, organize, tag and share files and folders with a full-featured file manager.",
+  "onboardingTitle3": "Understand your storage",
+  "onboardingBody3": "See exactly what's taking up space — by category — and clean it up in a tap.",
+  "storageOverview": "Storage overview",
+  "usedOfTotal": "{used} used of {total}",
+  "@usedOfTotal": {
+    "placeholders": {
+      "used": {"type": "String"},
+      "total": {"type": "String"}
+    }
+  },
+  "tapToScan": "Tap to scan your device",
+  "categoryImages": "Images",
+  "categoryVideos": "Videos",
+  "categoryAudio": "Audio",
+  "categoryDocuments": "Documents",
+  "categoryApks": "APK files",
+  "categoryArchives": "Archives",
+  "categoryDownloads": "Downloads",
+  "categoryHidden": "Hidden files",
+  "categoryLargeFiles": "Large files",
+  "filesCount": "{count} files",
+  "@filesCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "scanning": "Scanning…",
+  "scannedSoFar": "Scanned {count} files…",
+  "@scannedSoFar": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "rescan": "Rescan",
+  "sortByNewest": "Sort by newest",
+  "selectAll": "Select all",
+  "deselectAll": "Deselect all",
+  "share": "Share",
+  "copyPath": "Copy path",
+  "pathCopied": "Path copied to clipboard",
+  "moveTo": "Move to…",
+  "noFilesInCategory": "No files found in this category.",
+  "quickActions": "Quick actions",
+  "pdfEditor": "PDF Editor",
+  "fileManager": "File Manager",
+  "compressPdfAction": "Compress PDF",
+  "largeFilesShortcut": "Large files",
+  "downloadsShortcut": "Downloads",
+  "recentFilesSection": "Recent files",
+  "viewAll": "View all",
+  "pinnedFolders": "Pinned folders",
+  "addToFavorites": "Add to favorites",
+  "removeFromFavorites": "Remove from favorites",
+  "pinFolder": "Pin folder",
+  "unpinFolder": "Unpin folder",
+  "calculateSize": "Calculate size",
+  "calculatingSize": "Calculating…"
 }

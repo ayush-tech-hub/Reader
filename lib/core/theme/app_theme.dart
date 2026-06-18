@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 /// Material Design 3 themes for light and dark modes.
 abstract final class AppTheme {
-  static const _seed = Color(0xFF1565C0);
+  static const _seed = Color(0xFF3F51B5);
 
   static ThemeData light() => _base(Brightness.light);
 

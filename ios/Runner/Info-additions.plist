@@ -8,6 +8,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>CFBundleDisplayName</key>
+    <string>PDF Editor &amp; File Manager</string>
+    <key>CFBundleName</key>
+    <string>PDF Editor</string>
     <key>UISupportsDocumentBrowser</key>
     <true/>
     <key>LSSupportsOpeningDocumentsInPlace</key>
