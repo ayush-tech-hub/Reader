@@ -36,37 +36,6 @@ class FileToolsService {
     return duplicates;
   }
 
-  // ---- Storage analyzer -------------------------------------------------
-
-  Future<StorageReport> analyzeStorage(String rootPath) async {
-    var totalBytes = 0;
-    var fileCount = 0;
-    final byExtension = <String, int>{};
-    final largest = <(String path, int size)>[];
-    await for (final file in _walkFiles(rootPath)) {
-      final size = await file.length();
-      totalBytes += size;
-      fileCount++;
-      final ext = p.extension(file.path).toLowerCase();
-      byExtension[ext.isEmpty ? '(none)' : ext] =
-          (byExtension[ext.isEmpty ? '(none)' : ext] ?? 0) + size;
-      largest.add((file.path, size));
-      if (largest.length > 200) {
-        largest.sort((a, b) => b.$2.compareTo(a.$2));
-        largest.removeRange(100, largest.length);
-      }
-    }
-    largest.sort((a, b) => b.$2.compareTo(a.$2));
-    final extensions = byExtension.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    return StorageReport(
-      totalBytes: totalBytes,
-      fileCount: fileCount,
-      largestFiles: largest.take(25).toList(),
-      byExtension: extensions,
-    );
-  }
-
   // ---- Batch rename ----------------------------------------------------
 
   /// Pattern tokens: {name} original base name, {ext} extension with
@@ -156,20 +125,6 @@ class FileToolsService {
       }
     }
   }
-}
-
-class StorageReport {
-  const StorageReport({
-    required this.totalBytes,
-    required this.fileCount,
-    required this.largestFiles,
-    required this.byExtension,
-  });
-
-  final int totalBytes;
-  final int fileCount;
-  final List<(String path, int size)> largestFiles;
-  final List<MapEntry<String, int>> byExtension;
 }
 
 class SyncResult {

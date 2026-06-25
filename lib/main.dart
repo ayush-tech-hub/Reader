@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
+import 'core/constants/app_constants.dart';
 import 'core/database/app_database.dart';
 import 'core/di/providers.dart';
 import 'features/readers/presentation/reader_screens.dart';
@@ -63,10 +65,17 @@ Future<void> _boot() async {
     await database.open();
     debugPrint('[Startup] Phase 4 — database opened successfully');
 
+    final prefs = await SharedPreferences.getInstance();
+    final onboardingDone =
+        prefs.getBool(SettingKeys.onboardingComplete) ?? false;
+
     debugPrint('[Startup] Phase 5 — launching main application');
     runApp(
       ProviderScope(
-        overrides: [appDatabaseProvider.overrideWithValue(database)],
+        overrides: [
+          appDatabaseProvider.overrideWithValue(database),
+          onboardingCompleteProvider.overrideWithValue(onboardingDone),
+        ],
         child: const OpenDocsApp(),
       ),
     );
@@ -103,14 +112,14 @@ class _SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.menu_book_rounded, size: 72, color: Color(0xFF1565C0)),
+            Icon(Icons.menu_book_rounded, size: 72, color: Color(0xFF3F51B5)),
             SizedBox(height: 24),
             Text(
-              'OpenDocs Manager',
+              'PDF Editor & File Manager',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1565C0),
+                color: Color(0xFF3F51B5),
               ),
             ),
             SizedBox(height: 32),
@@ -119,7 +128,7 @@ class _SplashScreen extends StatelessWidget {
               height: 32,
               child: CircularProgressIndicator(
                 strokeWidth: 3,
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1565C0)),
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3F51B5)),
               ),
             ),
           ],
@@ -171,7 +180,7 @@ class _StartupErrorScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               const Text(
-                'Could not start OpenDocs Manager',
+                'Could not start PDF Editor & File Manager',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),

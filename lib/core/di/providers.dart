@@ -17,6 +17,7 @@ import '../../features/file_manager/data/repositories/file_manager_repository_im
 import '../../features/file_manager/domain/repositories/file_manager_repository.dart';
 import '../../features/file_manager/domain/usecases/file_usecases.dart';
 import '../../features/files_plus/data/file_tools_service.dart';
+import '../../features/files_plus/data/storage_scanner.dart';
 import '../../features/files_plus/data/tags_datasource.dart';
 import '../../features/library/data/document_index_service.dart';
 import '../../features/pdf_reader/data/datasources/reader_local_datasource.dart';
@@ -36,6 +37,12 @@ import '../database/app_database.dart';
 
 /// Overridden in main() with the opened database.
 final appDatabaseProvider = Provider<AppDatabase>(
+  (ref) => throw UnimplementedError('overridden in main()'),
+);
+
+/// Overridden in main() with whether the onboarding intro has already
+/// been completed (read once from shared_preferences at boot).
+final onboardingCompleteProvider = Provider<bool>(
   (ref) => throw UnimplementedError('overridden in main()'),
 );
 
@@ -127,10 +134,15 @@ final tagsDataSourceProvider = Provider<TagsDataSource>(
   (ref) => TagsDataSource(ref.watch(appDatabaseProvider)),
 );
 
+final storageScannerProvider = Provider<StorageScanner>(
+  (ref) => const StorageScanner(),
+);
+
 final ocrEngineProvider = Provider<OcrEngine>((ref) => OcrEngine());
 
-final translateEngineProvider =
-    Provider<TranslateEngine>((ref) => TranslateEngine());
+final translateEngineProvider = Provider<TranslateEngine>(
+  (ref) => TranslateEngine(),
+);
 
 final ttsServiceProvider = Provider<TtsService>((ref) {
   final service = TtsService();
@@ -140,8 +152,9 @@ final ttsServiceProvider = Provider<TtsService>((ref) {
 
 // ---- Settings ------------------------------------------------------------
 
-final themeModeProvider =
-    NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeModeNotifier.new);
+final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
+  ThemeModeNotifier.new,
+);
 
 class ThemeModeNotifier extends Notifier<ThemeMode> {
   @override

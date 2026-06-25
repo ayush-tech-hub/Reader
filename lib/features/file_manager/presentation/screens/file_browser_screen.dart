@@ -1,9 +1,11 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/di/providers.dart';
 import '../../../../core/plugins/document_plugin.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../generated/app_localizations.dart';
@@ -85,6 +87,11 @@ class _FileBrowserScreenState extends ConsumerState<FileBrowserScreen> {
                       onPressed: _promptRename,
                     ),
                     IconButton(
+                      tooltip: l10n.addToFavorites,
+                      icon: const Icon(Icons.favorite_border),
+                      onPressed: _addSelectionToFavorites,
+                    ),
+                    IconButton(
                       tooltip: l10n.assignTags,
                       icon: const Icon(Icons.label_outline),
                       onPressed: () => showAssignTagsDialog(
@@ -96,6 +103,11 @@ class _FileBrowserScreenState extends ConsumerState<FileBrowserScreen> {
                   ],
                 ]
               : [
+                  IconButton(
+                    tooltip: l10n.favorites,
+                    icon: const Icon(Icons.favorite_border),
+                    onPressed: () => context.push(Routes.favorites),
+                  ),
                   IconButton(
                     tooltip: l10n.search,
                     icon: const Icon(Icons.search),
@@ -157,9 +169,7 @@ class _FileBrowserScreenState extends ConsumerState<FileBrowserScreen> {
         floatingActionButton: state.clipboard != null
             ? FloatingActionButton.extended(
                 icon: const Icon(Icons.content_paste),
-                label: Text(
-                  l10n.pasteN(state.clipboard!.paths.length),
-                ),
+                label: Text(l10n.pasteN(state.clipboard!.paths.length)),
                 onPressed: () async {
                   final failure = await _notifier.paste();
                   _showFailure(failure?.message);
@@ -265,6 +275,31 @@ class _FileBrowserScreenState extends ConsumerState<FileBrowserScreen> {
     _showFailure(failure?.message);
   }
 
+  Future<void> _addSelectionToFavorites() async {
+    final l10n = AppLocalizations.of(context);
+    final state = ref.read(browserProvider);
+    final path = state.selection.single;
+    final entries = state.searchResults ?? state.entries.valueOrNull ?? [];
+    final entry = entries.where((e) => e.path == path).firstOrNull;
+    final favorite = Favorite(
+      path: path,
+      name: entry?.name ?? p.basename(path),
+      isDirectory: entry?.isDirectory ?? false,
+      addedAt: DateTime.now(),
+    );
+    final result = await ref
+        .read(fileManagerRepositoryProvider)
+        .addFavorite(favorite);
+    _notifier.clearSelection();
+    if (!mounted) return;
+    result.fold(
+      (failure) => _showFailure(failure.message),
+      (_) => ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.addToFavorites))),
+    );
+  }
+
   Future<void> _promptSearch() async {
     final l10n = AppLocalizations.of(context);
     final query = await _promptText(l10n.searchFiles, l10n.search);
@@ -325,8 +360,9 @@ class _FileBrowserScreenState extends ConsumerState<FileBrowserScreen> {
 
   void _showFailure(String? message) {
     if (message == null || !mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
 

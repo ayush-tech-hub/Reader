@@ -34,4 +34,5 @@ abstract final class SettingKeys {
   static const String showHiddenFiles = 'show_hidden_files';
   static const String readerPageMode =
       'reader_page_mode'; // continuous | single
+  static const String onboardingComplete = 'onboarding_complete';
 }

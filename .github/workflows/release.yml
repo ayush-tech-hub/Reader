@@ -61,6 +61,21 @@ jobs:
           git checkout android/app/src/main/res/values-night/colors.xml
           git checkout android/app/src/main/kotlin/com/opendocs/manager/MainActivity.kt
           git checkout android/app/src/main/kotlin/com/opendocs/manager/pdf/PdfToolsHandler.kt
+          # Custom launcher icon (flutter create overwrites these with the
+          # default Flutter mark, so wipe its output and restore our
+          # tracked artwork instead of layering on top of it).
+          rm -rf android/app/src/main/res/mipmap-anydpi-v26 \
+            android/app/src/main/res/mipmap-mdpi \
+            android/app/src/main/res/mipmap-hdpi \
+            android/app/src/main/res/mipmap-xhdpi \
+            android/app/src/main/res/mipmap-xxhdpi \
+            android/app/src/main/res/mipmap-xxxhdpi
+          git checkout android/app/src/main/res/mipmap-anydpi-v26
+          git checkout android/app/src/main/res/mipmap-mdpi
+          git checkout android/app/src/main/res/mipmap-hdpi
+          git checkout android/app/src/main/res/mipmap-xhdpi
+          git checkout android/app/src/main/res/mipmap-xxhdpi
+          git checkout android/app/src/main/res/mipmap-xxxhdpi
 
       - name: Decode signing keystore
         if: ${{ env.HAS_ANDROID_SIGNING == 'true' }}
