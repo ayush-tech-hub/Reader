@@ -150,6 +150,7 @@
   "fileSizeBytes": "{bytes} B",
   "fileSizeKb": "{kb} KB",
   "fileSizeMb": "{mb} MB",
+  "removeWatermark": "Eliminar marca de agua",
   "privacyPolicy": "Política de privacidad",
   "contactUs": "Contacto / Comentarios"
 }

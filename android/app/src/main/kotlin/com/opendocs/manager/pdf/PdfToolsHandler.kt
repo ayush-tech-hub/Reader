@@ -73,6 +73,7 @@ class PdfToolsHandler(
                     "rotatePages" -> rotatePages(call)
                     "extractPages" -> extractPages(call)
                     "watermark" -> watermark(call)
+                    "removeWatermark" -> removeWatermark(call)
                     "getMetadata" -> getMetadata(call)
                     "setMetadata" -> setMetadata(call)
                     "encrypt" -> encrypt(call)
@@ -277,6 +278,68 @@ class PdfToolsHandler(
                     stream.setTextMatrix(matrix)
                     stream.showText(text)
                     stream.endText()
+                }
+            }
+            document.save(outputPath)
+        }
+        return outputPath
+    }
+
+    /**
+     * Removes watermarks using two strategies:
+     *
+     * 1. Annotation sweeping — removes all Stamp, Watermark, and FreeText
+     *    annotations (covers watermarks added by Acrobat and similar tools).
+     *
+     * 2. Appended-stream trimming — when a page's content is stored as an
+     *    array of streams (i.e. something was appended after the original
+     *    content), the trailing stream is inspected; if it contains only text
+     *    rendering operators it is almost certainly a text watermark added in
+     *    append mode and is dropped.
+     */
+    private fun removeWatermark(call: MethodCall): String {
+        val source = call.argument<String>("source")!!
+        val outputPath = call.argument<String>("outputPath")!!
+
+        PDDocument.load(File(source)).use { document ->
+            for (page in document.pages) {
+                // Strategy 1: remove watermark-type annotations.
+                val annotations = page.annotations
+                annotations.removeIf { ann ->
+                    val sub = ann.subtype?.lowercase() ?: ""
+                    sub == "stamp" || sub == "watermark" || sub == "freetext"
+                }
+
+                // Strategy 2: drop trailing appended content streams that
+                // appear to be text-only overlays (our own watermark format).
+                val cosPage = page.cosObject
+                val contentsObj = cosPage.getItem(
+                    com.tom_roush.pdfbox.cos.COSName.CONTENTS,
+                )
+                if (contentsObj is com.tom_roush.pdfbox.cos.COSArray &&
+                    contentsObj.size() > 1
+                ) {
+                    val lastRef = contentsObj.get(contentsObj.size() - 1)
+                    val lastStream = cosPage.cosDocument
+                        ?.getObjectFromPool(
+                            (lastRef as? com.tom_roush.pdfbox.cos.COSObject)?.key,
+                        )
+                        ?.getObject()
+                    if (lastStream is com.tom_roush.pdfbox.cos.COSStream) {
+                        val bytes = lastStream.toByteArray()
+                        val text = String(bytes, Charsets.ISO_8859_1)
+                        // Only remove the stream if it looks like a pure-text
+                        // watermark (BT … ET block, no image operators).
+                        if (text.contains("BT") && text.contains("ET") &&
+                            !text.contains("Do") && !text.contains("BI")
+                        ) {
+                            contentsObj.remove(contentsObj.size() - 1)
+                            cosPage.setItem(
+                                com.tom_roush.pdfbox.cos.COSName.CONTENTS,
+                                contentsObj,
+                            )
+                        }
+                    }
                 }
             }
             document.save(outputPath)

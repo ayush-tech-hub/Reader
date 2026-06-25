@@ -199,6 +199,14 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
         ),
       );
 
+  Future<void> removeWatermark(String source, String outputPath) => _run(
+        'removeWatermark',
+        source,
+        () => _single(
+          () => _repo.removeWatermark(source: source, outputPath: outputPath),
+        ),
+      );
+
   Future<void> watermark(
     String source,
     String outputPath,

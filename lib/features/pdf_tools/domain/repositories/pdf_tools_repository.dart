@@ -53,6 +53,11 @@ abstract interface class PdfToolsRepository {
     required PageRange range,
   });
 
+  Future<Result<String>> removeWatermark({
+    required String source,
+    required String outputPath,
+  });
+
   Future<Result<String>> watermark({
     required String source,
     required String outputPath,

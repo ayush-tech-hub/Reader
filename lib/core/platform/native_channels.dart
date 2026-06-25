@@ -26,6 +26,7 @@ abstract final class PdfToolsMethods {
   static const String rotatePages = 'rotatePages';
   static const String extractPages = 'extractPages';
   static const String watermark = 'watermark';
+  static const String removeWatermark = 'removeWatermark';
   static const String getMetadata = 'getMetadata';
   static const String setMetadata = 'setMetadata';
   static const String encrypt = 'encrypt';

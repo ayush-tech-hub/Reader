@@ -104,6 +104,12 @@ class PdfToolsEngine {
         'end': range.end,
       });
 
+  Future<String> removeWatermark(String source, String outputPath) =>
+      _invokeForPath(PdfToolsMethods.removeWatermark, {
+        'source': source,
+        'outputPath': outputPath,
+      });
+
   Future<String> watermark(
     String source,
     String outputPath,

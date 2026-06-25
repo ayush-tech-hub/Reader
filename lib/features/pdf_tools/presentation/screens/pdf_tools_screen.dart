@@ -51,6 +51,11 @@ class PdfToolsScreen extends ConsumerWidget {
         l10n.watermarkPdf,
         () => _watermark(context, ref),
       ),
+      _Tool(
+        Icons.water_drop_outlined,
+        l10n.removeWatermark,
+        () => _removeWatermark(context, ref),
+      ),
       _Tool(Icons.edit_note, l10n.editMetadata, () => _metadata(context, ref)),
       _Tool(Icons.lock, l10n.encryptPdf, () => _encrypt(context, ref)),
       _Tool(Icons.lock_open, l10n.decryptPdf, () => _decrypt(context, ref)),
@@ -295,6 +300,48 @@ class PdfToolsScreen extends ConsumerWidget {
       context,
       ref,
       onProcessAnother: () => _watermark(context, ref),
+    );
+  }
+
+  static Future<void> _removeWatermark(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final sources = await _pickPdfs(multiple: false);
+    if (sources == null) return;
+    if (!context.mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Remove Watermark'),
+        content: const Text(
+          'This will remove annotation-based watermarks and appended '
+          'content-stream watermarks. Watermarks baked into the original '
+          'page content cannot be removed.\n\nContinue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    final dir = await _saveDir();
+    await ref.read(pdfToolsProvider.notifier).removeWatermark(
+          sources.single,
+          _outPath(dir, sources.single, 'no_watermark'),
+        );
+    if (!context.mounted) return;
+    await _showResult(
+      context,
+      ref,
+      onProcessAnother: () => _removeWatermark(context, ref),
     );
   }
 

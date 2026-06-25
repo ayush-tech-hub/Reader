@@ -138,6 +138,13 @@ class PdfToolsRepositoryImpl implements PdfToolsRepository {
       _guard(() => _engine.extractPages(source, outputPath, range));
 
   @override
+  Future<Result<String>> removeWatermark({
+    required String source,
+    required String outputPath,
+  }) =>
+      _guard(() => _engine.removeWatermark(source, outputPath));
+
+  @override
   Future<Result<String>> watermark({
     required String source,
     required String outputPath,

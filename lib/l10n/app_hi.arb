@@ -150,6 +150,7 @@
   "fileSizeBytes": "{bytes} B",
   "fileSizeKb": "{kb} KB",
   "fileSizeMb": "{mb} MB",
+  "removeWatermark": "वॉटरमार्क हटाएं",
   "privacyPolicy": "गोपनीयता नीति",
   "contactUs": "संपर्क / सुझाव"
 }
