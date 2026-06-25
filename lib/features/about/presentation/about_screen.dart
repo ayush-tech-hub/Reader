@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../../../core/router/app_router.dart';
 import '../../../generated/app_localizations.dart';
 
 /// Shows app identity, version and the offline-first privacy notice.
@@ -116,14 +118,22 @@ class _AboutScreenState extends State<AboutScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          ListTile(
-            leading: const Icon(Icons.description_outlined),
-            title: Text(l10n.openSourceLicenses),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => showLicensePage(
-              context: context,
-              applicationName: l10n.appTitle,
-              applicationVersion: info?.version,
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.privacy_tip_outlined),
+                  title: Text(l10n.privacyPolicy),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(Routes.privacyPolicy),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.mail_outline),
+                  title: Text(l10n.contactUs),
+                  subtitle: const Text('weedywhy@gmail.com'),
+                ),
+              ],
             ),
           ),
         ],

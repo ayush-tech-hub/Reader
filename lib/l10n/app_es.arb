@@ -149,5 +149,7 @@
   "noOutputYet": "Los resultados aparecerán aquí tras el procesamiento.",
   "fileSizeBytes": "{bytes} B",
   "fileSizeKb": "{kb} KB",
-  "fileSizeMb": "{mb} MB"
+  "fileSizeMb": "{mb} MB",
+  "privacyPolicy": "Política de privacidad",
+  "contactUs": "Contacto / Comentarios"
 }

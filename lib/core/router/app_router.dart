@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/about/presentation/about_screen.dart';
+import '../../features/about/presentation/privacy_policy_screen.dart';
 import '../../features/ai/presentation/ai_tools_screen.dart';
 import '../../features/archive_manager/presentation/screens/archive_screen.dart';
 import '../../features/file_manager/presentation/screens/favorites_screen.dart';
@@ -38,6 +39,7 @@ abstract final class Routes {
   static const String folderSync = '/tools/sync';
   static const String tags = '/tools/tags';
   static const String pluginView = '/plugin-view';
+  static const String privacyPolicy = '/about/privacy';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -77,6 +79,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.about,
         builder: (context, state) => const AboutScreen(),
+      ),
+      GoRoute(
+        path: Routes.privacyPolicy,
+        builder: (context, state) => const PrivacyPolicyScreen(),
       ),
       GoRoute(
         path: Routes.browser,
