@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as p;
 import 'package:pdfrx/pdfrx.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/di/providers.dart';
 import '../../../../core/router/app_router.dart';
@@ -180,6 +181,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 PopupMenuItem(value: 'fitWidth', child: Text(l10n.fitToWidth)),
                 PopupMenuItem(value: 'split', child: Text(l10n.splitScreen)),
                 PopupMenuItem(value: 'readAloud', child: Text(l10n.readAloud)),
+                const PopupMenuDivider(),
+                PopupMenuItem(value: 'share', child: Text(l10n.shareFile)),
               ],
             ),
           ],
@@ -349,6 +352,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         unawaited(_openSplitView());
       case 'readAloud':
         unawaited(_toggleReadAloud());
+      case 'share':
+        unawaited(Share.shareXFiles([XFile(widget.path)]));
     }
   }
 

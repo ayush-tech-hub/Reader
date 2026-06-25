@@ -76,6 +76,12 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
     );
   }
 
+  void clearError() {
+    if (state.lastError != null) {
+      state = PdfToolsState(lastOutputs: state.lastOutputs);
+    }
+  }
+
   int? _fileSize(String path) {
     try {
       return File(path).statSync().size;

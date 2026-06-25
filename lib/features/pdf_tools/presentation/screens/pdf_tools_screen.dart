@@ -19,7 +19,31 @@ class PdfToolsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
     final state = ref.watch(pdfToolsProvider);
+
+    // Show errors as dismissable SnackBars rather than a persisting tile.
+    ref.listen(pdfToolsProvider.select((s) => s.lastError), (_, error) {
+      if (error == null) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error_outline, color: theme.colorScheme.onError),
+              const SizedBox(width: 8),
+              Expanded(child: Text(error)),
+            ],
+          ),
+          backgroundColor: theme.colorScheme.error,
+          duration: const Duration(seconds: 6),
+          action: SnackBarAction(
+            label: l10n.ok,
+            textColor: theme.colorScheme.onError,
+            onPressed: () => ref.read(pdfToolsProvider.notifier).clearError(),
+          ),
+        ),
+      );
+    });
 
     final tools = <_Tool>[
       _Tool(Icons.merge, l10n.mergePdf, () => _merge(context, ref)),
@@ -84,14 +108,6 @@ class PdfToolsScreen extends ConsumerWidget {
               ),
             ),
           ],
-          if (state.lastError != null)
-            ListTile(
-              leading: Icon(
-                Icons.error_outline,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              title: Text(state.lastError!),
-            ),
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(16),
