@@ -58,8 +58,11 @@ class DocumentIndexService {
     try {
       final document = await PdfDocument.openFile(file.path);
       try {
-        await _db
-            .delete('doc_index', where: 'path = ?', whereArgs: [file.path]);
+        await _db.delete(
+          'doc_index',
+          where: 'path = ?',
+          whereArgs: [file.path],
+        );
         final batch = _db.batch();
         for (final page in document.pages) {
           final text = await page.loadText();
@@ -71,16 +74,12 @@ class DocumentIndexService {
             'content': content,
           });
         }
-        batch.insert(
-          'indexed_documents',
-          {
-            'path': file.path,
-            'modified_at': stat.modified.millisecondsSinceEpoch,
-            'indexed_at': DateTime.now().millisecondsSinceEpoch,
-            'pages': document.pages.length,
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
+        batch.insert('indexed_documents', {
+          'path': file.path,
+          'modified_at': stat.modified.millisecondsSinceEpoch,
+          'indexed_at': DateTime.now().millisecondsSinceEpoch,
+          'pages': document.pages.length,
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
         await batch.commit(noResult: true);
       } finally {
         await document.dispose();
@@ -105,16 +104,12 @@ class DocumentIndexService {
         'content': pageTexts[i],
       });
     }
-    batch.insert(
-      'indexed_documents',
-      {
-        'path': path,
-        'modified_at': DateTime.now().millisecondsSinceEpoch,
-        'indexed_at': DateTime.now().millisecondsSinceEpoch,
-        'pages': pageTexts.length,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    batch.insert('indexed_documents', {
+      'path': path,
+      'modified_at': DateTime.now().millisecondsSinceEpoch,
+      'indexed_at': DateTime.now().millisecondsSinceEpoch,
+      'pages': pageTexts.length,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
     await batch.commit(noResult: true);
   }
 

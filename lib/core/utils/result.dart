@@ -12,14 +12,14 @@ sealed class Result<T> {
       };
 
   T? get valueOrNull => switch (this) {
-        Ok<T>(:final value) => value,
-        Err<T>() => null,
-      };
+    Ok<T>(:final value) => value,
+    Err<T>() => null,
+  };
 
   Failure? get failureOrNull => switch (this) {
-        Ok<T>() => null,
-        Err<T>(:final failure) => failure,
-      };
+    Ok<T>() => null,
+    Err<T>(:final failure) => failure,
+  };
 
   bool get isOk => this is Ok<T>;
 }

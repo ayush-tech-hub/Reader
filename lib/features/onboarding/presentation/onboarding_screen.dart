@@ -69,10 +69,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           children: [
             Align(
               alignment: Alignment.topRight,
-              child: TextButton(
-                onPressed: _finish,
-                child: Text(l10n.skip),
-              ),
+              child: TextButton(onPressed: _finish, child: Text(l10n.skip)),
             ),
             Expanded(
               child: PageView(
@@ -139,7 +136,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     width: i == _page ? 24 : 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: i == _page ? scheme.primary : scheme.outlineVariant,
+                      color: i == _page
+                          ? scheme.primary
+                          : scheme.outlineVariant,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),

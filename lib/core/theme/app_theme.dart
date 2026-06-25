@@ -26,9 +26,7 @@ abstract final class AppTheme {
       navigationBarTheme: const NavigationBarThemeData(
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
-      cardTheme: const CardThemeData(
-        clipBehavior: Clip.antiAlias,
-      ),
+      cardTheme: const CardThemeData(clipBehavior: Clip.antiAlias),
       pageTransitionsTheme: PageTransitionsTheme(
         builders: {
           TargetPlatform.android: const PredictiveBackPageTransitionsBuilder(),

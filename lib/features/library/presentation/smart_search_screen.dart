@@ -39,8 +39,9 @@ class _SmartSearchScreenState extends ConsumerState<SmartSearchScreen> {
     List<IndexHit> hits;
     if (_semantic) {
       final candidates = await index.candidates(query);
-      final ranked =
-          ai.rankByTfIdf(query, [for (final c in candidates) c.content]);
+      final ranked = ai.rankByTfIdf(query, [
+        for (final c in candidates) c.content,
+      ]);
       hits = [for (final (i, _) in ranked.take(50)) candidates[i]];
     } else {
       hits = await index.search(query);
@@ -54,8 +55,9 @@ class _SmartSearchScreenState extends ConsumerState<SmartSearchScreen> {
   }
 
   Future<void> _buildIndex() async {
-    final roots =
-        await ref.read(fileManagerRepositoryProvider).getStorageRoots();
+    final roots = await ref
+        .read(fileManagerRepositoryProvider)
+        .getStorageRoots();
     final root = roots.valueOrNull?.firstOrNull;
     if (root == null || !mounted) return;
     final index = ref.read(documentIndexServiceProvider);

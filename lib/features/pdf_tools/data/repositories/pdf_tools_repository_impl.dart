@@ -30,9 +30,8 @@ Future<String> buildPdfFromImages(
     doc.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
-        build: (context) => pw.Center(
-          child: pw.Image(image, fit: pw.BoxFit.contain),
-        ),
+        build: (context) =>
+            pw.Center(child: pw.Image(image, fit: pw.BoxFit.contain)),
       ),
     );
   }
@@ -59,24 +58,21 @@ class PdfToolsRepositoryImpl implements PdfToolsRepository {
   Future<Result<String>> merge({
     required List<String> sources,
     required String outputPath,
-  }) =>
-      _guard(() => _engine.merge(sources, outputPath));
+  }) => _guard(() => _engine.merge(sources, outputPath));
 
   @override
   Future<Result<List<String>>> split({
     required String source,
     required List<PageRange> ranges,
     required String outputDir,
-  }) =>
-      _guard(() => _engine.split(source, ranges, outputDir));
+  }) => _guard(() => _engine.split(source, ranges, outputDir));
 
   @override
   Future<Result<String>> compress({
     required String source,
     required String outputPath,
     CompressionQuality quality = CompressionQuality.medium,
-  }) =>
-      _guard(() => _engine.compress(source, outputPath, quality));
+  }) => _guard(() => _engine.compress(source, outputPath, quality));
 
   /// Pure Dart: decode each image (downscaling very large ones) and lay
   /// it out one per page, fitted to A4. Decoding/encoding is CPU-bound
@@ -86,25 +82,23 @@ class PdfToolsRepositoryImpl implements PdfToolsRepository {
   Future<Result<String>> imagesToPdf({
     required List<String> imagePaths,
     required String outputPath,
-  }) =>
-      _guard(
-          () => Isolate.run(() => buildPdfFromImages(imagePaths, outputPath)));
+  }) => _guard(
+    () => Isolate.run(() => buildPdfFromImages(imagePaths, outputPath)),
+  );
 
   @override
   Future<Result<String>> reorderPages({
     required String source,
     required String outputPath,
     required List<int> newOrder,
-  }) =>
-      _guard(() => _engine.reorderPages(source, outputPath, newOrder));
+  }) => _guard(() => _engine.reorderPages(source, outputPath, newOrder));
 
   @override
   Future<Result<String>> deletePages({
     required String source,
     required String outputPath,
     required List<int> pages,
-  }) =>
-      _guard(() => _engine.deletePages(source, outputPath, pages));
+  }) => _guard(() => _engine.deletePages(source, outputPath, pages));
 
   @override
   Future<Result<String>> rotatePages({
@@ -112,30 +106,26 @@ class PdfToolsRepositoryImpl implements PdfToolsRepository {
     required String outputPath,
     required List<int> pages,
     required int degrees,
-  }) =>
-      _guard(() {
-        if (degrees % 90 != 0) {
-          throw const NativeEngineException(
-              'Rotation must be a multiple of 90');
-        }
-        return _engine.rotatePages(source, outputPath, pages, degrees % 360);
-      });
+  }) => _guard(() {
+    if (degrees % 90 != 0) {
+      throw const NativeEngineException('Rotation must be a multiple of 90');
+    }
+    return _engine.rotatePages(source, outputPath, pages, degrees % 360);
+  });
 
   @override
   Future<Result<String>> extractPages({
     required String source,
     required String outputPath,
     required PageRange range,
-  }) =>
-      _guard(() => _engine.extractPages(source, outputPath, range));
+  }) => _guard(() => _engine.extractPages(source, outputPath, range));
 
   @override
   Future<Result<String>> watermark({
     required String source,
     required String outputPath,
     required WatermarkSpec spec,
-  }) =>
-      _guard(() => _engine.watermark(source, outputPath, spec));
+  }) => _guard(() => _engine.watermark(source, outputPath, spec));
 
   @override
   Future<Result<PdfMetadata>> getMetadata(String source) =>
@@ -146,22 +136,19 @@ class PdfToolsRepositoryImpl implements PdfToolsRepository {
     required String source,
     required String outputPath,
     required PdfMetadata metadata,
-  }) =>
-      _guard(() => _engine.setMetadata(source, outputPath, metadata));
+  }) => _guard(() => _engine.setMetadata(source, outputPath, metadata));
 
   @override
   Future<Result<String>> encrypt({
     required String source,
     required String outputPath,
     required PdfEncryptSpec spec,
-  }) =>
-      _guard(() => _engine.encrypt(source, outputPath, spec));
+  }) => _guard(() => _engine.encrypt(source, outputPath, spec));
 
   @override
   Future<Result<String>> decrypt({
     required String source,
     required String outputPath,
     required String password,
-  }) =>
-      _guard(() => _engine.decrypt(source, outputPath, password));
+  }) => _guard(() => _engine.decrypt(source, outputPath, password));
 }

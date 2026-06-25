@@ -37,8 +37,9 @@ void main() {
     repository = ArchiveRepositoryImpl(engine, jobs);
     when(() => jobs.insert(any())).thenAnswer((_) async {});
     when(() => jobs.update(any())).thenAnswer((_) async {});
-    when(() => engine.progressStream)
-        .thenAnswer((_) => const Stream<ArchiveProgress>.empty());
+    when(
+      () => engine.progressStream,
+    ).thenAnswer((_) => const Stream<ArchiveProgress>.empty());
   });
 
   group('createArchive', () {

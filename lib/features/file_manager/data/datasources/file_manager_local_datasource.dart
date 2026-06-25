@@ -21,24 +21,21 @@ class FileManagerLocalDataSource {
             path: row['path'] as String,
             name: row['name'] as String,
             isDirectory: (row['is_directory'] as int) != 0,
-            addedAt:
-                DateTime.fromMillisecondsSinceEpoch(row['added_at'] as int),
+            addedAt: DateTime.fromMillisecondsSinceEpoch(
+              row['added_at'] as int,
+            ),
           ),
         )
         .toList();
   }
 
   Future<void> addFavorite(Favorite favorite) async {
-    await _db.insert(
-      'favorites',
-      {
-        'path': favorite.path,
-        'name': favorite.name,
-        'is_directory': favorite.isDirectory ? 1 : 0,
-        'added_at': favorite.addedAt.millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await _db.insert('favorites', {
+      'path': favorite.path,
+      'name': favorite.name,
+      'is_directory': favorite.isDirectory ? 1 : 0,
+      'added_at': favorite.addedAt.millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<void> removeFavorite(String path) async {
@@ -55,14 +52,10 @@ class FileManagerLocalDataSource {
   }
 
   Future<void> recordFileAccess(String path) async {
-    await _db.insert(
-      'recent_files',
-      {
-        'path': path,
-        'name': p.basename(path),
-        'accessed_at': DateTime.now().millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await _db.insert('recent_files', {
+      'path': path,
+      'name': p.basename(path),
+      'accessed_at': DateTime.now().millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 }

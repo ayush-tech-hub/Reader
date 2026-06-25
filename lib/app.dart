@@ -33,11 +33,7 @@ class OpenDocsApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('es'),
-        Locale('hi'),
-      ],
+      supportedLocales: const [Locale('en'), Locale('es'), Locale('hi')],
       // Riverpod state errors surface here; log and show a minimal widget
       // instead of a blank screen in release builds.
       builder: (context, child) {

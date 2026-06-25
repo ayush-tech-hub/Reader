@@ -34,9 +34,7 @@ class ArchiveRepositoryImpl implements ArchiveRepository {
       return Err(ArchiveFailure('${format.name} is not supported here'));
     }
     if (password != null && !format.supportsPassword) {
-      return Err(
-        ArchiveFailure('${format.name} does not support passwords'),
-      );
+      return Err(ArchiveFailure('${format.name} does not support passwords'));
     }
     final job = ArchiveJob(
       id: newJobId(),

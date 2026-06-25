@@ -53,7 +53,8 @@ class DartArchiveEngine implements ArchiveEngine {
     switch (format) {
       case ArchiveFormat.zip:
         await Isolate.run(
-            () => _createZip(sources, archivePath, compressionLevel));
+          () => _createZip(sources, archivePath, compressionLevel),
+        );
       case ArchiveFormat.tar:
         await Isolate.run(() => _createTar(sources, archivePath));
       case ArchiveFormat.gzip:
@@ -82,9 +83,7 @@ class DartArchiveEngine implements ArchiveEngine {
     switch (format) {
       case ArchiveFormat.zip:
       case ArchiveFormat.tar:
-        await Isolate.run(
-          () => extractFileToDisk(archivePath, destinationDir),
-        );
+        await Isolate.run(() => extractFileToDisk(archivePath, destinationDir));
       case ArchiveFormat.gzip:
         await _gunzipFile(archivePath, destinationDir);
       case ArchiveFormat.sevenZ:
@@ -139,8 +138,9 @@ class DartArchiveEngine implements ArchiveEngine {
 
   void _emitDone(String jobId, String archivePath) {
     if (_progressController.isClosed) return;
-    final size =
-        File(archivePath).existsSync() ? File(archivePath).lengthSync() : 0;
+    final size = File(archivePath).existsSync()
+        ? File(archivePath).lengthSync()
+        : 0;
     _progressController.add(
       ArchiveProgress(jobId: jobId, bytesDone: size, bytesTotal: size),
     );

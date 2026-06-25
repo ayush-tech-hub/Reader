@@ -9,8 +9,9 @@ import 'package:opendocs_manager/core/di/providers.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('app boots and shows the four navigation destinations',
-      (tester) async {
+  testWidgets('app boots and shows the four navigation destinations', (
+    tester,
+  ) async {
     final database = AppDatabase();
     await database.open();
     addTearDown(database.close);
@@ -24,9 +25,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-        find.byType(NavigationBar).evaluate().isNotEmpty ||
-            find.byType(NavigationRail).evaluate().isNotEmpty,
-        isTrue);
+      find.byType(NavigationBar).evaluate().isNotEmpty ||
+          find.byType(NavigationRail).evaluate().isNotEmpty,
+      isTrue,
+    );
     expect(find.text('OpenDocs Manager'), findsWidgets);
   });
 

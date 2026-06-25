@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 /// An inclusive 1-based page range.
 class PageRange extends Equatable {
   const PageRange(this.start, this.end)
-      : assert(start >= 1 && end >= start, 'invalid range');
+    : assert(start >= 1 && end >= start, 'invalid range');
 
   final int start;
   final int end;
@@ -53,26 +53,32 @@ class PdfMetadata extends Equatable {
   final String producer;
 
   Map<String, String> toMap() => {
-        'title': title,
-        'author': author,
-        'subject': subject,
-        'keywords': keywords,
-        'creator': creator,
-        'producer': producer,
-      };
+    'title': title,
+    'author': author,
+    'subject': subject,
+    'keywords': keywords,
+    'creator': creator,
+    'producer': producer,
+  };
 
   factory PdfMetadata.fromMap(Map<dynamic, dynamic> map) => PdfMetadata(
-        title: (map['title'] as String?) ?? '',
-        author: (map['author'] as String?) ?? '',
-        subject: (map['subject'] as String?) ?? '',
-        keywords: (map['keywords'] as String?) ?? '',
-        creator: (map['creator'] as String?) ?? '',
-        producer: (map['producer'] as String?) ?? '',
-      );
+    title: (map['title'] as String?) ?? '',
+    author: (map['author'] as String?) ?? '',
+    subject: (map['subject'] as String?) ?? '',
+    keywords: (map['keywords'] as String?) ?? '',
+    creator: (map['creator'] as String?) ?? '',
+    producer: (map['producer'] as String?) ?? '',
+  );
 
   @override
-  List<Object?> get props =>
-      [title, author, subject, keywords, creator, producer];
+  List<Object?> get props => [
+    title,
+    author,
+    subject,
+    keywords,
+    creator,
+    producer,
+  ];
 }
 
 enum CompressionQuality { low, medium, high }
@@ -96,11 +102,11 @@ class PdfEncryptSpec extends Equatable {
 
   @override
   List<Object?> get props => [
-        userPassword,
-        ownerPassword,
-        allowPrinting,
-        allowCopying,
-        allowEditing,
-        allowAnnotating,
-      ];
+    userPassword,
+    ownerPassword,
+    allowPrinting,
+    allowCopying,
+    allowEditing,
+    allowAnnotating,
+  ];
 }

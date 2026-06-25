@@ -20,8 +20,7 @@ class SaveReadingPosition {
     required String path,
     required int page,
     required double zoom,
-  }) =>
-      _repository.saveReadingPosition(path: path, page: page, zoom: zoom);
+  }) => _repository.saveReadingPosition(path: path, page: page, zoom: zoom);
 }
 
 class ToggleBookmark {
@@ -38,8 +37,12 @@ class ToggleBookmark {
     final existing = await _repository.getBookmarks(documentPath);
     return switch (existing) {
       Err<List<Bookmark>>(:final failure) => Err(failure),
-      Ok<List<Bookmark>>(:final value) =>
-        await _toggle(value, documentPath, page, label),
+      Ok<List<Bookmark>>(:final value) => await _toggle(
+        value,
+        documentPath,
+        page,
+        label,
+      ),
     };
   }
 

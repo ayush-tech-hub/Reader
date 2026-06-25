@@ -105,8 +105,16 @@ class Annotation extends Equatable {
   final DateTime updatedAt;
 
   @override
-  List<Object?> get props =>
-      [id, documentPath, page, type, color, rects, strokes, note];
+  List<Object?> get props => [
+    id,
+    documentPath,
+    page,
+    type,
+    color,
+    rects,
+    strokes,
+    note,
+  ];
 }
 
 /// An entry in the PDF's own outline (table of contents).

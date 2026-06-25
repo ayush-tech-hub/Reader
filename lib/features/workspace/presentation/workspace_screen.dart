@@ -10,8 +10,8 @@ import '../../pdf_reader/presentation/screens/reader_screen.dart';
 /// with its own independent reader session.
 final workspaceTabsProvider =
     NotifierProvider<WorkspaceTabsNotifier, List<String>>(
-  WorkspaceTabsNotifier.new,
-);
+      WorkspaceTabsNotifier.new,
+    );
 
 class WorkspaceTabsNotifier extends Notifier<List<String>> {
   @override
@@ -66,9 +66,7 @@ class WorkspaceScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(l10n.workspace),
-          actions: [
-            IconButton(icon: const Icon(Icons.add), onPressed: addTab),
-          ],
+          actions: [IconButton(icon: const Icon(Icons.add), onPressed: addTab)],
           bottom: TabBar(
             isScrollable: true,
             tabs: [
@@ -77,10 +75,7 @@ class WorkspaceScreen extends ConsumerWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        p.basename(path),
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      Text(p.basename(path), overflow: TextOverflow.ellipsis),
                       const SizedBox(width: 4),
                       GestureDetector(
                         onTap: () => notifier.close(path),

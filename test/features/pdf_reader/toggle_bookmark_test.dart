@@ -25,8 +25,9 @@ void main() {
   });
 
   test('adds a bookmark when the page is not bookmarked', () async {
-    when(() => repository.getBookmarks(documentPath))
-        .thenAnswer((_) async => const Ok([]));
+    when(
+      () => repository.getBookmarks(documentPath),
+    ).thenAnswer((_) async => const Ok([]));
     when(() => repository.addBookmark(any())).thenAnswer(
       (invocation) async =>
           Ok(invocation.positionalArguments.single as Bookmark),
@@ -45,10 +46,12 @@ void main() {
       page: 7,
       createdAt: DateTime(2026),
     );
-    when(() => repository.getBookmarks(documentPath))
-        .thenAnswer((_) async => Ok([existing]));
-    when(() => repository.removeBookmark(42))
-        .thenAnswer((_) async => const Ok(null));
+    when(
+      () => repository.getBookmarks(documentPath),
+    ).thenAnswer((_) async => Ok([existing]));
+    when(
+      () => repository.removeBookmark(42),
+    ).thenAnswer((_) async => const Ok(null));
 
     final result = await toggleBookmark(documentPath: documentPath, page: 7);
 

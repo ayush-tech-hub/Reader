@@ -50,19 +50,18 @@ class ReaderState {
     List<Annotation>? annotations,
     String? searchQuery,
     bool? isSearching,
-  }) =>
-      ReaderState(
-        documentPath: documentPath,
-        currentPage: currentPage ?? this.currentPage,
-        totalPages: totalPages ?? this.totalPages,
-        pageMode: pageMode ?? this.pageMode,
-        activeTool: activeTool ?? this.activeTool,
-        toolColor: toolColor ?? this.toolColor,
-        bookmarks: bookmarks ?? this.bookmarks,
-        annotations: annotations ?? this.annotations,
-        searchQuery: searchQuery ?? this.searchQuery,
-        isSearching: isSearching ?? this.isSearching,
-      );
+  }) => ReaderState(
+    documentPath: documentPath,
+    currentPage: currentPage ?? this.currentPage,
+    totalPages: totalPages ?? this.totalPages,
+    pageMode: pageMode ?? this.pageMode,
+    activeTool: activeTool ?? this.activeTool,
+    toolColor: toolColor ?? this.toolColor,
+    bookmarks: bookmarks ?? this.bookmarks,
+    annotations: annotations ?? this.annotations,
+    searchQuery: searchQuery ?? this.searchQuery,
+    isSearching: isSearching ?? this.isSearching,
+  );
 }
 
 /// One reader session per document path (family) so split-screen mode
@@ -127,8 +126,8 @@ class ReaderNotifier extends AutoDisposeFamilyNotifier<ReaderState, String> {
       state = state.copyWith(pageMode: mode);
 
   void setTool(ReaderTool tool) => state = state.copyWith(
-        activeTool: state.activeTool == tool ? ReaderTool.none : tool,
-      );
+    activeTool: state.activeTool == tool ? ReaderTool.none : tool,
+  );
 
   void setToolColor(int color) => state = state.copyWith(toolColor: color);
 
@@ -143,8 +142,9 @@ class ReaderNotifier extends AutoDisposeFamilyNotifier<ReaderState, String> {
         .read(toggleBookmarkProvider)
         .call(documentPath: arg, page: state.currentPage);
     if (result.isOk) {
-      final bookmarks =
-          await ref.read(pdfReaderRepositoryProvider).getBookmarks(arg);
+      final bookmarks = await ref
+          .read(pdfReaderRepositoryProvider)
+          .getBookmarks(arg);
       state = state.copyWith(bookmarks: bookmarks.valueOrNull ?? const []);
     }
   }
@@ -158,7 +158,9 @@ class ReaderNotifier extends AutoDisposeFamilyNotifier<ReaderState, String> {
     String note = '',
   }) async {
     final now = DateTime.now();
-    final result = await ref.read(pdfReaderRepositoryProvider).addAnnotation(
+    final result = await ref
+        .read(pdfReaderRepositoryProvider)
+        .addAnnotation(
           Annotation(
             documentPath: arg,
             page: page,
@@ -182,8 +184,9 @@ class ReaderNotifier extends AutoDisposeFamilyNotifier<ReaderState, String> {
   Future<void> removeAnnotation(Annotation annotation) async {
     final id = annotation.id;
     if (id == null) return;
-    final result =
-        await ref.read(pdfReaderRepositoryProvider).removeAnnotation(id);
+    final result = await ref
+        .read(pdfReaderRepositoryProvider)
+        .removeAnnotation(id);
     if (result.isOk) {
       state = state.copyWith(
         annotations: state.annotations.where((a) => a.id != id).toList(),
@@ -195,6 +198,6 @@ class ReaderNotifier extends AutoDisposeFamilyNotifier<ReaderState, String> {
 /// Recent documents for the home screen.
 final recentDocumentsProvider =
     FutureProvider.autoDispose<List<RecentDocument>>((ref) async {
-  final result = await ref.watch(getRecentDocumentsProvider).call();
-  return result.fold((failure) => throw failure, (docs) => docs);
-});
+      final result = await ref.watch(getRecentDocumentsProvider).call();
+      return result.fold((failure) => throw failure, (docs) => docs);
+    });

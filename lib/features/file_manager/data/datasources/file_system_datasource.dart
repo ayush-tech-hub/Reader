@@ -12,15 +12,15 @@ import '../../domain/entities/file_entry.dart';
 /// for enumerating volume roots (internal + removable).
 class FileSystemDataSource {
   FileSystemDataSource({MethodChannel? storageChannel})
-      : _storage =
-            storageChannel ?? const MethodChannel(NativeChannels.storage);
+    : _storage = storageChannel ?? const MethodChannel(NativeChannels.storage);
 
   final MethodChannel _storage;
 
   Future<List<StorageRoot>> getStorageRoots() async {
     try {
-      final raw = await _storage
-          .invokeListMethod<Map<dynamic, dynamic>>(StorageMethods.getRoots);
+      final raw = await _storage.invokeListMethod<Map<dynamic, dynamic>>(
+        StorageMethods.getRoots,
+      );
       if (raw != null && raw.isNotEmpty) {
         return raw
             .map(
@@ -157,9 +157,7 @@ class FileSystemDataSource {
     for (final source in sources) {
       if (p.equals(source, destinationDir) ||
           p.isWithin(source, destinationDir)) {
-        throw FileSystemException2(
-          'Cannot copy or move a folder into itself',
-        );
+        throw FileSystemException2('Cannot copy or move a folder into itself');
       }
     }
   }

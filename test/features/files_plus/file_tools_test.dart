@@ -7,10 +7,10 @@ import 'package:path/path.dart' as p;
 void main() {
   group('planRename', () {
     test('expands {name}, {n} and {ext} tokens', () {
-      final plan = FileToolsService.planRename(
-        ['/docs/report.pdf', '/docs/data.csv'],
-        'archive_{n}_{name}{ext}',
-      );
+      final plan = FileToolsService.planRename([
+        '/docs/report.pdf',
+        '/docs/data.csv',
+      ], 'archive_{n}_{name}{ext}');
       expect(plan['/docs/report.pdf'], '/docs/archive_1_report.pdf');
       expect(plan['/docs/data.csv'], '/docs/archive_2_data.csv');
     });
