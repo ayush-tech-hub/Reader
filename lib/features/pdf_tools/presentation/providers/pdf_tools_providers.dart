@@ -108,8 +108,9 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
   Future<void> compress(
     String source,
     String outputPath,
-    CompressionQuality quality,
-  ) =>
+    CompressionQuality quality, {
+    CustomCompressionSettings? customSettings,
+  }) =>
       _run(
         'compressPdf',
         source,
@@ -118,6 +119,7 @@ class PdfToolsNotifier extends AutoDisposeNotifier<PdfToolsState> {
             source: source,
             outputPath: outputPath,
             quality: quality,
+            customSettings: customSettings,
           ),
         ),
       );

@@ -74,8 +74,16 @@ class PdfToolsRepositoryImpl implements PdfToolsRepository {
     required String source,
     required String outputPath,
     CompressionQuality quality = CompressionQuality.medium,
+    CustomCompressionSettings? customSettings,
   }) =>
-      _guard(() => _engine.compress(source, outputPath, quality));
+      _guard(
+        () => _engine.compress(
+          source,
+          outputPath,
+          quality,
+          customSettings: customSettings,
+        ),
+      );
 
   /// Pure Dart: decode each image (downscaling very large ones) and lay
   /// it out one per page, fitted to A4. Decoding/encoding is CPU-bound

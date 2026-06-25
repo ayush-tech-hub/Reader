@@ -20,6 +20,7 @@ abstract interface class PdfToolsRepository {
     required String source,
     required String outputPath,
     CompressionQuality quality = CompressionQuality.medium,
+    CustomCompressionSettings? customSettings,
   });
 
   Future<Result<String>> imagesToPdf({

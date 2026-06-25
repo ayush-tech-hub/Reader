@@ -204,14 +204,21 @@ class PdfToolsScreen extends ConsumerWidget {
     final sources = await _pickPdfs(multiple: false);
     if (sources == null) return;
     if (!context.mounted) return;
-    final quality = await _promptCompressionQuality(context);
-    if (quality == null) return;
+    final spec =
+        await showDialog<(CompressionQuality, CustomCompressionSettings?)>(
+      context: context,
+      builder: (_) => const _CompressionDialog(),
+    );
+    if (spec == null) return;
+    final (quality, custom) = spec;
     final dir = await _saveDir();
     await ref.read(pdfToolsProvider.notifier).compress(
           sources.single,
           _outPath(dir, sources.single, 'compressed'),
           quality,
+          customSettings: custom,
         );
+    if (!context.mounted) return;
     await _showResult(
       context,
       ref,
@@ -393,45 +400,213 @@ class PdfToolsScreen extends ConsumerWidget {
 
   static Future<String?> _promptPassword(BuildContext context, String title) =>
       _promptText(context, title, obscure: true);
+}
 
-  static Future<CompressionQuality?> _promptCompressionQuality(
-    BuildContext context,
-  ) {
-    final l10n = AppLocalizations.of(context);
-    return showDialog<CompressionQuality>(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: Text(l10n.compressPdf),
-        children: [
-          SimpleDialogOption(
-            onPressed: () => Navigator.of(context).pop(CompressionQuality.high),
-            child: const ListTile(
-              title: Text('High quality (larger file)'),
-              leading: Icon(Icons.hd),
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-            ),
+// ---------------------------------------------------------------------------
+// Custom Compression Dialog
+// ---------------------------------------------------------------------------
+
+class _CompressionDialog extends StatefulWidget {
+  const _CompressionDialog();
+
+  @override
+  State<_CompressionDialog> createState() => _CompressionDialogState();
+}
+
+class _CompressionDialogState extends State<_CompressionDialog> {
+  bool _isCustom = false;
+
+  // preset
+  CompressionQuality _preset = CompressionQuality.medium;
+
+  // custom
+  double _imageQuality = 75;
+  int _dpi = 150;
+
+  static const _dpiOptions = [72, 96, 150, 300];
+
+  (CompressionQuality, CustomCompressionSettings?) get _result => _isCustom
+      ? (
+          CompressionQuality.medium,
+          CustomCompressionSettings(
+            imageQuality: _imageQuality.round(),
+            dpi: _dpi,
           ),
-          SimpleDialogOption(
-            onPressed: () =>
-                Navigator.of(context).pop(CompressionQuality.medium),
-            child: const ListTile(
-              title: Text('Balanced (recommended)'),
-              leading: Icon(Icons.tune),
-              contentPadding: EdgeInsets.zero,
-              dense: true,
+        )
+      : (_preset, null);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Compress PDF'),
+      contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment(value: false, label: Text('Presets')),
+                ButtonSegment(value: true, label: Text('Custom')),
+              ],
+              selected: {_isCustom},
+              onSelectionChanged: (s) => setState(() => _isCustom = s.first),
             ),
+            const SizedBox(height: 16),
+            if (!_isCustom) ...[
+              _PresetTile(
+                icon: Icons.hd,
+                title: 'High quality',
+                subtitle: 'Smaller reduction, better visual result',
+                selected: _preset == CompressionQuality.high,
+                onTap: () => setState(() => _preset = CompressionQuality.high),
+              ),
+              _PresetTile(
+                icon: Icons.tune,
+                title: 'Balanced',
+                subtitle: 'Recommended for most documents',
+                selected: _preset == CompressionQuality.medium,
+                onTap: () =>
+                    setState(() => _preset = CompressionQuality.medium),
+              ),
+              _PresetTile(
+                icon: Icons.compress,
+                title: 'Maximum compression',
+                subtitle: 'Smallest file, reduced quality',
+                selected: _preset == CompressionQuality.low,
+                onTap: () => setState(() => _preset = CompressionQuality.low),
+              ),
+            ] else ...[
+              Text(
+                'Image quality: ${_imageQuality.round()}%',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              Slider(
+                value: _imageQuality,
+                min: 10,
+                max: 100,
+                divisions: 18,
+                label: '${_imageQuality.round()}%',
+                onChanged: (v) => setState(() => _imageQuality = v),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Resolution (DPI)',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: [
+                  for (final dpi in _dpiOptions)
+                    ChoiceChip(
+                      label: Text('$dpi'),
+                      selected: _dpi == dpi,
+                      onSelected: (_) => setState(() => _dpi = dpi),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _dpiDescription(_dpi),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+              ),
+            ],
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton.icon(
+          onPressed: () => Navigator.of(context).pop(_result),
+          icon: const Icon(Icons.compress, size: 18),
+          label: const Text('Compress'),
+        ),
+      ],
+    );
+  }
+
+  String _dpiDescription(int dpi) => switch (dpi) {
+        72 => 'Screen quality — smallest file size',
+        96 => 'Low quality — good for email attachments',
+        150 => 'Good quality — recommended for most uses',
+        300 => 'Print quality — larger file size',
+        _ => '',
+      };
+}
+
+class _PresetTile extends StatelessWidget {
+  const _PresetTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected ? scheme.primary : scheme.outlineVariant,
+            width: selected ? 2 : 1,
           ),
-          SimpleDialogOption(
-            onPressed: () => Navigator.of(context).pop(CompressionQuality.low),
-            child: const ListTile(
-              title: Text('Maximum compression (smaller file)'),
-              leading: Icon(Icons.compress),
-              contentPadding: EdgeInsets.zero,
-              dense: true,
+          color: selected
+              ? scheme.primaryContainer.withAlpha(128)
+              : Colors.transparent,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: selected ? scheme.primary : scheme.onSurfaceVariant,
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: selected ? scheme.primary : null,
+                        ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.outline,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            if (selected)
+              Icon(Icons.check_circle, color: scheme.primary, size: 20),
+          ],
+        ),
       ),
     );
   }

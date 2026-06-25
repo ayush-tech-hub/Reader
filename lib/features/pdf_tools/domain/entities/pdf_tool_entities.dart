@@ -83,6 +83,21 @@ class PdfMetadata extends Equatable {
 
 enum CompressionQuality { low, medium, high }
 
+/// User-defined compression parameters used when the "Custom" mode is
+/// selected. Both fields are forwarded to the native engine.
+class CustomCompressionSettings {
+  const CustomCompressionSettings({
+    required this.imageQuality,
+    required this.dpi,
+  });
+
+  /// JPEG re-encoding quality, 1–100.
+  final int imageQuality;
+
+  /// Render DPI; determines page-image resolution before JPEG encoding.
+  final int dpi;
+}
+
 class PdfEncryptSpec extends Equatable {
   const PdfEncryptSpec({
     required this.userPassword,

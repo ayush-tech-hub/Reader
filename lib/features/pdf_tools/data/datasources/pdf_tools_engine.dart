@@ -44,12 +44,17 @@ class PdfToolsEngine {
   Future<String> compress(
     String source,
     String outputPath,
-    CompressionQuality quality,
-  ) =>
+    CompressionQuality quality, {
+    CustomCompressionSettings? customSettings,
+  }) =>
       _invokeForPath(PdfToolsMethods.compress, {
         'source': source,
         'outputPath': outputPath,
         'quality': quality.name,
+        if (customSettings != null) ...{
+          'imageQuality': customSettings.imageQuality,
+          'dpi': customSettings.dpi,
+        },
       });
 
   Future<String> reorderPages(

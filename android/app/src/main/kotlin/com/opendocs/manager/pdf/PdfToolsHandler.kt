@@ -135,10 +135,19 @@ class PdfToolsHandler(
         val source = call.argument<String>("source")!!
         val outputPath = call.argument<String>("outputPath")!!
         val quality = call.argument<String>("quality") ?: "medium"
-        val (scale, jpegQuality) = when (quality) {
-            "low" -> 1.0f to 0.5f
-            "high" -> 2.0f to 0.85f
-            else -> 1.5f to 0.7f
+        val customImageQuality = call.argument<Int>("imageQuality")
+        val customDpi = call.argument<Int>("dpi")
+        val (scale, jpegQuality) = if (customImageQuality != null && customDpi != null) {
+            // Custom mode: use exact user-specified values.
+            val renderScale = customDpi / 72.0f
+            val jq = customImageQuality.coerceIn(1, 100) / 100.0f
+            renderScale to jq
+        } else {
+            when (quality) {
+                "low" -> 1.0f to 0.5f
+                "high" -> 2.0f to 0.85f
+                else -> 1.5f to 0.7f
+            }
         }
         PDDocument.load(File(source)).use { document ->
             val renderer = PDFRenderer(document)
