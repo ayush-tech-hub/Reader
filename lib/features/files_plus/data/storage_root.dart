@@ -15,5 +15,5 @@ Future<String?> acquireStorageRootPath() async {
     }
     if (status.isGranted) return '/storage/emulated/0';
   }
-  return FilePicker.platform.getDirectoryPath();
+  return FilePicker.getDirectoryPath();
 }

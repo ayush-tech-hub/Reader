@@ -188,12 +188,8 @@ jobs:
           cp "$PROFILE_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/
 
       - name: Build IPA
-        run: |
-          if [ "$HAS_IOS_SIGNING" = "true" ]; then
-            flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
-          else
-            flutter build ios --release --no-codesign
-          fi
+        if: ${{ env.HAS_IOS_SIGNING == 'true' }}
+        run: flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
 
       - name: Upload to release
         if: ${{ env.HAS_IOS_SIGNING == 'true' }}

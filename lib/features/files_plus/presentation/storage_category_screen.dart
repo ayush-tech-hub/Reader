@@ -169,7 +169,7 @@ class _StorageCategoryScreenState extends ConsumerState<StorageCategoryScreen> {
   }
 
   Future<void> _move() async {
-    final destination = await FilePicker.platform.getDirectoryPath();
+    final destination = await FilePicker.getDirectoryPath();
     if (destination == null) return;
     final paths = _selection.toList();
     final result = await ref
