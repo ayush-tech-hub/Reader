@@ -185,7 +185,7 @@
   "newFileName": "New file name",
   "changeOutputFolder": "Change output folder",
   "useDefaultFolder": "Reset to default",
-  "defaultSaveFolder": "Default save folder: Downloads/PDF & Image Tools/",
+  "defaultSaveFolder": "Default save folder: Internal Storage/CompressX/",
   "permissions": "Permissions",
   "noOutputYet": "Results will appear here after processing.",
   "fileSizeBytes": "{bytes} B",

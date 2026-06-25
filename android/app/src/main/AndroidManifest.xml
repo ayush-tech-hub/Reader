@@ -46,6 +46,17 @@
                 <data android:mimeType="application/gzip" />
             </intent-filter>
         </activity>
+        <!-- FileProvider: used by the file-open channel to share files with
+             other apps via content:// URIs (required since Android 7+). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

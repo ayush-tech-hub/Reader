@@ -144,7 +144,7 @@
   "newFileName": "Nuevo nombre de archivo",
   "changeOutputFolder": "Cambiar carpeta de salida",
   "useDefaultFolder": "Restablecer predeterminado",
-  "defaultSaveFolder": "Carpeta predeterminada: Descargas/PDF & Image Tools/",
+  "defaultSaveFolder": "Carpeta predeterminada: Almacenamiento/CompressX/",
   "permissions": "Permisos",
   "noOutputYet": "Los resultados aparecerán aquí tras el procesamiento.",
   "fileSizeBytes": "{bytes} B",

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Covers /storage/emulated/0/ and any other external storage root -->
+    <external-path name="external_storage" path="." />
+    <!-- Covers app-specific external files dir -->
+    <external-files-path name="external_files" path="." />
+    <!-- Covers app-specific internal files dir -->
+    <files-path name="internal_files" path="." />
+    <!-- Covers the system cache dir -->
+    <cache-path name="cache" path="." />
+</paths>

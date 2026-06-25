@@ -1,6 +1,11 @@
 package com.opendocs.manager
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
+import android.webkit.MimeTypeMap
+import androidx.core.content.FileProvider
 import com.opendocs.manager.archive.ArchiveEngineHandler
 import com.opendocs.manager.ml.OcrHandler
 import com.opendocs.manager.ml.TranslateHandler
@@ -10,6 +15,7 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
+import java.io.File
 
 /**
  * Registers the native engines on the channels defined in
@@ -91,6 +97,48 @@ class MainActivity : FlutterActivity() {
             Log.d(TAG, "TranslateHandler registered; model prefetch started")
         } catch (e: Throwable) {
             Log.e(TAG, "Failed to register translate channel — translation unavailable", e)
+        }
+
+        // File-open channel: opens files and folders in external apps.
+        MethodChannel(messenger, "opendocs/file_open").setMethodCallHandler { call, result ->
+            if (call.method != "open") {
+                result.notImplemented()
+                return@setMethodCallHandler
+            }
+            val path = call.argument<String>("path")
+            if (path == null) {
+                result.error("INVALID_ARGS", "path is required", null)
+                return@setMethodCallHandler
+            }
+            try {
+                val file = File(path)
+                val intent = if (file.isDirectory) {
+                    // Try to open in a file manager via resource/folder MIME type.
+                    Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType(Uri.fromFile(file), "resource/folder")
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                } else {
+                    val uri = FileProvider.getUriForFile(
+                        applicationContext,
+                        "${applicationContext.packageName}.fileprovider",
+                        file,
+                    )
+                    val ext = MimeTypeMap.getFileExtensionFromUrl(path)
+                    val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext) ?: "*/*"
+                    Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType(uri, mime)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                }
+                startActivity(intent)
+                result.success(null)
+            } catch (e: ActivityNotFoundException) {
+                result.error("NO_APP", "No app found to handle this file type", null)
+            } catch (e: Exception) {
+                result.error("OPEN_ERROR", e.message, null)
+            }
         }
 
         Log.d(TAG, "configureFlutterEngine — all channels configured")

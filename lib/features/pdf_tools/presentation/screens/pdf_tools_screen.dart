@@ -11,7 +11,7 @@ import 'pdf_editor_screen.dart';
 import 'tool_result_screen.dart';
 
 /// Hub for all PDF utilities. Each tile picks inputs, runs the operation
-/// using the default save folder (Downloads/PDF & Image Tools/), then
+/// using the default save folder (CompressX/PDFs/ or CompressX/Images/), then
 /// pushes [ToolResultScreen] on success.
 class PdfToolsScreen extends ConsumerWidget {
   const PdfToolsScreen({super.key});
@@ -130,6 +130,7 @@ class PdfToolsScreen extends ConsumerWidget {
   static final _saveService = SaveLocationService();
 
   static Future<String> _saveDir() => _saveService.getDefaultSaveDir();
+  static Future<String> _saveDirImages() => _saveService.getSubDir('Images');
 
   static String _outPath(String dir, String source, String suffix) =>
       p.join(dir, '${p.basenameWithoutExtension(source)}_$suffix.pdf');
@@ -238,7 +239,7 @@ class PdfToolsScreen extends ConsumerWidget {
     );
     final images = picked?.paths.whereType<String>().toList();
     if (images == null || images.isEmpty) return;
-    final dir = await _saveDir();
+    final dir = await _saveDirImages();
     await ref
         .read(pdfToolsProvider.notifier)
         .imagesToPdf(images, _outPath(dir, images.first, 'images'));
