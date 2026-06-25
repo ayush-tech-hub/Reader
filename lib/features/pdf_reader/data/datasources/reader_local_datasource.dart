@@ -30,12 +30,15 @@ class ReaderLocalDataSource {
     required String path,
     required int totalPages,
   }) async {
-    await _db.insert('recent_documents', {
-      'path': path,
-      'name': p.basename(path),
-      'total_pages': totalPages,
-      'last_opened_at': DateTime.now().millisecondsSinceEpoch,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    await _db.insert(
+        'recent_documents',
+        {
+          'path': path,
+          'name': p.basename(path),
+          'total_pages': totalPages,
+          'last_opened_at': DateTime.now().millisecondsSinceEpoch,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<void> saveReadingPosition({
@@ -84,12 +87,15 @@ class ReaderLocalDataSource {
   }
 
   Future<Bookmark> insertBookmark(Bookmark bookmark) async {
-    final id = await _db.insert('bookmarks', {
-      'document_path': bookmark.documentPath,
-      'page': bookmark.page,
-      'label': bookmark.label,
-      'created_at': bookmark.createdAt.millisecondsSinceEpoch,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    final id = await _db.insert(
+        'bookmarks',
+        {
+          'document_path': bookmark.documentPath,
+          'page': bookmark.page,
+          'label': bookmark.label,
+          'created_at': bookmark.createdAt.millisecondsSinceEpoch,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace);
     return Bookmark(
       id: id,
       documentPath: bookmark.documentPath,
@@ -149,29 +155,29 @@ class ReaderLocalDataSource {
   // ---- Mapping -------------------------------------------------------
 
   RecentDocument _recentFromRow(Map<String, Object?> row) => RecentDocument(
-    path: row['path'] as String,
-    name: row['name'] as String,
-    lastPage: row['last_page'] as int,
-    totalPages: row['total_pages'] as int,
-    zoom: (row['zoom'] as num).toDouble(),
-    pinned: (row['pinned'] as int) != 0,
-    lastOpenedAt: DateTime.fromMillisecondsSinceEpoch(
-      row['last_opened_at'] as int,
-    ),
-  );
+        path: row['path'] as String,
+        name: row['name'] as String,
+        lastPage: row['last_page'] as int,
+        totalPages: row['total_pages'] as int,
+        zoom: (row['zoom'] as num).toDouble(),
+        pinned: (row['pinned'] as int) != 0,
+        lastOpenedAt: DateTime.fromMillisecondsSinceEpoch(
+          row['last_opened_at'] as int,
+        ),
+      );
 
   Map<String, Object?> _annotationToRow(Annotation a) => {
-    'document_path': a.documentPath,
-    'page': a.page,
-    'type': a.type.name,
-    'color': a.color,
-    'opacity': a.opacity,
-    'stroke_width': a.strokeWidth,
-    'geometry': encodeGeometry(a),
-    'note': a.note,
-    'created_at': a.createdAt.millisecondsSinceEpoch,
-    'updated_at': a.updatedAt.millisecondsSinceEpoch,
-  };
+        'document_path': a.documentPath,
+        'page': a.page,
+        'type': a.type.name,
+        'color': a.color,
+        'opacity': a.opacity,
+        'stroke_width': a.strokeWidth,
+        'geometry': encodeGeometry(a),
+        'note': a.note,
+        'created_at': a.createdAt.millisecondsSinceEpoch,
+        'updated_at': a.updatedAt.millisecondsSinceEpoch,
+      };
 
   Annotation _annotationFromRow(Map<String, Object?> row) {
     final type = AnnotationType.values.byName(row['type'] as String);
@@ -196,36 +202,36 @@ class ReaderLocalDataSource {
   // Geometry JSON codec — exposed static for tests.
 
   static String encodeGeometry(Annotation a) => jsonEncode({
-    'rects': [
-      for (final r in a.rects)
-        {'l': r.left, 't': r.top, 'r': r.right, 'b': r.bottom},
-    ],
-    'strokes': [
-      for (final stroke in a.strokes)
-        [
-          for (final point in stroke) {'x': point.x, 'y': point.y},
+        'rects': [
+          for (final r in a.rects)
+            {'l': r.left, 't': r.top, 'r': r.right, 'b': r.bottom},
         ],
-    ],
-  });
+        'strokes': [
+          for (final stroke in a.strokes)
+            [
+              for (final point in stroke) {'x': point.x, 'y': point.y},
+            ],
+        ],
+      });
 
   static List<PageRect> decodeRects(Map<String, dynamic> geometry) => [
-    for (final raw in (geometry['rects'] as List<dynamic>? ?? []))
-      PageRect(
-        ((raw as Map<String, dynamic>)['l'] as num).toDouble(),
-        (raw['t'] as num).toDouble(),
-        (raw['r'] as num).toDouble(),
-        (raw['b'] as num).toDouble(),
-      ),
-  ];
+        for (final raw in (geometry['rects'] as List<dynamic>? ?? []))
+          PageRect(
+            ((raw as Map<String, dynamic>)['l'] as num).toDouble(),
+            (raw['t'] as num).toDouble(),
+            (raw['r'] as num).toDouble(),
+            (raw['b'] as num).toDouble(),
+          ),
+      ];
 
   static List<List<PagePoint>> decodeStrokes(Map<String, dynamic> geometry) => [
-    for (final stroke in (geometry['strokes'] as List<dynamic>? ?? []))
-      [
-        for (final raw in stroke as List<dynamic>)
-          PagePoint(
-            ((raw as Map<String, dynamic>)['x'] as num).toDouble(),
-            (raw['y'] as num).toDouble(),
-          ),
-      ],
-  ];
+        for (final stroke in (geometry['strokes'] as List<dynamic>? ?? []))
+          [
+            for (final raw in stroke as List<dynamic>)
+              PagePoint(
+                ((raw as Map<String, dynamic>)['x'] as num).toDouble(),
+                (raw['y'] as num).toDouble(),
+              ),
+          ],
+      ];
 }

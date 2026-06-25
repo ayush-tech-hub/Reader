@@ -55,9 +55,8 @@ class _SmartSearchScreenState extends ConsumerState<SmartSearchScreen> {
   }
 
   Future<void> _buildIndex() async {
-    final roots = await ref
-        .read(fileManagerRepositoryProvider)
-        .getStorageRoots();
+    final roots =
+        await ref.read(fileManagerRepositoryProvider).getStorageRoots();
     final root = roots.valueOrNull?.firstOrNull;
     if (root == null || !mounted) return;
     final index = ref.read(documentIndexServiceProvider);

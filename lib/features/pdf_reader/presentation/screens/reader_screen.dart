@@ -123,16 +123,14 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                   IconButton(
                     tooltip: l10n.previousMatch,
                     icon: const Icon(Icons.keyboard_arrow_up),
-                    onPressed: _searcher.hasMatches
-                        ? _searcher.goToPrevMatch
-                        : null,
+                    onPressed:
+                        _searcher.hasMatches ? _searcher.goToPrevMatch : null,
                   ),
                   IconButton(
                     tooltip: l10n.nextMatch,
                     icon: const Icon(Icons.keyboard_arrow_down),
-                    onPressed: _searcher.hasMatches
-                        ? _searcher.goToNextMatch
-                        : null,
+                    onPressed:
+                        _searcher.hasMatches ? _searcher.goToNextMatch : null,
                   ),
                 ],
               ),
@@ -194,9 +192,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
           controller: _controller,
           passwordProvider: _askPassword,
           params: PdfViewerParams(
-            layoutPages: pageMode == ReaderPageMode.single
-                ? _singlePageLayout
-                : null,
+            layoutPages:
+                pageMode == ReaderPageMode.single ? _singlePageLayout : null,
             onViewerReady: (document, controller) async {
               await _notifier.onDocumentOpened(document.pages.length);
               final outline = await document.loadOutline();
@@ -248,9 +245,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             selectableRegionInjector: (context, child) => SelectionArea(
               contextMenuBuilder: (context, selectableRegionState) =>
                   AdaptiveTextSelectionToolbar.buttonItems(
-                    anchors: selectableRegionState.contextMenuAnchors,
-                    buttonItems: selectableRegionState.contextMenuButtonItems,
-                  ),
+                anchors: selectableRegionState.contextMenuAnchors,
+                buttonItems: selectableRegionState.contextMenuButtonItems,
+              ),
               child: child,
             ),
           ),
@@ -281,7 +278,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   ) {
     final height =
         pages.fold(0.0, (h, page) => h < page.height ? page.height : h) +
-        params.margin * 2;
+            params.margin * 2;
     final pageLayouts = <Rect>[];
     var x = params.margin;
     for (final page in pages) {
@@ -368,8 +365,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     final pages = _controller.pages;
     if (pages.isEmpty) return;
     final current = ref.read(readerProvider(widget.path)).currentPage;
-    final text = await pages[(current - 1).clamp(0, pages.length - 1)]
-        .loadText();
+    final text =
+        await pages[(current - 1).clamp(0, pages.length - 1)].loadText();
     await tts.speak(text.fullText);
   }
 

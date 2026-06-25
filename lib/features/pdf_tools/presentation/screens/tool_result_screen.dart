@@ -116,13 +116,13 @@ class _ToolResultScreenState extends State<ToolResultScreen> {
 
           // Output file(s)
           ..._paths.asMap().entries.map(
-            (entry) => _FileCard(
-              path: entry.value,
-              onRename: (newPath) =>
-                  setState(() => _paths[entry.key] = newPath),
-              onDelete: () => setState(() => _paths.removeAt(entry.key)),
-            ),
-          ),
+                (entry) => _FileCard(
+                  path: entry.value,
+                  onRename: (newPath) =>
+                      setState(() => _paths[entry.key] = newPath),
+                  onDelete: () => setState(() => _paths.removeAt(entry.key)),
+                ),
+              ),
 
           const SizedBox(height: 12),
 
@@ -224,15 +224,14 @@ class _ToolResultScreenState extends State<ToolResultScreen> {
 
   void _viewFolder(String filePath) {
     const channel = MethodChannel('opendocs/file_open');
-    channel
-        .invokeMethod<void>('open', {'path': p.dirname(filePath)})
-        .catchError((_) {
-          if (mounted) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(p.dirname(filePath))));
-          }
-        });
+    channel.invokeMethod<void>(
+        'open', {'path': p.dirname(filePath)}).catchError((_) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(p.dirname(filePath))));
+      }
+    });
   }
 }
 
@@ -306,9 +305,9 @@ class _SizeStat extends StatelessWidget {
         Text(
           _fmt(bytes),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: color,
-            fontWeight: FontWeight.bold,
-          ),
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
           textAlign: TextAlign.center,
         ),
       ],

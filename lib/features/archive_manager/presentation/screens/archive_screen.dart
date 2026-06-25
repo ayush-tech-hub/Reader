@@ -123,9 +123,7 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
     if (options == null || !mounted) return;
     final destinationDir = await FilePicker.getDirectoryPath();
     if (destinationDir == null || !mounted) return;
-    await ref
-        .read(archiveScreenProvider.notifier)
-        .create(
+    await ref.read(archiveScreenProvider.notifier).create(
           sources: sources,
           archivePath: p.join(
             destinationDir,
@@ -145,9 +143,7 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
       password = await _promptOptionalPassword();
       if (!mounted) return;
     }
-    await ref
-        .read(archiveScreenProvider.notifier)
-        .extract(
+    await ref.read(archiveScreenProvider.notifier).extract(
           archivePath: archivePath,
           destinationDir: destinationDir,
           password: password,
@@ -163,13 +159,12 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
       password = await _promptOptionalPassword();
       if (!mounted) return;
     }
-    final queued = await ref
-        .read(archiveScreenProvider.notifier)
-        .extractInBackground(
-          archivePath: archivePath,
-          destinationDir: destinationDir,
-          password: password,
-        );
+    final queued =
+        await ref.read(archiveScreenProvider.notifier).extractInBackground(
+              archivePath: archivePath,
+              destinationDir: destinationDir,
+              password: password,
+            );
     if (queued && mounted) {
       ScaffoldMessenger.of(
         context,
@@ -215,12 +210,10 @@ class _JobProgressBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final label = job.type == ArchiveJobType.create
-        ? l10n.compressing
-        : l10n.extracting;
-    final fraction = job.status == ArchiveJobStatus.done
-        ? 1.0
-        : progress?.fraction;
+    final label =
+        job.type == ArchiveJobType.create ? l10n.compressing : l10n.extracting;
+    final fraction =
+        job.status == ArchiveJobStatus.done ? 1.0 : progress?.fraction;
     return Card(
       margin: const EdgeInsets.all(12),
       child: Padding(

@@ -42,7 +42,7 @@ class FileEntryTile extends StatelessWidget {
     final subtitle = entry.isDirectory
         ? localizations.formatShortDate(entry.modifiedAt)
         : '${formatBytes(entry.size)} · '
-              '${localizations.formatShortDate(entry.modifiedAt)}';
+            '${localizations.formatShortDate(entry.modifiedAt)}';
     return ListTile(
       leading: selectionMode
           ? Checkbox(value: selected, onChanged: (_) => onLongPress())

@@ -10,8 +10,8 @@ import '../../pdf_reader/presentation/screens/reader_screen.dart';
 /// with its own independent reader session.
 final workspaceTabsProvider =
     NotifierProvider<WorkspaceTabsNotifier, List<String>>(
-      WorkspaceTabsNotifier.new,
-    );
+  WorkspaceTabsNotifier.new,
+);
 
 class WorkspaceTabsNotifier extends Notifier<List<String>> {
   @override

@@ -219,9 +219,8 @@ class _EpubReaderScreenState extends State<EpubReaderScreen> {
         }
         final book = snapshot.data!;
         final chapters = book.chapters;
-        final index = chapters.isEmpty
-            ? 0
-            : _chapterIndex.clamp(0, chapters.length - 1);
+        final index =
+            chapters.isEmpty ? 0 : _chapterIndex.clamp(0, chapters.length - 1);
         final content = chapters.isEmpty ? '' : chapters[index].$2;
         return Scaffold(
           appBar: AppBar(
@@ -300,15 +299,14 @@ class _ComicReaderScreenState extends State<ComicReaderScreen> {
     }
     final inputStream = InputFileStream(widget.path);
     final archive = ZipDecoder().decodeBuffer(inputStream);
-    final pages =
-        archive.files
-            .where(
-              (f) =>
-                  f.isFile &&
-                  _imageExtensions.contains(p.extension(f.name).toLowerCase()),
-            )
-            .toList()
-          ..sort((a, b) => a.name.compareTo(b.name));
+    final pages = archive.files
+        .where(
+          (f) =>
+              f.isFile &&
+              _imageExtensions.contains(p.extension(f.name).toLowerCase()),
+        )
+        .toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
     return pages;
   }
 

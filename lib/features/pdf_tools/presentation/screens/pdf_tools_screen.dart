@@ -207,9 +207,7 @@ class PdfToolsScreen extends ConsumerWidget {
     final quality = await _promptCompressionQuality(context);
     if (quality == null) return;
     final dir = await _saveDir();
-    await ref
-        .read(pdfToolsProvider.notifier)
-        .compress(
+    await ref.read(pdfToolsProvider.notifier).compress(
           sources.single,
           _outPath(dir, sources.single, 'compressed'),
           quality,
@@ -281,9 +279,7 @@ class PdfToolsScreen extends ConsumerWidget {
     );
     if (spec == null) return;
     final dir = await _saveDir();
-    await ref
-        .read(pdfToolsProvider.notifier)
-        .watermark(
+    await ref.read(pdfToolsProvider.notifier).watermark(
           sources.single,
           _outPath(dir, sources.single, 'watermarked'),
           spec,
@@ -330,9 +326,7 @@ class PdfToolsScreen extends ConsumerWidget {
     );
     if (spec == null) return;
     final dir = await _saveDir();
-    await ref
-        .read(pdfToolsProvider.notifier)
-        .encrypt(
+    await ref.read(pdfToolsProvider.notifier).encrypt(
           sources.single,
           _outPath(dir, sources.single, 'encrypted'),
           spec,
@@ -354,9 +348,7 @@ class PdfToolsScreen extends ConsumerWidget {
     );
     if (password == null) return;
     final dir = await _saveDir();
-    await ref
-        .read(pdfToolsProvider.notifier)
-        .decrypt(
+    await ref.read(pdfToolsProvider.notifier).decrypt(
           sources.single,
           _outPath(dir, sources.single, 'unlocked'),
           password,
@@ -559,12 +551,12 @@ class _WatermarkDialogState extends State<_WatermarkDialog> {
           onPressed: _text.text.isEmpty
               ? null
               : () => Navigator.of(context).pop(
-                  WatermarkSpec(
-                    text: _text.text,
-                    opacity: _opacity,
-                    fontSize: _fontSize,
+                    WatermarkSpec(
+                      text: _text.text,
+                      opacity: _opacity,
+                      fontSize: _fontSize,
+                    ),
                   ),
-                ),
           child: Text(l10n.ok),
         ),
       ],
@@ -744,15 +736,15 @@ class _EncryptDialogState extends State<_EncryptDialog> {
           onPressed: _userPw.text.isEmpty
               ? null
               : () => Navigator.of(context).pop(
-                  PdfEncryptSpec(
-                    userPassword: _userPw.text,
-                    ownerPassword: _ownerPw.text,
-                    allowPrinting: _allowPrinting,
-                    allowCopying: _allowCopying,
-                    allowEditing: _allowEditing,
-                    allowAnnotating: _allowAnnotating,
+                    PdfEncryptSpec(
+                      userPassword: _userPw.text,
+                      ownerPassword: _ownerPw.text,
+                      allowPrinting: _allowPrinting,
+                      allowCopying: _allowCopying,
+                      allowEditing: _allowEditing,
+                      allowAnnotating: _allowAnnotating,
+                    ),
                   ),
-                ),
           child: Text(l10n.ok),
         ),
       ],

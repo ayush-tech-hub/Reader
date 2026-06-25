@@ -287,9 +287,8 @@ class _FileBrowserScreenState extends ConsumerState<FileBrowserScreen> {
       isDirectory: entry?.isDirectory ?? false,
       addedAt: DateTime.now(),
     );
-    final result = await ref
-        .read(fileManagerRepositoryProvider)
-        .addFavorite(favorite);
+    final result =
+        await ref.read(fileManagerRepositoryProvider).addFavorite(favorite);
     _notifier.clearSelection();
     if (!mounted) return;
     result.fold(

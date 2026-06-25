@@ -119,16 +119,14 @@ String summarize(String text, {int maxSentences = 5}) {
   for (final word in tokenize(text)) {
     frequency[word] = (frequency[word] ?? 0) + 1;
   }
-  final maxFrequency = frequency.values
-      .fold(1, (a, b) => a > b ? a : b)
-      .toDouble();
+  final maxFrequency =
+      frequency.values.fold(1, (a, b) => a > b ? a : b).toDouble();
 
   final scored = <(int index, double score)>[];
   for (var i = 0; i < sentences.length; i++) {
     final words = tokenize(sentences[i]);
     if (words.isEmpty) continue;
-    final score =
-        words.fold(0.0, (sum, w) => sum + (frequency[w] ?? 0)) /
+    final score = words.fold(0.0, (sum, w) => sum + (frequency[w] ?? 0)) /
         maxFrequency /
         math.sqrt(words.length);
     scored.add((i, score));

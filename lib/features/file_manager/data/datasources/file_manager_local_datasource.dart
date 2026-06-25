@@ -30,12 +30,15 @@ class FileManagerLocalDataSource {
   }
 
   Future<void> addFavorite(Favorite favorite) async {
-    await _db.insert('favorites', {
-      'path': favorite.path,
-      'name': favorite.name,
-      'is_directory': favorite.isDirectory ? 1 : 0,
-      'added_at': favorite.addedAt.millisecondsSinceEpoch,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    await _db.insert(
+        'favorites',
+        {
+          'path': favorite.path,
+          'name': favorite.name,
+          'is_directory': favorite.isDirectory ? 1 : 0,
+          'added_at': favorite.addedAt.millisecondsSinceEpoch,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<void> removeFavorite(String path) async {
@@ -52,10 +55,13 @@ class FileManagerLocalDataSource {
   }
 
   Future<void> recordFileAccess(String path) async {
-    await _db.insert('recent_files', {
-      'path': path,
-      'name': p.basename(path),
-      'accessed_at': DateTime.now().millisecondsSinceEpoch,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    await _db.insert(
+        'recent_files',
+        {
+          'path': path,
+          'name': p.basename(path),
+          'accessed_at': DateTime.now().millisecondsSinceEpoch,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 }

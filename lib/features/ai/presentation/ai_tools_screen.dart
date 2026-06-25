@@ -35,9 +35,8 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
   }
 
   Future<void> _checkDownloadedModels() async {
-    final downloaded = await ref
-        .read(translateEngineProvider)
-        .getDownloadedLanguages();
+    final downloaded =
+        await ref.read(translateEngineProvider).getDownloadedLanguages();
     if (mounted) {
       setState(() {
         _downloadedLanguages = downloaded;
@@ -97,52 +96,51 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
   }
 
   Future<void> _summarize() => _run(() async {
-    final text = await _documentText();
-    final backend = ai.registeredAiBackend;
-    if (backend != null) return backend.summarize(text);
-    return ai.summarize(text, maxSentences: 7);
-  });
+        final text = await _documentText();
+        final backend = ai.registeredAiBackend;
+        if (backend != null) return backend.summarize(text);
+        return ai.summarize(text, maxSentences: 7);
+      });
 
   Future<void> _ask() => _run(() async {
-    final l10n = AppLocalizations.of(context);
-    final question = _questionController.text.trim();
-    if (question.isEmpty) return '';
-    final index = ref.read(documentIndexServiceProvider);
-    final candidates = await index.candidates(question);
-    if (candidates.isEmpty) {
-      return l10n.noAnswerFound;
-    }
-    final ranked = ai.rankByTfIdf(question, [
-      for (final c in candidates) c.content,
-    ]);
-    final passages = [for (final (i, _) in ranked.take(3)) candidates[i]];
-    final backend = ai.registeredAiBackend;
-    if (backend != null) {
-      return backend.answer(question, [
-        for (final passage in passages) passage.content,
-      ]);
-    }
-    // Extractive baseline: best passages with citations.
-    return passages
-        .map(
-          (passage) =>
-              '${ai.summarize(passage.content, maxSentences: 2)}'
-              '\n— ${passage.name}, p.${passage.page}',
-        )
-        .join('\n\n');
-  });
+        final l10n = AppLocalizations.of(context);
+        final question = _questionController.text.trim();
+        if (question.isEmpty) return '';
+        final index = ref.read(documentIndexServiceProvider);
+        final candidates = await index.candidates(question);
+        if (candidates.isEmpty) {
+          return l10n.noAnswerFound;
+        }
+        final ranked = ai.rankByTfIdf(question, [
+          for (final c in candidates) c.content,
+        ]);
+        final passages = [for (final (i, _) in ranked.take(3)) candidates[i]];
+        final backend = ai.registeredAiBackend;
+        if (backend != null) {
+          return backend.answer(question, [
+            for (final passage in passages) passage.content,
+          ]);
+        }
+        // Extractive baseline: best passages with citations.
+        return passages
+            .map(
+              (passage) => '${ai.summarize(passage.content, maxSentences: 2)}'
+                  '\n— ${passage.name}, p.${passage.page}',
+            )
+            .join('\n\n');
+      });
 
   Future<void> _ocr() => _run(() async {
-    final path = _documentPath;
-    if (path == null) {
-      throw Exception(AppLocalizations.of(context).pickDocument);
-    }
-    final pages = await ref.read(ocrEngineProvider).recognizePdf(path);
-    await ref
-        .read(documentIndexServiceProvider)
-        .indexExternalText(path: path, pageTexts: pages);
-    return pages.join('\n\n');
-  });
+        final path = _documentPath;
+        if (path == null) {
+          throw Exception(AppLocalizations.of(context).pickDocument);
+        }
+        final pages = await ref.read(ocrEngineProvider).recognizePdf(path);
+        await ref
+            .read(documentIndexServiceProvider)
+            .indexExternalText(path: path, pageTexts: pages);
+        return pages.join('\n\n');
+      });
 
   // (display name, BCP-47 code)
   static const _languages = [
@@ -200,9 +198,7 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
     if (picked == null) return;
     _run(() async {
       final source = _output.isNotEmpty ? _output : await _documentText();
-      return ref
-          .read(translateEngineProvider)
-          .translate(
+      return ref.read(translateEngineProvider).translate(
             text: source.length > 4000 ? source.substring(0, 4000) : source,
             sourceLanguage: 'en',
             targetLanguage: picked,
@@ -214,8 +210,7 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final supported = TranslateEngine.supportedLanguageCodes;
-    final allReady =
-        _modelsChecked &&
+    final allReady = _modelsChecked &&
         supported.every((c) => _downloadedLanguages.contains(c));
     final downloadedCount = _modelsChecked
         ? supported.where(_downloadedLanguages.contains).length

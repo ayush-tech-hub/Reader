@@ -34,7 +34,8 @@ class FileManagerRepositoryImpl implements FileManagerRepository {
   Future<Result<List<FileEntry>>> listDirectory(
     String path, {
     required bool showHidden,
-  }) => _guard(() => _fs.listDirectory(path, showHidden: showHidden));
+  }) =>
+      _guard(() => _fs.listDirectory(path, showHidden: showHidden));
 
   @override
   Stream<FileEntry> search(String rootPath, String query) =>
@@ -73,24 +74,24 @@ class FileManagerRepositoryImpl implements FileManagerRepository {
 
   @override
   Future<Result<List<FileEntry>>> getRecentFiles() => _guard(() async {
-    final paths = await _local.getRecentFilePaths();
-    final entries = <FileEntry>[];
-    for (final path in paths) {
-      final file = File(path);
-      if (!await file.exists()) continue; // pruned lazily
-      final stat = await file.stat();
-      entries.add(
-        FileEntry(
-          path: path,
-          name: file.uri.pathSegments.last,
-          isDirectory: false,
-          size: stat.size,
-          modifiedAt: stat.modified,
-        ),
-      );
-    }
-    return entries;
-  });
+        final paths = await _local.getRecentFilePaths();
+        final entries = <FileEntry>[];
+        for (final path in paths) {
+          final file = File(path);
+          if (!await file.exists()) continue; // pruned lazily
+          final stat = await file.stat();
+          entries.add(
+            FileEntry(
+              path: path,
+              name: file.uri.pathSegments.last,
+              isDirectory: false,
+              size: stat.size,
+              modifiedAt: stat.modified,
+            ),
+          );
+        }
+        return entries;
+      });
 
   @override
   Future<Result<void>> recordFileAccess(String path) =>

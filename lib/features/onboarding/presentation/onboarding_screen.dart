@@ -110,14 +110,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           Text(
                             page.title,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.headlineSmall
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
                                 ?.copyWith(fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 12),
                           Text(
                             page.description,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodyLarge
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
                                 ?.copyWith(color: scheme.outline),
                           ),
                         ],
@@ -136,9 +140,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     width: i == _page ? 24 : 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: i == _page
-                          ? scheme.primary
-                          : scheme.outlineVariant,
+                      color:
+                          i == _page ? scheme.primary : scheme.outlineVariant,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -152,9 +155,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   onPressed: isLast
                       ? _finish
                       : () => _controller.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOut,
-                        ),
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOut,
+                          ),
                   child: Text(isLast ? l10n.getStarted : l10n.next),
                 ),
               ),

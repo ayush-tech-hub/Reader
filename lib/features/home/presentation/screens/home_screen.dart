@@ -374,9 +374,8 @@ class _StorageOverviewCard extends ConsumerWidget {
 }
 
 final _storageRootsProvider = FutureProvider.autoDispose((ref) async {
-  final result = await ref
-      .watch(fileManagerRepositoryProvider)
-      .getStorageRoots();
+  final result =
+      await ref.watch(fileManagerRepositoryProvider).getStorageRoots();
   return result.fold(
     (_) => null,
     (roots) => roots.isEmpty ? null : roots.first,
@@ -392,7 +391,7 @@ class _PinnedFoldersSection extends ConsumerWidget {
     final favoritesAsync = ref.watch(favoritesProvider);
     final folders =
         favoritesAsync.valueOrNull?.where((f) => f.isDirectory).toList() ??
-        const [];
+            const [];
     if (folders.isEmpty) return const SizedBox.shrink();
 
     return Column(

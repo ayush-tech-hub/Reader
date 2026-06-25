@@ -30,32 +30,33 @@ class ArchiveJobsDataSource {
   }
 
   Map<String, Object?> _toRow(ArchiveJob job) => {
-    'id': job.id,
-    'type': job.type.name,
-    'format': job.format.wireName,
-    'archive_path': job.archivePath,
-    'target_path': job.targetPath,
-    'status': job.status.name,
-    'progress': job.progress,
-    'error': job.error,
-    'created_at': job.createdAt.millisecondsSinceEpoch,
-    'completed_at': job.completedAt?.millisecondsSinceEpoch,
-  };
+        'id': job.id,
+        'type': job.type.name,
+        'format': job.format.wireName,
+        'archive_path': job.archivePath,
+        'target_path': job.targetPath,
+        'status': job.status.name,
+        'progress': job.progress,
+        'error': job.error,
+        'created_at': job.createdAt.millisecondsSinceEpoch,
+        'completed_at': job.completedAt?.millisecondsSinceEpoch,
+      };
 
   ArchiveJob _fromRow(Map<String, Object?> row) => ArchiveJob(
-    id: row['id'] as String,
-    type: ArchiveJobType.values.byName(row['type'] as String),
-    format: ArchiveFormat.values.firstWhere(
-      (f) => f.wireName == row['format'] as String,
-    ),
-    archivePath: row['archive_path'] as String,
-    targetPath: row['target_path'] as String,
-    status: ArchiveJobStatus.values.byName(row['status'] as String),
-    progress: (row['progress'] as num).toDouble(),
-    error: row['error'] as String?,
-    createdAt: DateTime.fromMillisecondsSinceEpoch(row['created_at'] as int),
-    completedAt: row['completed_at'] == null
-        ? null
-        : DateTime.fromMillisecondsSinceEpoch(row['completed_at'] as int),
-  );
+        id: row['id'] as String,
+        type: ArchiveJobType.values.byName(row['type'] as String),
+        format: ArchiveFormat.values.firstWhere(
+          (f) => f.wireName == row['format'] as String,
+        ),
+        archivePath: row['archive_path'] as String,
+        targetPath: row['target_path'] as String,
+        status: ArchiveJobStatus.values.byName(row['status'] as String),
+        progress: (row['progress'] as num).toDouble(),
+        error: row['error'] as String?,
+        createdAt:
+            DateTime.fromMillisecondsSinceEpoch(row['created_at'] as int),
+        completedAt: row['completed_at'] == null
+            ? null
+            : DateTime.fromMillisecondsSinceEpoch(row['completed_at'] as int),
+      );
 }

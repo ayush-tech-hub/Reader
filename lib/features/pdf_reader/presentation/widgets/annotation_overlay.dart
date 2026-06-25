@@ -59,11 +59,11 @@ class AnnotationPainter extends CustomPainter {
   }
 
   Rect _toRect(PageRect rect) => Rect.fromLTRB(
-    rect.left * scale,
-    rect.top * scale,
-    rect.right * scale,
-    rect.bottom * scale,
-  );
+        rect.left * scale,
+        rect.top * scale,
+        rect.right * scale,
+        rect.bottom * scale,
+      );
 
   @override
   bool shouldRepaint(AnnotationPainter oldDelegate) =>

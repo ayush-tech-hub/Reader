@@ -138,9 +138,8 @@ class DartArchiveEngine implements ArchiveEngine {
 
   void _emitDone(String jobId, String archivePath) {
     if (_progressController.isClosed) return;
-    final size = File(archivePath).existsSync()
-        ? File(archivePath).lengthSync()
-        : 0;
+    final size =
+        File(archivePath).existsSync() ? File(archivePath).lengthSync() : 0;
     _progressController.add(
       ArchiveProgress(jobId: jobId, bytesDone: size, bytesTotal: size),
     );

@@ -106,15 +106,15 @@ class Annotation extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    documentPath,
-    page,
-    type,
-    color,
-    rects,
-    strokes,
-    note,
-  ];
+        id,
+        documentPath,
+        page,
+        type,
+        color,
+        rects,
+        strokes,
+        note,
+      ];
 }
 
 /// An entry in the PDF's own outline (table of contents).

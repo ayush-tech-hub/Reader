@@ -30,17 +30,18 @@ class ArchiveScreenState {
     bool clearJob = false,
     String? lastError,
     bool clearError = false,
-  }) => ArchiveScreenState(
-    entries: entries ?? this.entries,
-    activeJob: clearJob ? null : (activeJob ?? this.activeJob),
-    lastError: clearError ? null : (lastError ?? this.lastError),
-  );
+  }) =>
+      ArchiveScreenState(
+        entries: entries ?? this.entries,
+        activeJob: clearJob ? null : (activeJob ?? this.activeJob),
+        lastError: clearError ? null : (lastError ?? this.lastError),
+      );
 }
 
 final archiveScreenProvider =
     NotifierProvider.autoDispose<ArchiveScreenNotifier, ArchiveScreenState>(
-      ArchiveScreenNotifier.new,
-    );
+  ArchiveScreenNotifier.new,
+);
 
 class ArchiveScreenNotifier extends AutoDisposeNotifier<ArchiveScreenState> {
   @override
@@ -66,9 +67,7 @@ class ArchiveScreenNotifier extends AutoDisposeNotifier<ArchiveScreenState> {
     String? password,
     int compressionLevel = 6,
   }) async {
-    final result = await ref
-        .read(archiveRepositoryProvider)
-        .createArchive(
+    final result = await ref.read(archiveRepositoryProvider).createArchive(
           sources: sources,
           archivePath: archivePath,
           format: format,
@@ -83,9 +82,7 @@ class ArchiveScreenNotifier extends AutoDisposeNotifier<ArchiveScreenState> {
     required String destinationDir,
     String? password,
   }) async {
-    final result = await ref
-        .read(archiveRepositoryProvider)
-        .extractArchive(
+    final result = await ref.read(archiveRepositoryProvider).extractArchive(
           archivePath: archivePath,
           destinationDir: destinationDir,
           password: password,
@@ -99,13 +96,12 @@ class ArchiveScreenNotifier extends AutoDisposeNotifier<ArchiveScreenState> {
     required String destinationDir,
     String? password,
   }) async {
-    final result = await ref
-        .read(archiveRepositoryProvider)
-        .extractInBackground(
-          archivePath: archivePath,
-          destinationDir: destinationDir,
-          password: password,
-        );
+    final result =
+        await ref.read(archiveRepositoryProvider).extractInBackground(
+              archivePath: archivePath,
+              destinationDir: destinationDir,
+              password: password,
+            );
     return result.fold(
       (failure) {
         state = state.copyWith(lastError: failure.message);

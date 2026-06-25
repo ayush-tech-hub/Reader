@@ -79,11 +79,10 @@ class _StorageCategoryScreenState extends ConsumerState<StorageCategoryScreen> {
     final sorted = List.of(files);
     sorted.sort((a, b) {
       final cmp = switch (_sortField) {
-        _SortField.name =>
-          p
-              .basename(a.path)
-              .toLowerCase()
-              .compareTo(p.basename(b.path).toLowerCase()),
+        _SortField.name => p
+            .basename(a.path)
+            .toLowerCase()
+            .compareTo(p.basename(b.path).toLowerCase()),
         _SortField.size => a.size.compareTo(b.size),
         _SortField.date => a.modifiedMs.compareTo(b.modifiedMs),
       };
@@ -157,9 +156,8 @@ class _StorageCategoryScreenState extends ConsumerState<StorageCategoryScreen> {
       ),
     );
     if (name == null || name.isEmpty) return;
-    final result = await ref
-        .read(fileManagerRepositoryProvider)
-        .rename(path, name);
+    final result =
+        await ref.read(fileManagerRepositoryProvider).rename(path, name);
     result.fold((failure) => _showMessage(failure.message), (_) {
       setState(() {
         _files = _files.where((f) => f.path != path).toList();
@@ -172,9 +170,8 @@ class _StorageCategoryScreenState extends ConsumerState<StorageCategoryScreen> {
     final destination = await FilePicker.getDirectoryPath();
     if (destination == null) return;
     final paths = _selection.toList();
-    final result = await ref
-        .read(fileManagerRepositoryProvider)
-        .move(paths, destination);
+    final result =
+        await ref.read(fileManagerRepositoryProvider).move(paths, destination);
     result.fold((failure) => _showMessage(failure.message), (_) {
       setState(() {
         _files = _files.where((f) => !paths.contains(f.path)).toList();
@@ -249,16 +246,16 @@ class _StorageCategoryScreenState extends ConsumerState<StorageCategoryScreen> {
   }
 
   String _categoryLabel(AppLocalizations l10n) => switch (widget.category) {
-    StorageCategory.images => l10n.categoryImages,
-    StorageCategory.videos => l10n.categoryVideos,
-    StorageCategory.audio => l10n.categoryAudio,
-    StorageCategory.documents => l10n.categoryDocuments,
-    StorageCategory.apks => l10n.categoryApks,
-    StorageCategory.archives => l10n.categoryArchives,
-    StorageCategory.downloads => l10n.categoryDownloads,
-    StorageCategory.hidden => l10n.categoryHidden,
-    StorageCategory.largeFiles => l10n.categoryLargeFiles,
-  };
+        StorageCategory.images => l10n.categoryImages,
+        StorageCategory.videos => l10n.categoryVideos,
+        StorageCategory.audio => l10n.categoryAudio,
+        StorageCategory.documents => l10n.categoryDocuments,
+        StorageCategory.apks => l10n.categoryApks,
+        StorageCategory.archives => l10n.categoryArchives,
+        StorageCategory.downloads => l10n.categoryDownloads,
+        StorageCategory.hidden => l10n.categoryHidden,
+        StorageCategory.largeFiles => l10n.categoryLargeFiles,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -319,9 +316,8 @@ class _StorageCategoryScreenState extends ConsumerState<StorageCategoryScreen> {
                   ),
                   PopupMenuButton<_SortField>(
                     onSelected: (field) => setState(() {
-                      _sortAscending = _sortField == field
-                          ? !_sortAscending
-                          : true;
+                      _sortAscending =
+                          _sortField == field ? !_sortAscending : true;
                       _sortField = field;
                     }),
                     itemBuilder: (context) => [
@@ -349,33 +345,34 @@ class _StorageCategoryScreenState extends ConsumerState<StorageCategoryScreen> {
         body: _loading
             ? const Center(child: CircularProgressIndicator())
             : files.isEmpty
-            ? Center(child: Text(l10n.noFilesInCategory))
-            : ListView.builder(
-                itemCount: files.length,
-                itemBuilder: (context, index) {
-                  final file = files[index];
-                  final selected = _selection.contains(file.path);
-                  return ListTile(
-                    selected: selected,
-                    leading: CircleAvatar(
-                      child: Icon(widget.category.icon, size: 18),
-                    ),
-                    title: Text(
-                      p.basename(file.path),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    subtitle: Text(
-                      '${formatBytes(file.size)} · ${p.dirname(file.path)}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: selected ? const Icon(Icons.check_circle) : null,
-                    onTap: () => _open(file),
-                    onLongPress: () => _toggleSelection(file.path),
-                  );
-                },
-              ),
+                ? Center(child: Text(l10n.noFilesInCategory))
+                : ListView.builder(
+                    itemCount: files.length,
+                    itemBuilder: (context, index) {
+                      final file = files[index];
+                      final selected = _selection.contains(file.path);
+                      return ListTile(
+                        selected: selected,
+                        leading: CircleAvatar(
+                          child: Icon(widget.category.icon, size: 18),
+                        ),
+                        title: Text(
+                          p.basename(file.path),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        subtitle: Text(
+                          '${formatBytes(file.size)} · ${p.dirname(file.path)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        trailing:
+                            selected ? const Icon(Icons.check_circle) : null,
+                        onTap: () => _open(file),
+                        onLongPress: () => _toggleSelection(file.path),
+                      );
+                    },
+                  ),
       ),
     );
   }

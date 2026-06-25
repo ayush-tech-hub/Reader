@@ -21,33 +21,33 @@ enum StorageCategory {
   /// Whether this category participates in the mutually-exclusive pie
   /// breakdown (as opposed to being an overlay/shortcut category).
   bool get isPrimaryType => switch (this) {
-    images || videos || audio || documents || apks || archives => true,
-    downloads || hidden || largeFiles => false,
-  };
+        images || videos || audio || documents || apks || archives => true,
+        downloads || hidden || largeFiles => false,
+      };
 
   IconData get icon => switch (this) {
-    StorageCategory.images => Icons.image_outlined,
-    StorageCategory.videos => Icons.movie_outlined,
-    StorageCategory.audio => Icons.audiotrack_outlined,
-    StorageCategory.documents => Icons.description_outlined,
-    StorageCategory.apks => Icons.android,
-    StorageCategory.archives => Icons.folder_zip_outlined,
-    StorageCategory.downloads => Icons.download_outlined,
-    StorageCategory.hidden => Icons.visibility_off_outlined,
-    StorageCategory.largeFiles => Icons.layers_outlined,
-  };
+        StorageCategory.images => Icons.image_outlined,
+        StorageCategory.videos => Icons.movie_outlined,
+        StorageCategory.audio => Icons.audiotrack_outlined,
+        StorageCategory.documents => Icons.description_outlined,
+        StorageCategory.apks => Icons.android,
+        StorageCategory.archives => Icons.folder_zip_outlined,
+        StorageCategory.downloads => Icons.download_outlined,
+        StorageCategory.hidden => Icons.visibility_off_outlined,
+        StorageCategory.largeFiles => Icons.layers_outlined,
+      };
 
   Color color(ColorScheme scheme) => switch (this) {
-    StorageCategory.images => const Color(0xFF42A5F5),
-    StorageCategory.videos => const Color(0xFFEF5350),
-    StorageCategory.audio => const Color(0xFFAB47BC),
-    StorageCategory.documents => const Color(0xFF26A69A),
-    StorageCategory.apks => const Color(0xFF66BB6A),
-    StorageCategory.archives => const Color(0xFFFFA726),
-    StorageCategory.downloads => scheme.secondary,
-    StorageCategory.hidden => scheme.outline,
-    StorageCategory.largeFiles => const Color(0xFFEC407A),
-  };
+        StorageCategory.images => const Color(0xFF42A5F5),
+        StorageCategory.videos => const Color(0xFFEF5350),
+        StorageCategory.audio => const Color(0xFFAB47BC),
+        StorageCategory.documents => const Color(0xFF26A69A),
+        StorageCategory.apks => const Color(0xFF66BB6A),
+        StorageCategory.archives => const Color(0xFFFFA726),
+        StorageCategory.downloads => scheme.secondary,
+        StorageCategory.hidden => scheme.outline,
+        StorageCategory.largeFiles => const Color(0xFFEC407A),
+      };
 }
 
 class ScannedFile {

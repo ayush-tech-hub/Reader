@@ -20,8 +20,7 @@ class AppDatabase {
 
   Future<void> open({String? overridePath}) async {
     if (_db != null) return;
-    final path =
-        overridePath ??
+    final path = overridePath ??
         p.join(await getDatabasesPath(), AppConstants.databaseName);
     _db = await openDatabase(
       path,

@@ -68,18 +68,19 @@ class ArchiveJob extends Equatable {
     double? progress,
     String? error,
     DateTime? completedAt,
-  }) => ArchiveJob(
-    id: id,
-    type: type,
-    format: format,
-    archivePath: archivePath,
-    targetPath: targetPath,
-    status: status ?? this.status,
-    progress: progress ?? this.progress,
-    error: error ?? this.error,
-    createdAt: createdAt,
-    completedAt: completedAt ?? this.completedAt,
-  );
+  }) =>
+      ArchiveJob(
+        id: id,
+        type: type,
+        format: format,
+        archivePath: archivePath,
+        targetPath: targetPath,
+        status: status ?? this.status,
+        progress: progress ?? this.progress,
+        error: error ?? this.error,
+        createdAt: createdAt,
+        completedAt: completedAt ?? this.completedAt,
+      );
 
   @override
   List<Object?> get props => [id, status, progress, error];

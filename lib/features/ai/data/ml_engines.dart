@@ -8,7 +8,7 @@ import '../../../core/platform/native_channels.dart';
 /// iOS: PDFKit + Vision. Both fully offline.
 class OcrEngine {
   OcrEngine({MethodChannel? channel})
-    : _channel = channel ?? const MethodChannel(NativeChannels.ocr);
+      : _channel = channel ?? const MethodChannel(NativeChannels.ocr);
 
   final MethodChannel _channel;
 
@@ -32,7 +32,7 @@ class OcrEngine {
 /// path lands.
 class TranslateEngine {
   TranslateEngine({MethodChannel? channel})
-    : _channel = channel ?? const MethodChannel(NativeChannels.translate);
+      : _channel = channel ?? const MethodChannel(NativeChannels.translate);
 
   final MethodChannel _channel;
 

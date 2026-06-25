@@ -25,18 +25,20 @@ class PdfReaderRepositoryImpl implements PdfReaderRepository {
   Future<Result<void>> recordDocumentOpened({
     required String path,
     required int totalPages,
-  }) => _guard(
-    () => _local.upsertRecentDocument(path: path, totalPages: totalPages),
-  );
+  }) =>
+      _guard(
+        () => _local.upsertRecentDocument(path: path, totalPages: totalPages),
+      );
 
   @override
   Future<Result<void>> saveReadingPosition({
     required String path,
     required int page,
     required double zoom,
-  }) => _guard(
-    () => _local.saveReadingPosition(path: path, page: page, zoom: zoom),
-  );
+  }) =>
+      _guard(
+        () => _local.saveReadingPosition(path: path, page: page, zoom: zoom),
+      );
 
   @override
   Future<Result<void>> removeRecentDocument(String path) =>

@@ -32,8 +32,8 @@ class ListDirectory {
       if (a.isDirectory != b.isDirectory) return a.isDirectory ? -1 : 1;
       final cmp = switch (field) {
         FileSortField.name => a.name.toLowerCase().compareTo(
-          b.name.toLowerCase(),
-        ),
+              b.name.toLowerCase(),
+            ),
         FileSortField.size => a.size.compareTo(b.size),
         FileSortField.date => a.modifiedAt.compareTo(b.modifiedAt),
       };

@@ -13,9 +13,9 @@ class NativeArchiveEngine implements ArchiveEngine {
   NativeArchiveEngine({
     MethodChannel? methodChannel,
     EventChannel? eventChannel,
-  }) : _channel = methodChannel ?? const MethodChannel(NativeChannels.archive),
-       _events =
-           eventChannel ?? const EventChannel(NativeChannels.archiveProgress);
+  })  : _channel = methodChannel ?? const MethodChannel(NativeChannels.archive),
+        _events =
+            eventChannel ?? const EventChannel(NativeChannels.archiveProgress);
 
   final MethodChannel _channel;
   final EventChannel _events;
@@ -45,14 +45,15 @@ class NativeArchiveEngine implements ArchiveEngine {
     required ArchiveFormat format,
     String? password,
     int compressionLevel = 6,
-  }) => _invoke(ArchiveMethods.create, {
-    'jobId': jobId,
-    'sources': sources,
-    'archivePath': archivePath,
-    'format': format.wireName,
-    'password': password,
-    'level': compressionLevel,
-  });
+  }) =>
+      _invoke(ArchiveMethods.create, {
+        'jobId': jobId,
+        'sources': sources,
+        'archivePath': archivePath,
+        'format': format.wireName,
+        'password': password,
+        'level': compressionLevel,
+      });
 
   @override
   Future<void> extract({
@@ -60,23 +61,25 @@ class NativeArchiveEngine implements ArchiveEngine {
     required String archivePath,
     required String destinationDir,
     String? password,
-  }) => _invoke(ArchiveMethods.extract, {
-    'jobId': jobId,
-    'archivePath': archivePath,
-    'destinationDir': destinationDir,
-    'password': password,
-  });
+  }) =>
+      _invoke(ArchiveMethods.extract, {
+        'jobId': jobId,
+        'archivePath': archivePath,
+        'destinationDir': destinationDir,
+        'password': password,
+      });
 
   @override
   Future<void> extractInBackground({
     required String archivePath,
     required String destinationDir,
     String? password,
-  }) => _invoke(ArchiveMethods.extractInBackground, {
-    'archivePath': archivePath,
-    'destinationDir': destinationDir,
-    'password': password,
-  });
+  }) =>
+      _invoke(ArchiveMethods.extractInBackground, {
+        'archivePath': archivePath,
+        'destinationDir': destinationDir,
+        'password': password,
+      });
 
   @override
   Future<List<ArchiveEntry>> list(

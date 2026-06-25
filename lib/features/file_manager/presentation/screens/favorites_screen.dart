@@ -58,7 +58,9 @@ class FavoritesScreen extends ConsumerWidget {
                           .then((_) => ref.invalidate(favoritesProvider)),
                     ),
                     onTap: () => context.push(
-                      '${Routes.browser}?${Uri(queryParameters: {'path': folder.path}).query}',
+                      '${Routes.browser}?${Uri(queryParameters: {
+                            'path': folder.path
+                          }).query}',
                     ),
                   ),
               ],

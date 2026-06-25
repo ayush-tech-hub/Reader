@@ -28,9 +28,8 @@ class _DuplicatesScreenState extends ConsumerState<DuplicatesScreen> {
     final root = await acquireStorageRootPath();
     if (root == null) return;
     setState(() => _busy = true);
-    final groups = await ref
-        .read(fileToolsServiceProvider)
-        .findDuplicates(root);
+    final groups =
+        await ref.read(fileToolsServiceProvider).findDuplicates(root);
     if (mounted) {
       setState(() {
         _groups = groups;
@@ -61,43 +60,43 @@ class _DuplicatesScreenState extends ConsumerState<DuplicatesScreen> {
       body: _busy
           ? const Center(child: CircularProgressIndicator())
           : groups == null
-          ? Center(child: Text(l10n.scanHint))
-          : groups.isEmpty
-          ? Center(child: Text(l10n.noDuplicates))
-          : ListView.builder(
-              itemCount: groups.length,
-              itemBuilder: (context, groupIndex) {
-                final group = groups[groupIndex];
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  child: Column(
-                    children: [
-                      for (final path in group)
-                        ListTile(
-                          dense: true,
-                          title: Text(
-                            p.basename(path),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+              ? Center(child: Text(l10n.scanHint))
+              : groups.isEmpty
+                  ? Center(child: Text(l10n.noDuplicates))
+                  : ListView.builder(
+                      itemCount: groups.length,
+                      itemBuilder: (context, groupIndex) {
+                        final group = groups[groupIndex];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
                           ),
-                          subtitle: Text(
-                            p.dirname(path),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          child: Column(
+                            children: [
+                              for (final path in group)
+                                ListTile(
+                                  dense: true,
+                                  title: Text(
+                                    p.basename(path),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  subtitle: Text(
+                                    p.dirname(path),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.delete_outline),
+                                    onPressed: () => _delete(path, groupIndex),
+                                  ),
+                                ),
+                            ],
                           ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete_outline),
-                            onPressed: () => _delete(path, groupIndex),
-                          ),
-                        ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                        );
+                      },
+                    ),
     );
   }
 }
@@ -132,92 +131,94 @@ class _BatchToolsScreenState extends ConsumerState<BatchToolsScreen> {
 
   /// Extract every archive in a chosen folder into sibling directories.
   Future<void> _batchExtract() => _run(() async {
-    final dir = await FilePicker.getDirectoryPath();
-    if (dir == null) return '';
-    final entries = await ref
-        .read(fileManagerRepositoryProvider)
-        .listDirectory(dir, showHidden: false);
-    final archives = (entries.valueOrNull ?? [])
-        .where((e) => !e.isDirectory && ArchiveFormat.fromPath(e.path) != null)
-        .toList();
-    final repo = ref.read(archiveRepositoryProvider);
-    final lines = <String>[];
-    for (final archive in archives) {
-      final destination = p.join(dir, p.basenameWithoutExtension(archive.name));
-      final result = await repo.extractArchive(
-        archivePath: archive.path,
-        destinationDir: destination,
-      );
-      lines.add(
-        result.fold(
-          (failure) => '✗ ${archive.name}: ${failure.message}',
-          (_) => '✓ ${archive.name}',
-        ),
-      );
-    }
-    return lines.isEmpty ? 'No archives found' : lines.join('\n');
-  });
+        final dir = await FilePicker.getDirectoryPath();
+        if (dir == null) return '';
+        final entries = await ref
+            .read(fileManagerRepositoryProvider)
+            .listDirectory(dir, showHidden: false);
+        final archives = (entries.valueOrNull ?? [])
+            .where(
+                (e) => !e.isDirectory && ArchiveFormat.fromPath(e.path) != null)
+            .toList();
+        final repo = ref.read(archiveRepositoryProvider);
+        final lines = <String>[];
+        for (final archive in archives) {
+          final destination =
+              p.join(dir, p.basenameWithoutExtension(archive.name));
+          final result = await repo.extractArchive(
+            archivePath: archive.path,
+            destinationDir: destination,
+          );
+          lines.add(
+            result.fold(
+              (failure) => '✗ ${archive.name}: ${failure.message}',
+              (_) => '✓ ${archive.name}',
+            ),
+          );
+        }
+        return lines.isEmpty ? 'No archives found' : lines.join('\n');
+      });
 
   /// Convert every image in a chosen folder into a single PDF.
   Future<void> _batchConvert() => _run(() async {
-    final dir = await FilePicker.getDirectoryPath();
-    if (dir == null) return '';
-    final entries = await ref
-        .read(fileManagerRepositoryProvider)
-        .listDirectory(dir, showHidden: false);
-    final images =
-        (entries.valueOrNull ?? [])
+        final dir = await FilePicker.getDirectoryPath();
+        if (dir == null) return '';
+        final entries = await ref
+            .read(fileManagerRepositoryProvider)
+            .listDirectory(dir, showHidden: false);
+        final images = (entries.valueOrNull ?? [])
             .where((e) => !e.isDirectory && _isImage(e.path))
             .map((e) => e.path)
             .toList()
           ..sort();
-    if (images.isEmpty) return 'No images found';
-    final output = p.join(dir, '${p.basename(dir)}.pdf');
-    final result = await ref
-        .read(pdfToolsRepositoryProvider)
-        .imagesToPdf(imagePaths: images, outputPath: output);
-    return result.fold((f) => f.message, (path) => '✓ $path');
-  });
+        if (images.isEmpty) return 'No images found';
+        final output = p.join(dir, '${p.basename(dir)}.pdf');
+        final result = await ref
+            .read(pdfToolsRepositoryProvider)
+            .imagesToPdf(imagePaths: images, outputPath: output);
+        return result.fold((f) => f.message, (path) => '✓ $path');
+      });
 
   Future<void> _batchRename() => _run(() async {
-    final picked = await FilePicker.pickFiles(allowMultiple: true);
-    final paths = picked?.paths.whereType<String>().toList();
-    if (paths == null || paths.isEmpty) return '';
-    if (!mounted) return '';
-    final controller = TextEditingController(text: '{name}_{n}{ext}');
-    final pattern = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context).renamePattern),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(helperText: '{name} {n} {ext}'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(AppLocalizations.of(context).cancel),
+        final picked = await FilePicker.pickFiles(allowMultiple: true);
+        final paths = picked?.paths.whereType<String>().toList();
+        if (paths == null || paths.isEmpty) return '';
+        if (!mounted) return '';
+        final controller = TextEditingController(text: '{name}_{n}{ext}');
+        final pattern = await showDialog<String>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context).renamePattern),
+            content: TextField(
+              controller: controller,
+              decoration: const InputDecoration(helperText: '{name} {n} {ext}'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(AppLocalizations.of(context).cancel),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(controller.text),
+                child: Text(AppLocalizations.of(context).ok),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(controller.text),
-            child: Text(AppLocalizations.of(context).ok),
-          ),
-        ],
-      ),
-    );
-    if (pattern == null || pattern.isEmpty) return '';
-    final plan = FileToolsService.planRename(paths, pattern);
-    final renamed = await ref.read(fileToolsServiceProvider).applyRename(plan);
-    return '✓ $renamed';
-  });
+        );
+        if (pattern == null || pattern.isEmpty) return '';
+        final plan = FileToolsService.planRename(paths, pattern);
+        final renamed =
+            await ref.read(fileToolsServiceProvider).applyRename(plan);
+        return '✓ $renamed';
+      });
 
   static bool _isImage(String path) => const {
-    '.jpg',
-    '.jpeg',
-    '.png',
-    '.webp',
-    '.bmp',
-  }.contains(p.extension(path).toLowerCase());
+        '.jpg',
+        '.jpeg',
+        '.png',
+        '.webp',
+        '.bmp',
+      }.contains(p.extension(path).toLowerCase());
 
   @override
   Widget build(BuildContext context) {
@@ -288,27 +289,25 @@ class _FolderSyncScreenState extends ConsumerState<FolderSyncScreen> {
     if (source == null) return;
     final destination = await FilePicker.getDirectoryPath();
     if (destination == null) return;
-    await ref.read(appDatabaseProvider).db.insert('sync_pairs', {
-      'source': source,
-      'destination': destination,
-      'delete_orphans': 0,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    await ref.read(appDatabaseProvider).db.insert(
+        'sync_pairs',
+        {
+          'source': source,
+          'destination': destination,
+          'delete_orphans': 0,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace);
     await _load();
   }
 
   Future<void> _sync(Map<String, Object?> pair) async {
     setState(() => _busy = true);
-    final result = await ref
-        .read(fileToolsServiceProvider)
-        .syncFolders(
+    final result = await ref.read(fileToolsServiceProvider).syncFolders(
           sourceDir: pair['source'] as String,
           destinationDir: pair['destination'] as String,
           deleteOrphans: (pair['delete_orphans'] as int) != 0,
         );
-    await ref
-        .read(appDatabaseProvider)
-        .db
-        .update(
+    await ref.read(appDatabaseProvider).db.update(
           'sync_pairs',
           {'last_synced_at': DateTime.now().millisecondsSinceEpoch},
           where: 'id = ?',
@@ -398,9 +397,8 @@ class _TagsScreenState extends ConsumerState<TagsScreen> {
   }
 
   Future<void> _select(Tag tag) async {
-    final paths = await ref
-        .read(tagsDataSourceProvider)
-        .getPathsWithTag(tag.id);
+    final paths =
+        await ref.read(tagsDataSourceProvider).getPathsWithTag(tag.id);
     if (mounted) {
       setState(() {
         _selected = tag;

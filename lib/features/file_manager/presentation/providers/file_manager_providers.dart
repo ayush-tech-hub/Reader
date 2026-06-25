@@ -57,23 +57,25 @@ class BrowserState {
     bool clearClipboard = false,
     List<FileEntry>? searchResults,
     bool clearSearch = false,
-  }) => BrowserState(
-    currentPath: currentPath ?? this.currentPath,
-    entries: entries ?? this.entries,
-    viewMode: viewMode ?? this.viewMode,
-    sortField: sortField ?? this.sortField,
-    sortAscending: sortAscending ?? this.sortAscending,
-    showHidden: showHidden ?? this.showHidden,
-    selection: selection ?? this.selection,
-    clipboard: clearClipboard ? null : (clipboard ?? this.clipboard),
-    searchResults: clearSearch ? null : (searchResults ?? this.searchResults),
-  );
+  }) =>
+      BrowserState(
+        currentPath: currentPath ?? this.currentPath,
+        entries: entries ?? this.entries,
+        viewMode: viewMode ?? this.viewMode,
+        sortField: sortField ?? this.sortField,
+        sortAscending: sortAscending ?? this.sortAscending,
+        showHidden: showHidden ?? this.showHidden,
+        selection: selection ?? this.selection,
+        clipboard: clearClipboard ? null : (clipboard ?? this.clipboard),
+        searchResults:
+            clearSearch ? null : (searchResults ?? this.searchResults),
+      );
 }
 
 final browserProvider =
     NotifierProvider.autoDispose<BrowserNotifier, BrowserState>(
-      BrowserNotifier.new,
-    );
+  BrowserNotifier.new,
+);
 
 class BrowserNotifier extends AutoDisposeNotifier<BrowserState> {
   @override
@@ -98,9 +100,8 @@ class BrowserNotifier extends AutoDisposeNotifier<BrowserState> {
       );
       return;
     }
-    final roots = await ref
-        .read(fileManagerRepositoryProvider)
-        .getStorageRoots();
+    final roots =
+        await ref.read(fileManagerRepositoryProvider).getStorageRoots();
     final rootPath = roots.fold((_) => '/', (list) => list.first.path);
     await navigateTo(rootPath);
   }
@@ -128,9 +129,7 @@ class BrowserNotifier extends AutoDisposeNotifier<BrowserState> {
   }
 
   Future<void> refresh() async {
-    final result = await ref
-        .read(listDirectoryProvider)
-        .call(
+    final result = await ref.read(listDirectoryProvider).call(
           state.currentPath,
           showHidden: state.showHidden,
           sortField: state.sortField,
@@ -194,9 +193,8 @@ class BrowserNotifier extends AutoDisposeNotifier<BrowserState> {
   }
 
   Future<Failure?> rename(String path, String newName) async {
-    final result = await ref
-        .read(fileManagerRepositoryProvider)
-        .rename(path, newName);
+    final result =
+        await ref.read(fileManagerRepositoryProvider).rename(path, newName);
     await refresh();
     return result.failureOrNull;
   }
@@ -218,10 +216,9 @@ class BrowserNotifier extends AutoDisposeNotifier<BrowserState> {
     final results = <FileEntry>[];
     // Batch state updates: one rebuild per ~200ms instead of one per hit.
     final stopwatch = Stopwatch()..start();
-    await for (final entry
-        in ref
-            .read(fileManagerRepositoryProvider)
-            .search(state.currentPath, query)) {
+    await for (final entry in ref
+        .read(fileManagerRepositoryProvider)
+        .search(state.currentPath, query)) {
       results.add(entry);
       if (stopwatch.elapsedMilliseconds >= 200) {
         stopwatch.reset();
@@ -248,8 +245,7 @@ final favoritesProvider = FutureProvider.autoDispose<List<Favorite>>((
 final recentFilesProvider = FutureProvider.autoDispose<List<FileEntry>>((
   ref,
 ) async {
-  final result = await ref
-      .watch(fileManagerRepositoryProvider)
-      .getRecentFiles();
+  final result =
+      await ref.watch(fileManagerRepositoryProvider).getRecentFiles();
   return result.fold((failure) => throw failure, (files) => files);
 });

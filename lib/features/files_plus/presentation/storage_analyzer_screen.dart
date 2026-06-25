@@ -48,9 +48,8 @@ class _StorageAnalyzerScreenState extends ConsumerState<StorageAnalyzerScreen>
     final root = await acquireStorageRootPath();
     if (root == null) return;
 
-    final roots = await ref
-        .read(fileManagerRepositoryProvider)
-        .getStorageRoots();
+    final roots =
+        await ref.read(fileManagerRepositoryProvider).getStorageRoots();
     roots.fold((_) {}, (list) {
       if (list.isNotEmpty) {
         _deviceTotalBytes = list.first.totalBytes;
@@ -123,70 +122,71 @@ class _StorageAnalyzerScreenState extends ConsumerState<StorageAnalyzerScreen>
               ),
             )
           : report == null
-          ? Center(child: Text(l10n.scanHint))
-          : RefreshIndicator(
-              onRefresh: _scan,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  if (_deviceTotalBytes != null) ...[
-                    _StorageUsageBar(
-                      totalBytes: _deviceTotalBytes!,
-                      freeBytes: _deviceFreeBytes ?? 0,
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                  Center(
-                    child: AnimatedBuilder(
-                      animation: _pieController,
-                      builder: (context, _) => StoragePieChart(
-                        progress: _pieController.value,
-                        centerLabel: formatBytes(report.totalBytes),
-                        centerSubLabel: l10n.filesCount(report.totalFiles),
-                        slices: [
-                          for (final category in StorageCategory.values)
-                            if (category.isPrimaryType)
-                              StorageSlice(
-                                color: category.color(scheme),
-                                bytes:
-                                    report.buckets[category]?.totalBytes ?? 0,
-                              ),
-                        ],
+              ? Center(child: Text(l10n.scanHint))
+              : RefreshIndicator(
+                  onRefresh: _scan,
+                  child: ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      if (_deviceTotalBytes != null) ...[
+                        _StorageUsageBar(
+                          totalBytes: _deviceTotalBytes!,
+                          freeBytes: _deviceFreeBytes ?? 0,
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                      Center(
+                        child: AnimatedBuilder(
+                          animation: _pieController,
+                          builder: (context, _) => StoragePieChart(
+                            progress: _pieController.value,
+                            centerLabel: formatBytes(report.totalBytes),
+                            centerSubLabel: l10n.filesCount(report.totalFiles),
+                            slices: [
+                              for (final category in StorageCategory.values)
+                                if (category.isPrimaryType)
+                                  StorageSlice(
+                                    color: category.color(scheme),
+                                    bytes:
+                                        report.buckets[category]?.totalBytes ??
+                                            0,
+                                  ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    l10n.byFileType,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      const SizedBox(height: 24),
+                      Text(
+                        l10n.byFileType,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 12,
                           childAspectRatio: 1.6,
                         ),
-                    itemCount: StorageCategory.values.length,
-                    itemBuilder: (context, index) {
-                      final category = StorageCategory.values[index];
-                      final bucket =
-                          report.buckets[category] ?? CategoryBucket();
-                      return _CategoryCard(
-                        category: category,
-                        bucket: bucket,
-                        index: index,
-                        onTap: () => _openCategory(category, bucket),
-                      );
-                    },
+                        itemCount: StorageCategory.values.length,
+                        itemBuilder: (context, index) {
+                          final category = StorageCategory.values[index];
+                          final bucket =
+                              report.buckets[category] ?? CategoryBucket();
+                          return _CategoryCard(
+                            category: category,
+                            bucket: bucket,
+                            index: index,
+                            onTap: () => _openCategory(category, bucket),
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
     );
   }
 }
@@ -253,16 +253,16 @@ class _CategoryCard extends StatelessWidget {
   final VoidCallback onTap;
 
   String _label(AppLocalizations l10n) => switch (category) {
-    StorageCategory.images => l10n.categoryImages,
-    StorageCategory.videos => l10n.categoryVideos,
-    StorageCategory.audio => l10n.categoryAudio,
-    StorageCategory.documents => l10n.categoryDocuments,
-    StorageCategory.apks => l10n.categoryApks,
-    StorageCategory.archives => l10n.categoryArchives,
-    StorageCategory.downloads => l10n.categoryDownloads,
-    StorageCategory.hidden => l10n.categoryHidden,
-    StorageCategory.largeFiles => l10n.categoryLargeFiles,
-  };
+        StorageCategory.images => l10n.categoryImages,
+        StorageCategory.videos => l10n.categoryVideos,
+        StorageCategory.audio => l10n.categoryAudio,
+        StorageCategory.documents => l10n.categoryDocuments,
+        StorageCategory.apks => l10n.categoryApks,
+        StorageCategory.archives => l10n.categoryArchives,
+        StorageCategory.downloads => l10n.categoryDownloads,
+        StorageCategory.hidden => l10n.categoryHidden,
+        StorageCategory.largeFiles => l10n.categoryLargeFiles,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -308,8 +308,8 @@ class _CategoryCard extends StatelessWidget {
                       Text(
                         formatBytes(bucket.totalBytes),
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
                       Text(
                         l10n.filesCount(bucket.fileCount),

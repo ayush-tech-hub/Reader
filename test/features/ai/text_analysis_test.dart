@@ -4,8 +4,7 @@ import 'package:opendocs_manager/features/ai/data/text_analysis.dart';
 void main() {
   group('summarize', () {
     test('returns top sentences in original order', () {
-      const text =
-          'Flutter renders widgets with Skia and Impeller. '
+      const text = 'Flutter renders widgets with Skia and Impeller. '
           'The weather was unremarkable on that particular day in autumn. '
           'Flutter widgets compose into trees managed by the framework. '
           'Someone mentioned an unrelated anecdote about gardening tools. '

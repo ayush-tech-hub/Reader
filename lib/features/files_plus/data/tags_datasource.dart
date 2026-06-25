@@ -31,10 +31,13 @@ class TagsDataSource {
   }
 
   Future<Tag> createTag(String name, {int color = 0xFF1565C0}) async {
-    final id = await _db.insert('tags', {
-      'name': name,
-      'color': color,
-    }, conflictAlgorithm: ConflictAlgorithm.ignore);
+    final id = await _db.insert(
+        'tags',
+        {
+          'name': name,
+          'color': color,
+        },
+        conflictAlgorithm: ConflictAlgorithm.ignore);
     if (id == 0) {
       final existing = await _db.query(
         'tags',
