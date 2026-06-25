@@ -32,7 +32,7 @@ jobs:
           if [ -n "${{ inputs.version }}" ]; then
             echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
           elif [ -f RELEASE_VERSION ]; then
-            echo "version=$(tr -d ' \n' < RELEASE_VERSION)" >> "$GITHUB_OUTPUT"
+            echo "version=$(head -1 RELEASE_VERSION | tr -d ' \r\n')" >> "$GITHUB_OUTPUT"
           else
             echo "version=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           fi
@@ -118,7 +118,7 @@ jobs:
           if [ -n "${{ inputs.version }}" ]; then
             echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
           elif [ -f RELEASE_VERSION ]; then
-            echo "version=$(tr -d ' \n' < RELEASE_VERSION)" >> "$GITHUB_OUTPUT"
+            echo "version=$(head -1 RELEASE_VERSION | tr -d ' \r\n')" >> "$GITHUB_OUTPUT"
           else
             echo "version=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           fi
