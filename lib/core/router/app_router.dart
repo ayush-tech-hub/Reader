@@ -14,6 +14,13 @@ import '../../features/files_plus/presentation/storage_analyzer_screen.dart';
 import '../../features/files_plus/presentation/storage_category_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/library/presentation/smart_search_screen.dart';
+import '../../features/ocr/domain/entities/ocr_result.dart';
+import '../../features/ocr/presentation/screens/batch_ocr_screen.dart';
+import '../../features/ocr/presentation/screens/camera_ocr_screen.dart';
+import '../../features/ocr/presentation/screens/image_ocr_screen.dart';
+import '../../features/ocr/presentation/screens/ocr_history_screen.dart';
+import '../../features/ocr/presentation/screens/ocr_result_screen.dart';
+import '../../features/ocr/presentation/screens/searchable_pdf_screen.dart';
 import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/pdf_reader/presentation/screens/reader_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_tools_screen.dart';
@@ -40,6 +47,14 @@ abstract final class Routes {
   static const String tags = '/tools/tags';
   static const String pluginView = '/plugin-view';
   static const String privacyPolicy = '/about/privacy';
+  static const String imageOcr = '/ocr/image';
+  static const String cameraOcr = '/ocr/camera';
+  static const String ocrResult = '/ocr/result';
+  static const String ocrHistory = '/ocr/history';
+  static const String batchOcr = '/ocr/batch';
+  static const String searchablePdf = '/ocr/searchable-pdf';
+  static const String txtReader = '/reader/txt';
+  static const String imageReader = '/reader/image';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -174,6 +189,42 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           }
           return PluginViewerScreen(path: path);
         },
+      ),
+      GoRoute(
+        path: Routes.imageOcr,
+        builder: (context, state) => const ImageOcrScreen(),
+      ),
+      GoRoute(
+        path: Routes.cameraOcr,
+        builder: (context, state) => const CameraOcrScreen(),
+      ),
+      GoRoute(
+        path: Routes.ocrResult,
+        builder: (context, state) {
+          final result = state.extra as OcrResult?;
+          if (result == null) return _missingParam(context, Routes.ocrResult, 'result');
+          return OcrResultScreen(result: result);
+        },
+      ),
+      GoRoute(
+        path: Routes.ocrHistory,
+        builder: (context, state) => const OcrHistoryScreen(),
+      ),
+      GoRoute(
+        path: Routes.batchOcr,
+        builder: (context, state) => const BatchOcrScreen(),
+      ),
+      GoRoute(
+        path: Routes.txtReader,
+        builder: (context, state) {
+          final path = state.uri.queryParameters['path'];
+          if (path == null) return _missingParam(context, Routes.txtReader, 'path');
+          return TxtReaderScreen(path: path);
+        },
+      ),
+      GoRoute(
+        path: Routes.searchablePdf,
+        builder: (context, state) => const SearchablePdfScreen(),
       ),
     ],
   );

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:path/path.dart' as p;
 import 'package:xml/xml.dart';
@@ -16,7 +17,12 @@ void registerBuiltInPlugins() {
   PluginRegistry.instance
     ..register(_MarkdownPlugin())
     ..register(_EpubPlugin())
-    ..register(_ComicPlugin());
+    ..register(_ComicPlugin())
+    ..register(_TxtPlugin())
+    ..register(_CsvPlugin())
+    ..register(_JsonPlugin())
+    ..register(_XmlViewerPlugin())
+    ..register(_ImagePlugin());
 }
 
 class _MarkdownPlugin implements DocumentPlugin {
@@ -47,6 +53,64 @@ class _ComicPlugin implements DocumentPlugin {
   @override
   Widget buildViewer(BuildContext context, String path) =>
       ComicReaderScreen(path: path);
+}
+
+class _TxtPlugin implements DocumentPlugin {
+  @override
+  String get id => 'opendocs.txt';
+  @override
+  Set<String> get extensions => const {'.txt', '.log', '.rtf'};
+  @override
+  Widget buildViewer(BuildContext context, String path) =>
+      TxtReaderScreen(path: path);
+}
+
+class _CsvPlugin implements DocumentPlugin {
+  @override
+  String get id => 'opendocs.csv';
+  @override
+  Set<String> get extensions => const {'.csv'};
+  @override
+  Widget buildViewer(BuildContext context, String path) =>
+      CsvViewerScreen(path: path);
+}
+
+class _JsonPlugin implements DocumentPlugin {
+  @override
+  String get id => 'opendocs.json';
+  @override
+  Set<String> get extensions => const {'.json'};
+  @override
+  Widget buildViewer(BuildContext context, String path) =>
+      JsonViewerScreen(path: path);
+}
+
+class _XmlViewerPlugin implements DocumentPlugin {
+  @override
+  String get id => 'opendocs.xml';
+  @override
+  Set<String> get extensions => const {'.xml'};
+  @override
+  Widget buildViewer(BuildContext context, String path) =>
+      XmlViewerScreen(path: path);
+}
+
+class _ImagePlugin implements DocumentPlugin {
+  @override
+  String get id => 'opendocs.image';
+  @override
+  Set<String> get extensions => const {
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.gif',
+    '.webp',
+    '.bmp',
+    '.svg',
+  };
+  @override
+  Widget buildViewer(BuildContext context, String path) =>
+      ImageViewerScreen(path: path);
 }
 
 /// Hosts whichever plugin claims [path]; routed as /plugin-view.
@@ -359,6 +423,384 @@ class _ComicReaderScreenState extends State<ComicReaderScreen> {
                 ),
               )
             : const SizedBox.shrink(),
+      ),
+    );
+  }
+}
+
+// ---- TXT / LOG / RTF -------------------------------------------------------
+
+/// A standalone screen for plain-text files, also exposed as a plugin.
+class TxtReaderScreen extends StatefulWidget {
+  const TxtReaderScreen({super.key, required this.path});
+
+  final String path;
+
+  @override
+  State<TxtReaderScreen> createState() => _TxtReaderScreenState();
+}
+
+class _TxtReaderScreenState extends State<TxtReaderScreen> {
+  static const _maxBytes = 500 * 1024; // 500 KB
+  static const _fontSizes = <String, double>{
+    'S': 12,
+    'M': 15,
+    'L': 20,
+  };
+
+  late final Future<(String, bool)> _content = _load();
+  String _sizeKey = 'M';
+
+  Future<(String, bool)> _load() async {
+    final file = File(widget.path);
+    final bytes = await file.readAsBytes();
+    if (bytes.length > _maxBytes) {
+      final truncated = utf8.decode(
+        bytes.sublist(0, _maxBytes),
+        allowMalformed: true,
+      );
+      return (truncated, true);
+    }
+    final text = utf8.decode(bytes, allowMalformed: true);
+    return (text, false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(p.basename(widget.path)),
+        actions: [
+          for (final key in _fontSizes.keys)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: ChoiceChip(
+                label: Text(key),
+                selected: _sizeKey == key,
+                onSelected: (_) => setState(() => _sizeKey = key),
+              ),
+            ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: FutureBuilder<(String, bool)>(
+        future: _content,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text(snapshot.error.toString()));
+          }
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final (text, truncated) = snapshot.data!;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (truncated)
+                const MaterialBanner(
+                  content: Text('File truncated to first 500 KB.'),
+                  actions: [SizedBox.shrink()],
+                ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: SelectableText(
+                    text,
+                    style: TextStyle(fontSize: _fontSizes[_sizeKey]),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ---- CSV -------------------------------------------------------------------
+
+/// Parses CSV text into a list of rows (each row is a list of fields).
+/// Handles double-quoted fields that may contain commas or newlines.
+List<List<String>> _parseCsv(String source) {
+  final rows = <List<String>>[];
+  final lines = <String>[];
+
+  // Re-assemble lines while respecting quoted newlines.
+  final buf = StringBuffer();
+  var inQuotes = false;
+  for (var i = 0; i < source.length; i++) {
+    final ch = source[i];
+    if (ch == '"') {
+      // Handle escaped quote ("")
+      if (inQuotes && i + 1 < source.length && source[i + 1] == '"') {
+        buf.write('"');
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if ((ch == '\n' || ch == '\r') && !inQuotes) {
+      if (ch == '\r' && i + 1 < source.length && source[i + 1] == '\n') i++;
+      lines.add(buf.toString());
+      buf.clear();
+    } else {
+      buf.write(ch);
+    }
+  }
+  if (buf.isNotEmpty) lines.add(buf.toString());
+
+  for (final line in lines) {
+    if (line.isEmpty) continue;
+    final fields = <String>[];
+    var fieldBuf = StringBuffer();
+    var inQ = false;
+    for (var i = 0; i < line.length; i++) {
+      final ch = line[i];
+      if (ch == '"') {
+        if (inQ && i + 1 < line.length && line[i + 1] == '"') {
+          fieldBuf.write('"');
+          i++;
+        } else {
+          inQ = !inQ;
+        }
+      } else if (ch == ',' && !inQ) {
+        fields.add(fieldBuf.toString());
+        fieldBuf.clear();
+      } else {
+        fieldBuf.write(ch);
+      }
+    }
+    fields.add(fieldBuf.toString());
+    rows.add(fields);
+  }
+  return rows;
+}
+
+class CsvViewerScreen extends StatelessWidget {
+  const CsvViewerScreen({super.key, required this.path});
+
+  final String path;
+
+  static const _maxRows = 200;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(p.basename(path))),
+      body: FutureBuilder<String>(
+        future: File(path).readAsString(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text(snapshot.error.toString()));
+          }
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final rows = _parseCsv(snapshot.data!);
+          if (rows.isEmpty) {
+            return const Center(child: Text('Empty file'));
+          }
+          final headers = rows.first;
+          final dataRows = rows.skip(1).take(_maxRows).toList();
+          final truncated = rows.length - 1 > _maxRows;
+          final colCount = rows.fold<int>(
+            0,
+            (m, r) => r.length > m ? r.length : m,
+          );
+          // Pad all rows to colCount.
+          List<String> pad(List<String> r) =>
+              List.generate(colCount, (i) => i < r.length ? r[i] : '');
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (truncated)
+                const MaterialBanner(
+                  content: Text('Showing first 200 rows only.'),
+                  actions: [SizedBox.shrink()],
+                ),
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columns: [
+                        for (final h in pad(headers))
+                          DataColumn(
+                            label: Text(
+                              h,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                      rows: [
+                        for (final row in dataRows)
+                          DataRow(
+                            cells: [
+                              for (final cell in pad(row)) DataCell(Text(cell)),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ---- JSON ------------------------------------------------------------------
+
+class JsonViewerScreen extends StatelessWidget {
+  const JsonViewerScreen({super.key, required this.path});
+
+  final String path;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(p.basename(path)),
+        actions: [
+          FutureBuilder<String>(
+            future: File(path).readAsString(),
+            builder: (context, snapshot) => IconButton(
+              icon: const Icon(Icons.copy),
+              tooltip: 'Copy all',
+              onPressed: snapshot.hasData
+                  ? () {
+                      Clipboard.setData(
+                        ClipboardData(text: snapshot.data!),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Copied to clipboard')),
+                      );
+                    }
+                  : null,
+            ),
+          ),
+        ],
+      ),
+      body: FutureBuilder<String>(
+        future: File(path).readAsString(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text(snapshot.error.toString()));
+          }
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: SelectableText(
+              snapshot.data!,
+              style: const TextStyle(fontFamily: 'monospace'),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ---- XML -------------------------------------------------------------------
+
+class XmlViewerScreen extends StatelessWidget {
+  const XmlViewerScreen({super.key, required this.path});
+
+  final String path;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(p.basename(path)),
+        actions: [
+          FutureBuilder<String>(
+            future: File(path).readAsString(),
+            builder: (context, snapshot) => IconButton(
+              icon: const Icon(Icons.copy),
+              tooltip: 'Copy all',
+              onPressed: snapshot.hasData
+                  ? () {
+                      Clipboard.setData(
+                        ClipboardData(text: snapshot.data!),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Copied to clipboard')),
+                      );
+                    }
+                  : null,
+            ),
+          ),
+        ],
+      ),
+      body: FutureBuilder<String>(
+        future: File(path).readAsString(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text(snapshot.error.toString()));
+          }
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: SelectableText(
+              snapshot.data!,
+              style: const TextStyle(fontFamily: 'monospace'),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ---- Image -----------------------------------------------------------------
+
+class ImageViewerScreen extends StatefulWidget {
+  const ImageViewerScreen({super.key, required this.path});
+
+  final String path;
+
+  @override
+  State<ImageViewerScreen> createState() => _ImageViewerScreenState();
+}
+
+class _ImageViewerScreenState extends State<ImageViewerScreen> {
+  final TransformationController _controller = TransformationController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(p.basename(widget.path))),
+      body: GestureDetector(
+        onDoubleTap: () => setState(() {
+          _controller.value = Matrix4.identity();
+        }),
+        child: InteractiveViewer(
+          transformationController: _controller,
+          boundaryMargin: const EdgeInsets.all(20),
+          minScale: 0.1,
+          maxScale: 10.0,
+          child: Center(
+            child: Image.file(File(widget.path)),
+          ),
+        ),
       ),
     );
   }
