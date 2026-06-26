@@ -326,7 +326,7 @@ class PdfToolsHandler(
                         else -> lastRef
                     }
                     if (lastStream is com.tom_roush.pdfbox.cos.COSStream) {
-                        val bytes = lastStream.toByteArray()
+                        val bytes = lastStream.createInputStream().use { it.readBytes() }
                         val text = String(bytes, Charsets.ISO_8859_1)
                         // Only remove the stream if it looks like a pure-text
                         // watermark (BT … ET block, no image operators).
