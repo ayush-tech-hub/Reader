@@ -4,6 +4,7 @@
          on first use. Without this permission the download fails silently
          and translate returns an error; no other feature requires it. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <!-- Broad file access for the file manager (Play requires the
          all-files-access declaration form for file manager apps). -->

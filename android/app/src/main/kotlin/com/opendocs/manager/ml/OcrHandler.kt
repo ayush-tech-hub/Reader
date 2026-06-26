@@ -2,6 +2,8 @@ package com.opendocs.manager.ml
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.graphics.pdf.PdfRenderer
 import android.os.Handler
 import android.os.Looper
@@ -33,19 +35,66 @@ class OcrHandler(private val context: Context) : MethodChannel.MethodCallHandler
     fun shutdown() = executor.shutdown()
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-        if (call.method != "recognizePdf") {
-            result.notImplemented()
-            return
-        }
-        val path = call.argument<String>("path")!!
-        executor.execute {
-            try {
-                val pages = recognizePdf(path)
-                mainHandler.post { result.success(pages) }
-            } catch (e: Throwable) {
-                mainHandler.post { result.error("OCR_ERROR", e.message, null) }
+        when (call.method) {
+            "recognizePdf" -> {
+                val path = call.argument<String>("path")!!
+                executor.execute {
+                    try {
+                        val pages = recognizePdf(path)
+                        mainHandler.post { result.success(pages) }
+                    } catch (e: Throwable) {
+                        mainHandler.post { result.error("OCR_ERROR", e.message, null) }
+                    }
+                }
             }
+            "recognizeImage" -> {
+                val path = call.argument<String>("path")!!
+                executor.execute {
+                    try {
+                        val text = recognizeImage(path)
+                        mainHandler.post { result.success(text) }
+                    } catch (e: Throwable) {
+                        mainHandler.post { result.error("OCR_ERROR", e.message, null) }
+                    }
+                }
+            }
+            "recognizeImageBatch" -> {
+                val paths = call.argument<List<String>>("paths")!!
+                executor.execute {
+                    try {
+                        val texts = paths.map { recognizeImage(it) }
+                        mainHandler.post { result.success(texts) }
+                    } catch (e: Throwable) {
+                        mainHandler.post { result.error("OCR_ERROR", e.message, null) }
+                    }
+                }
+            }
+            else -> result.notImplemented()
         }
+    }
+
+    private fun recognizeImage(path: String): String {
+        val raw = BitmapFactory.decodeFile(path)
+            ?: throw IllegalArgumentException("Cannot decode image: $path")
+        val bitmap = clampBitmap(raw)
+        try {
+            val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+            val image = InputImage.fromBitmap(bitmap, 0)
+            val visionText = Tasks.await(recognizer.process(image))
+            return visionText.text
+        } finally {
+            if (bitmap !== raw) raw.recycle()
+            bitmap.recycle()
+        }
+    }
+
+    private fun clampBitmap(src: Bitmap): Bitmap {
+        val w = src.width
+        val h = src.height
+        if (w <= MAX_DIMENSION && h <= MAX_DIMENSION) return src
+        val scale = MAX_DIMENSION.toFloat() / maxOf(w, h)
+        val matrix = Matrix().apply { setScale(scale, scale) }
+        return Bitmap.createBitmap(src, 0, 0, w, h, matrix, true)
     }
 
     private fun recognizePdf(path: String): List<String> {
