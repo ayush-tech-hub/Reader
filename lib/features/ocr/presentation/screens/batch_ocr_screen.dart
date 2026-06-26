@@ -216,7 +216,7 @@ class _BatchOcrScreenState extends ConsumerState<BatchOcrScreen> {
 
     if (newPaths.isNotEmpty) {
       setState(() {
-        _queue.addAll(newPaths.map(_BatchItem.new));
+        _queue.addAll(newPaths.map((String p) => _BatchItem(path: p)));
       });
     }
   }
