@@ -317,14 +317,14 @@ class _HorizontalCardRow extends StatelessWidget {
 
   Future<void> _onTap(BuildContext context, _CardItem item) async {
     if (!item.needsPick) {
-      if (item.route != null) context.push(item.route!);
+      if (item.route != null) context.push(item.route!); // ignore: unawaited_futures
       return;
     }
     final picked = await _pickFile(context, item);
     if (picked != null && context.mounted) {
       final route = item.routeAfterPick ?? Routes.reader;
       final uri = Uri(queryParameters: {'path': picked});
-      context.push('$route?${uri.query}');
+      context.push('$route?${uri.query}'); // ignore: unawaited_futures
     }
   }
 

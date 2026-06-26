@@ -196,7 +196,7 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
       ),
     );
     if (picked == null) return;
-    _run(() async {
+    _run(() async { // ignore: unawaited_futures
       final source = _output.isNotEmpty ? _output : await _documentText();
       return ref.read(translateEngineProvider).translate(
             text: source.length > 4000 ? source.substring(0, 4000) : source,

@@ -75,8 +75,8 @@ class _StorageAnalyzerScreenState extends ConsumerState<StorageAnalyzerScreen>
       if (progress.done) {
         _pieController
           ..reset()
-          ..forward();
-        _fetchAppsBytes(progress.report);
+          ..forward(); // ignore: unawaited_futures
+        _fetchAppsBytes(progress.report); // ignore: unawaited_futures
       }
     }
   }

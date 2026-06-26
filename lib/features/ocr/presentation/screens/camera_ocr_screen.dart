@@ -91,7 +91,7 @@ class _CameraOcrScreenState extends ConsumerState<CameraOcrScreen> {
 
     if (result != null) {
       // Replace this screen in the stack so Back returns to the caller.
-      Navigator.of(context).pushReplacement(
+      Navigator.of(context).pushReplacement( // ignore: unawaited_futures
         MaterialPageRoute<void>(
           builder: (_) => OcrResultScreen(result: result),
         ),

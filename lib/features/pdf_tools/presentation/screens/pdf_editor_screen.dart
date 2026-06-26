@@ -379,10 +379,9 @@ class _PdfEditorScreenState extends ConsumerState<PdfEditorScreen> {
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
       itemCount: _pages.length,
       buildDefaultDragHandles: false,
-      onReorder: (oldIndex, newIndex) {
+      onReorderItem: (oldIndex, newIndex) {
         _pushHistory();
         setState(() {
-          if (oldIndex < newIndex) newIndex--;
           _pages.insert(newIndex, _pages.removeAt(oldIndex));
         });
       },

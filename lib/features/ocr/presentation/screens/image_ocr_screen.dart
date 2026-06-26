@@ -84,7 +84,7 @@ class _ImageOcrScreenState extends ConsumerState<ImageOcrScreen> {
     if (!mounted) return;
 
     if (result != null) {
-      Navigator.of(context).push(
+      Navigator.of(context).push( // ignore: unawaited_futures
         MaterialPageRoute<void>(
           builder: (_) => OcrResultScreen(result: result),
         ),

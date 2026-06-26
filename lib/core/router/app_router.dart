@@ -202,8 +202,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: Routes.ocrResult,
         builder: (context, state) {
           final result = state.extra as OcrResult?;
-          if (result == null)
+          if (result == null) {
             return _missingParam(context, Routes.ocrResult, 'result');
+          }
           return OcrResultScreen(result: result);
         },
       ),
@@ -219,8 +220,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: Routes.txtReader,
         builder: (context, state) {
           final path = state.uri.queryParameters['path'];
-          if (path == null)
+          if (path == null) {
             return _missingParam(context, Routes.txtReader, 'path');
+          }
           return TxtReaderScreen(path: path);
         },
       ),
@@ -232,8 +234,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: Routes.imageReader,
         builder: (context, state) {
           final path = state.uri.queryParameters['path'];
-          if (path == null)
+          if (path == null) {
             return _missingParam(context, Routes.imageReader, 'path');
+          }
           return ImageViewerScreen(path: path);
         },
       ),

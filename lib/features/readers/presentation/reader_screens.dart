@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
 import 'package:flutter/material.dart';
@@ -552,7 +551,7 @@ List<List<String>> _parseCsv(String source) {
   for (final line in lines) {
     if (line.isEmpty) continue;
     final fields = <String>[];
-    var fieldBuf = StringBuffer();
+    final fieldBuf = StringBuffer();
     var inQ = false;
     for (var i = 0; i < line.length; i++) {
       final ch = line[i];

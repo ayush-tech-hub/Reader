@@ -259,6 +259,7 @@ class PdfToolsScreen extends ConsumerWidget {
     await ref
         .read(pdfToolsProvider.notifier)
         .imagesToPdf(images, _outPath(dir, images.first, 'images'));
+    if (!context.mounted) return;
     await _showResult(
       context,
       ref,
@@ -313,6 +314,7 @@ class PdfToolsScreen extends ConsumerWidget {
           _outPath(dir, sources.single, 'watermarked'),
           spec,
         );
+    if (!context.mounted) return;
     await _showResult(
       context,
       ref,
@@ -380,6 +382,7 @@ class PdfToolsScreen extends ConsumerWidget {
       _outPath(dir, sources.single, 'meta'),
       updated,
     );
+    if (!context.mounted) return;
     await _showResult(
       context,
       ref,
@@ -402,6 +405,7 @@ class PdfToolsScreen extends ConsumerWidget {
           _outPath(dir, sources.single, 'encrypted'),
           spec,
         );
+    if (!context.mounted) return;
     await _showResult(
       context,
       ref,
@@ -424,6 +428,7 @@ class PdfToolsScreen extends ConsumerWidget {
           _outPath(dir, sources.single, 'unlocked'),
           password,
         );
+    if (!context.mounted) return;
     await _showResult(
       context,
       ref,
