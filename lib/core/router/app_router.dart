@@ -228,6 +228,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: Routes.searchablePdf,
         builder: (context, state) => const SearchablePdfScreen(),
       ),
+      GoRoute(
+        path: Routes.imageReader,
+        builder: (context, state) {
+          final path = state.uri.queryParameters['path'];
+          if (path == null)
+            return _missingParam(context, Routes.imageReader, 'path');
+          return ImageViewerScreen(path: path);
+        },
+      ),
     ],
   );
 });
