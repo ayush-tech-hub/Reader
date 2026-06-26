@@ -804,7 +804,6 @@ class _PageThumbnailContentState extends State<_PageThumbnailContent> {
       if (!mounted || pdfImage == null) return;
 
       final rawPixels = pdfImage.pixels;
-      if (rawPixels == null) return;
 
       final completer = Completer<ui.Image>();
       ui.decodeImageFromPixels(

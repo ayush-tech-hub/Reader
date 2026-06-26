@@ -171,7 +171,7 @@ class PdfToolsScreen extends ConsumerWidget {
     if (state.lastOutputs.isEmpty) return;
     if (!context.mounted) return;
     await Navigator.of(context).push(
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (_) => ToolResultScreen(
           outputPaths: state.lastOutputs,
           operationName: state.operationName ?? '',

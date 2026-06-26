@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../data/ocr_export_service.dart';
 import '../../domain/entities/ocr_result.dart';
 import '../providers/ocr_providers.dart';
 import 'ocr_result_screen.dart';
