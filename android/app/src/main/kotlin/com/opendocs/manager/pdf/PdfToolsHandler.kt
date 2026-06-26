@@ -320,11 +320,11 @@ class PdfToolsHandler(
                     contentsObj.size() > 1
                 ) {
                     val lastRef = contentsObj.get(contentsObj.size() - 1)
-                    val lastStream = cosPage.cosDocument
-                        ?.getObjectFromPool(
-                            (lastRef as? com.tom_roush.pdfbox.cos.COSObject)?.key,
-                        )
-                        ?.getObject()
+                    // Resolve the indirect COSObject reference to its actual stream.
+                    val lastStream = when (lastRef) {
+                        is com.tom_roush.pdfbox.cos.COSObject -> lastRef.getObject()
+                        else -> lastRef
+                    }
                     if (lastStream is com.tom_roush.pdfbox.cos.COSStream) {
                         val bytes = lastStream.toByteArray()
                         val text = String(bytes, Charsets.ISO_8859_1)
