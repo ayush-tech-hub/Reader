@@ -1,3 +1,5 @@
+// ignore_for_file: unawaited_futures
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -84,7 +86,7 @@ class _ImageOcrScreenState extends ConsumerState<ImageOcrScreen> {
     if (!mounted) return;
 
     if (result != null) {
-      Navigator.of(context).push( // ignore: unawaited_futures
+      Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => OcrResultScreen(result: result),
         ),

@@ -1,3 +1,5 @@
+// ignore_for_file: unawaited_futures
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -317,14 +319,14 @@ class _HorizontalCardRow extends StatelessWidget {
 
   Future<void> _onTap(BuildContext context, _CardItem item) async {
     if (!item.needsPick) {
-      if (item.route != null) context.push(item.route!); // ignore: unawaited_futures
+      if (item.route != null) context.push(item.route!);
       return;
     }
     final picked = await _pickFile(context, item);
     if (picked != null && context.mounted) {
       final route = item.routeAfterPick ?? Routes.reader;
       final uri = Uri(queryParameters: {'path': picked});
-      context.push('$route?${uri.query}'); // ignore: unawaited_futures
+      context.push('$route?${uri.query}');
     }
   }
 

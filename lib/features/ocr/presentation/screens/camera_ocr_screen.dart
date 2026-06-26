@@ -1,3 +1,5 @@
+// ignore_for_file: unawaited_futures
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -91,7 +93,7 @@ class _CameraOcrScreenState extends ConsumerState<CameraOcrScreen> {
 
     if (result != null) {
       // Replace this screen in the stack so Back returns to the caller.
-      Navigator.of(context).pushReplacement( // ignore: unawaited_futures
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
           builder: (_) => OcrResultScreen(result: result),
         ),

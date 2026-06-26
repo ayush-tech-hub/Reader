@@ -1,3 +1,5 @@
+// ignore_for_file: unawaited_futures
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -196,7 +198,7 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
       ),
     );
     if (picked == null) return;
-    _run(() async { // ignore: unawaited_futures
+    _run(() async {
       final source = _output.isNotEmpty ? _output : await _documentText();
       return ref.read(translateEngineProvider).translate(
             text: source.length > 4000 ? source.substring(0, 4000) : source,
