@@ -3,6 +3,7 @@ package com.opendocs.manager
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.provider.Settings
 import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
@@ -99,8 +100,20 @@ class MainActivity : FlutterActivity() {
             Log.e(TAG, "Failed to register translate channel — translation unavailable", e)
         }
 
-        // File-open channel: opens files and folders in external apps.
+        // File-open channel: opens files, folders, and system settings screens.
         MethodChannel(messenger, "opendocs/file_open").setMethodCallHandler { call, result ->
+            if (call.method == "openAppSettings") {
+                val intent = Intent(Settings.ACTION_APPLICATION_SETTINGS).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                try {
+                    startActivity(intent)
+                    result.success(null)
+                } catch (e: ActivityNotFoundException) {
+                    result.error("NO_APP", "Cannot open app settings", null)
+                }
+                return@setMethodCallHandler
+            }
             if (call.method != "open") {
                 result.notImplemented()
                 return@setMethodCallHandler
@@ -124,7 +137,7 @@ class MainActivity : FlutterActivity() {
                         "${applicationContext.packageName}.fileprovider",
                         file,
                     )
-                    val ext = MimeTypeMap.getFileExtensionFromUrl(path)
+                    val ext = file.extension.lowercase()
                     val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext) ?: "*/*"
                     Intent(Intent.ACTION_VIEW).apply {
                         setDataAndType(uri, mime)

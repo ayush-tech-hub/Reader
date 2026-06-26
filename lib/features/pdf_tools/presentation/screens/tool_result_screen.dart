@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 
+import '../../../../core/router/app_router.dart';
 import '../../../../generated/app_localizations.dart';
 
 /// Full-screen result shown after every PDF tool operation succeeds.
@@ -207,11 +209,14 @@ class _ToolResultScreenState extends State<ToolResultScreen> {
     await Share.shareXFiles(paths.map(XFile.new).toList());
   }
 
-  // Opens the file using the platform's default viewer via an implicit intent.
-  // On Android this is usually handled by an installed PDF viewer.
   void _openFile(String path) {
-    // Use a method channel to trigger ACTION_VIEW on Android.
-    // Fallback: show a snackbar with the path.
+    final ext = p.extension(path).toLowerCase();
+    if (ext == '.pdf') {
+      final uri = Uri(queryParameters: {'path': path});
+      context.push('${Routes.reader}?${uri.query}');
+      return;
+    }
+    // Non-PDF: open with the device's default external app.
     const channel = MethodChannel('opendocs/file_open');
     channel.invokeMethod<void>('open', {'path': path}).catchError((_) {
       if (mounted) {

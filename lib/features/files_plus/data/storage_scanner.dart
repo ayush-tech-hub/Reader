@@ -14,6 +14,7 @@ enum StorageCategory {
   documents,
   apks,
   archives,
+  apps,
   downloads,
   hidden,
   largeFiles;
@@ -22,7 +23,7 @@ enum StorageCategory {
   /// breakdown (as opposed to being an overlay/shortcut category).
   bool get isPrimaryType => switch (this) {
         images || videos || audio || documents || apks || archives => true,
-        downloads || hidden || largeFiles => false,
+        apps || downloads || hidden || largeFiles => false,
       };
 
   IconData get icon => switch (this) {
@@ -32,6 +33,7 @@ enum StorageCategory {
         StorageCategory.documents => Icons.description_outlined,
         StorageCategory.apks => Icons.android,
         StorageCategory.archives => Icons.folder_zip_outlined,
+        StorageCategory.apps => Icons.apps,
         StorageCategory.downloads => Icons.download_outlined,
         StorageCategory.hidden => Icons.visibility_off_outlined,
         StorageCategory.largeFiles => Icons.layers_outlined,
@@ -44,6 +46,7 @@ enum StorageCategory {
         StorageCategory.documents => const Color(0xFF26A69A),
         StorageCategory.apks => const Color(0xFF66BB6A),
         StorageCategory.archives => const Color(0xFFFFA726),
+        StorageCategory.apps => const Color(0xFF5C6BC0),
         StorageCategory.downloads => scheme.secondary,
         StorageCategory.hidden => scheme.outline,
         StorageCategory.largeFiles => const Color(0xFFEC407A),

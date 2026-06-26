@@ -76,8 +76,22 @@ class _StorageAnalyzerScreenState extends ConsumerState<StorageAnalyzerScreen>
         _pieController
           ..reset()
           ..forward();
+        _fetchAppsBytes(progress.report);
       }
     }
+  }
+
+  Future<void> _fetchAppsBytes(StorageScanReport? report) async {
+    if (report == null) return;
+    try {
+      const ch = MethodChannel('opendocs/storage');
+      final info = await ch.invokeMapMethod<String, dynamic>('getAppsBytes');
+      if (!mounted || info == null) return;
+      final bucket = report.buckets[StorageCategory.apps]!;
+      bucket.totalBytes = (info['totalBytes'] as int?) ?? 0;
+      bucket.fileCount = (info['count'] as int?) ?? 0;
+      setState(() {});
+    } catch (_) {}
   }
 
   void _openCategory(StorageCategory category, CategoryBucket bucket) {
@@ -259,6 +273,7 @@ class _CategoryCard extends StatelessWidget {
         StorageCategory.documents => l10n.categoryDocuments,
         StorageCategory.apks => l10n.categoryApks,
         StorageCategory.archives => l10n.categoryArchives,
+        StorageCategory.apps => l10n.categoryApps,
         StorageCategory.downloads => l10n.categoryDownloads,
         StorageCategory.hidden => l10n.categoryHidden,
         StorageCategory.largeFiles => l10n.categoryLargeFiles,

@@ -252,6 +252,7 @@ class _StorageCategoryScreenState extends ConsumerState<StorageCategoryScreen> {
         StorageCategory.documents => l10n.categoryDocuments,
         StorageCategory.apks => l10n.categoryApks,
         StorageCategory.archives => l10n.categoryArchives,
+        StorageCategory.apps => l10n.categoryApps,
         StorageCategory.downloads => l10n.categoryDownloads,
         StorageCategory.hidden => l10n.categoryHidden,
         StorageCategory.largeFiles => l10n.categoryLargeFiles,
@@ -342,11 +343,13 @@ class _StorageCategoryScreenState extends ConsumerState<StorageCategoryScreen> {
                   ),
                 ],
         ),
-        body: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : files.isEmpty
-                ? Center(child: Text(l10n.noFilesInCategory))
-                : ListView.builder(
+        body: widget.category == StorageCategory.apps
+            ? _AppsInfo(bucket: widget.bucket)
+            : _loading
+                ? const Center(child: CircularProgressIndicator())
+                : files.isEmpty
+                    ? Center(child: Text(l10n.noFilesInCategory))
+                    : ListView.builder(
                     itemCount: files.length,
                     itemBuilder: (context, index) {
                       final file = files[index];
@@ -373,6 +376,54 @@ class _StorageCategoryScreenState extends ConsumerState<StorageCategoryScreen> {
                       );
                     },
                   ),
+      ),
+    );
+  }
+}
+
+class _AppsInfo extends StatelessWidget {
+  const _AppsInfo({this.bucket});
+
+  final CategoryBucket? bucket;
+
+  @override
+  Widget build(BuildContext context) {
+    final count = bucket?.fileCount ?? 0;
+    final bytes = bucket?.totalBytes ?? 0;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.apps,
+              size: 64,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '$count apps installed',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${formatBytes(bytes)} APK storage',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+            ),
+            const SizedBox(height: 24),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.settings),
+              label: const Text('Manage apps'),
+              onPressed: () async {
+                const ch = MethodChannel('opendocs/file_open');
+                await ch.invokeMethod<void>('openAppSettings');
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

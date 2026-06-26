@@ -1,10 +1,12 @@
 package com.opendocs.manager.storage
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Environment
 import android.os.StatFs
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import java.io.File
 
 /** Enumerates storage volume roots (internal + removable SD/USB). */
 class StorageHandler(
@@ -14,8 +16,21 @@ class StorageHandler(
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "getRoots" -> result.success(getRoots())
+            "getAppsBytes" -> result.success(getAppsBytes())
             else -> result.notImplemented()
         }
+    }
+
+    private fun getAppsBytes(): Map<String, Any> {
+        val packages = context.packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+        var totalBytes = 0L
+        for (app in packages) {
+            totalBytes += runCatching { File(app.sourceDir).length() }.getOrElse { 0L }
+            app.splitSourceDirs?.forEach { split ->
+                totalBytes += runCatching { File(split).length() }.getOrElse { 0L }
+            }
+        }
+        return mapOf("totalBytes" to totalBytes, "count" to packages.size)
     }
 
     private fun getRoots(): List<Map<String, Any>> {
