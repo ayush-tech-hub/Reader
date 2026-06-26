@@ -428,7 +428,7 @@ class _FilePickerSheet extends StatelessWidget {
             label: const Text('Pick file'),
             onPressed: () async {
               Navigator.of(context).pop();
-              final r = await FilePicker.platform.pickFiles(
+              final r = await FilePicker.pickFiles(
                   type: FileType.custom, allowedExtensions: extensions);
               final p = r?.files.single.path;
               if (p != null) onPicked(p);

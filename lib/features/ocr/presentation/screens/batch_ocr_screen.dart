@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../data/ocr_export_service.dart';
 import '../../domain/entities/ocr_result.dart';
 import '../providers/ocr_providers.dart';
 import 'ocr_result_screen.dart';
@@ -193,7 +192,7 @@ class _BatchOcrScreenState extends ConsumerState<BatchOcrScreen> {
   // ── File picking ──────────────────────────────────────────────────────────
 
   Future<void> _addFiles() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: [
@@ -212,7 +211,7 @@ class _BatchOcrScreenState extends ConsumerState<BatchOcrScreen> {
 
     final newPaths = result.paths
         .whereType<String>()
-        .where((p) => !_queue.any((item) => item.path == p))
+        .where((String p) => !_queue.any((item) => item.path == p))
         .toList();
 
     if (newPaths.isNotEmpty) {

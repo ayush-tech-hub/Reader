@@ -20,5 +20,5 @@ Future<String?> acquireStorageRootPath() async {
       return '/storage';
     }
   }
-  return FilePicker.platform.getDirectoryPath();
+  return FilePicker.getDirectoryPath();
 }

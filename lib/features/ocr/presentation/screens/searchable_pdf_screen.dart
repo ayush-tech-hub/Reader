@@ -18,7 +18,7 @@ class _SearchablePdfScreenState extends ConsumerState<SearchablePdfScreen> {
   bool _isProcessing = false;
 
   Future<void> _pickPdf() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
