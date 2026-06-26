@@ -41,9 +41,8 @@ class OcrHistoryScreen extends ConsumerWidget {
             ),
           ),
         ),
-        data: (items) => items.isEmpty
-            ? const _EmptyHistory()
-            : _HistoryList(items: items),
+        data: (items) =>
+            items.isEmpty ? const _EmptyHistory() : _HistoryList(items: items),
       ),
     );
   }
@@ -134,10 +133,8 @@ class _HistoryTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor:
-            Theme.of(context).colorScheme.secondaryContainer,
-        foregroundColor:
-            Theme.of(context).colorScheme.onSecondaryContainer,
+        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+        foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
         child: Icon(_sourceIcon(result.sourceType)),
       ),
       title: Text(

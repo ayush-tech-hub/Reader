@@ -81,8 +81,8 @@ class _BatchOcrScreenState extends ConsumerState<BatchOcrScreen> {
   bool get _hasWaiting => _queue.any((i) => i.status == _BatchStatus.waiting);
   bool get _allDone =>
       _queue.isNotEmpty &&
-      _queue.every(
-          (i) => i.status == _BatchStatus.done || i.status == _BatchStatus.error);
+      _queue.every((i) =>
+          i.status == _BatchStatus.done || i.status == _BatchStatus.error);
   List<OcrResult> get _completedResults =>
       _queue.where((i) => i.result != null).map((i) => i.result!).toList();
 
@@ -197,7 +197,14 @@ class _BatchOcrScreenState extends ConsumerState<BatchOcrScreen> {
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: [
-        'jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff', 'tif', 'pdf',
+        'jpg',
+        'jpeg',
+        'png',
+        'webp',
+        'bmp',
+        'tiff',
+        'tif',
+        'pdf',
       ],
     );
 

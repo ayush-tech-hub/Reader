@@ -59,7 +59,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             destinations: [
               for (final (icon, sel, label) in destinations)
                 NavigationRailDestination(
-                    icon: Icon(icon), selectedIcon: Icon(sel), label: Text(label)),
+                    icon: Icon(icon),
+                    selectedIcon: Icon(sel),
+                    label: Text(label)),
             ],
           ),
           const VerticalDivider(width: 1),
@@ -147,8 +149,10 @@ class _DashboardTab extends ConsumerWidget {
             _CardItem(Icons.image_search, 'Image OCR', route: '/ocr/image'),
             _CardItem(Icons.picture_as_pdf, 'PDF OCR', route: Routes.pdfTools),
             _CardItem(Icons.camera_alt, 'Camera OCR', route: '/ocr/camera'),
-            _CardItem(Icons.document_scanner, 'Scan Document', route: '/ocr/camera'),
-            _CardItem(Icons.find_in_page, 'Searchable PDF', route: '/ocr/searchable-pdf'),
+            _CardItem(Icons.document_scanner, 'Scan Document',
+                route: '/ocr/camera'),
+            _CardItem(Icons.find_in_page, 'Searchable PDF',
+                route: '/ocr/searchable-pdf'),
             _CardItem(Icons.history, 'OCR History', route: '/ocr/history'),
             _CardItem(Icons.dynamic_feed, 'Batch OCR', route: '/ocr/batch'),
           ]),
@@ -160,7 +164,8 @@ class _DashboardTab extends ConsumerWidget {
             _CardItem(Icons.menu_book, 'PDF Reader',
                 extensions: ['pdf'], routeAfterPick: Routes.reader),
             _CardItem(Icons.article, 'Document Reader',
-                extensions: ['doc', 'docx', 'odt', 'rtf'], routeAfterPick: Routes.reader),
+                extensions: ['doc', 'docx', 'odt', 'rtf'],
+                routeAfterPick: Routes.reader),
             _CardItem(Icons.book, 'EPUB Reader',
                 extensions: ['epub'], routeAfterPick: Routes.reader),
             _CardItem(Icons.code, 'Markdown Reader',
@@ -170,9 +175,11 @@ class _DashboardTab extends ConsumerWidget {
                 extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
                 routeAfterPick: '/reader/image'),
             _CardItem(Icons.table_chart, 'Excel Viewer',
-                extensions: ['xls', 'xlsx', 'ods', 'csv'], routeAfterPick: Routes.reader),
+                extensions: ['xls', 'xlsx', 'ods', 'csv'],
+                routeAfterPick: Routes.reader),
             _CardItem(Icons.slideshow, 'PowerPoint Viewer',
-                extensions: ['ppt', 'pptx', 'odp'], routeAfterPick: Routes.reader),
+                extensions: ['ppt', 'pptx', 'odp'],
+                routeAfterPick: Routes.reader),
             _CardItem(Icons.folder_open, 'All Files', route: Routes.browser),
           ]),
           const SizedBox(height: 20),
@@ -180,7 +187,8 @@ class _DashboardTab extends ConsumerWidget {
           // PDF Tools
           _SectionHeader('PDF Tools'),
           _HorizontalCardRow(items: [
-            _CardItem(Icons.edit_document, 'PDF Editor', route: Routes.pdfTools),
+            _CardItem(Icons.edit_document, 'PDF Editor',
+                route: Routes.pdfTools),
             _CardItem(Icons.merge, 'Merge PDFs', route: Routes.pdfTools),
             _CardItem(Icons.call_split, 'Split PDF', route: Routes.pdfTools),
             _CardItem(Icons.compress, 'Compress PDF', route: Routes.pdfTools),
@@ -226,8 +234,7 @@ class _DashboardTab extends ConsumerWidget {
                 Text(l10n.recentFilesSection,
                     style: Theme.of(context).textTheme.titleMedium),
                 TextButton(
-                    onPressed: () => onSelectTab(1),
-                    child: Text(l10n.viewAll)),
+                    onPressed: () => onSelectTab(1), child: Text(l10n.viewAll)),
               ],
             ),
           ),
@@ -485,49 +492,48 @@ class _StorageOverviewCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return ref.watch(_storageRootsProvider).when(
-      loading: () => const Card(
-        child: Padding(
-            padding: EdgeInsets.all(16), child: LinearProgressIndicator()),
-      ),
-      error: (_, __) => const SizedBox.shrink(),
-      data: (root) {
-        if (root == null) return const SizedBox.shrink();
-        final used =
-            (root.totalBytes - root.freeBytes).clamp(0, root.totalBytes);
-        final fraction =
-            root.totalBytes > 0 ? used / root.totalBytes : 0.0;
-        return Card(
-          child: InkWell(
-            onTap: () => context.push(Routes.storageAnalyzer),
+          loading: () => const Card(
             child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l10n.storageOverview,
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 12),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: fraction,
-                      minHeight: 10,
-                      backgroundColor: scheme.surfaceContainerHighest,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.usedOfTotal(
-                        formatBytes(used), formatBytes(root.totalBytes)),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
+                padding: EdgeInsets.all(16), child: LinearProgressIndicator()),
           ),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (root) {
+            if (root == null) return const SizedBox.shrink();
+            final used =
+                (root.totalBytes - root.freeBytes).clamp(0, root.totalBytes);
+            final fraction = root.totalBytes > 0 ? used / root.totalBytes : 0.0;
+            return Card(
+              child: InkWell(
+                onTap: () => context.push(Routes.storageAnalyzer),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.storageOverview,
+                          style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 12),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: fraction,
+                          minHeight: 10,
+                          backgroundColor: scheme.surfaceContainerHighest,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.usedOfTotal(
+                            formatBytes(used), formatBytes(root.totalBytes)),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         );
-      },
-    );
   }
 }
 
@@ -548,8 +554,9 @@ class _PinnedFoldersSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final folders =
-        ref.watch(favoritesProvider).valueOrNull
+    final folders = ref
+            .watch(favoritesProvider)
+            .valueOrNull
             ?.where((f) => f.isDirectory)
             .toList() ??
         const [];
@@ -599,26 +606,26 @@ class _RecentFilesList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return ref.watch(recentFilesProvider).when(
-      loading: () => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 12),
-        child: Center(child: CircularProgressIndicator()),
-      ),
-      error: (_, __) => const SizedBox.shrink(),
-      data: (files) {
-        if (files.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text(l10n.noRecentFiles,
-                style: Theme.of(context).textTheme.bodySmall),
-          );
-        }
-        return Column(
-          children: [
-            for (final file in files.take(5)) _RecentFileTile(file: file),
-          ],
+          loading: () => const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (files) {
+            if (files.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(l10n.noRecentFiles,
+                    style: Theme.of(context).textTheme.bodySmall),
+              );
+            }
+            return Column(
+              children: [
+                for (final file in files.take(5)) _RecentFileTile(file: file),
+              ],
+            );
+          },
         );
-      },
-    );
   }
 }
 

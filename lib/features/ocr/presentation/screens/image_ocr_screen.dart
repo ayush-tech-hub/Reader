@@ -40,9 +40,8 @@ class _ImageOcrScreenState extends ConsumerState<ImageOcrScreen> {
               file: _pickedFile!,
               isRunning: isRunning,
               onRecognize: isRunning ? null : _runOcr,
-              onClear: isRunning
-                  ? null
-                  : () => setState(() => _pickedFile = null),
+              onClear:
+                  isRunning ? null : () => setState(() => _pickedFile = null),
             ),
     );
   }
@@ -80,8 +79,7 @@ class _ImageOcrScreenState extends ConsumerState<ImageOcrScreen> {
     final path = _pickedFile?.path;
     if (path == null) return;
 
-    final result =
-        await ref.read(ocrJobProvider.notifier).recognizeImage(path);
+    final result = await ref.read(ocrJobProvider.notifier).recognizeImage(path);
 
     if (!mounted) return;
 

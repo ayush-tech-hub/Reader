@@ -40,8 +40,7 @@ final ocrEngineProvider = Provider<OcrEngine>(
 ///   - [AsyncData] with the current list once loaded.
 ///   - [AsyncError] if an unrecoverable error occurs.
 class OcrHistoryNotifier extends AsyncNotifier<List<OcrResult>> {
-  OcrHistoryDatasource get _ds =>
-      ref.read(ocrHistoryDatasourceProvider);
+  OcrHistoryDatasource get _ds => ref.read(ocrHistoryDatasourceProvider);
 
   @override
   Future<List<OcrResult>> build() async {

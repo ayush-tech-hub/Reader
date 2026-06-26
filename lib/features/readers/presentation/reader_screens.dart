@@ -100,14 +100,14 @@ class _ImagePlugin implements DocumentPlugin {
   String get id => 'opendocs.image';
   @override
   Set<String> get extensions => const {
-    '.jpg',
-    '.jpeg',
-    '.png',
-    '.gif',
-    '.webp',
-    '.bmp',
-    '.svg',
-  };
+        '.jpg',
+        '.jpeg',
+        '.png',
+        '.gif',
+        '.webp',
+        '.bmp',
+        '.svg',
+      };
   @override
   Widget buildViewer(BuildContext context, String path) =>
       ImageViewerScreen(path: path);

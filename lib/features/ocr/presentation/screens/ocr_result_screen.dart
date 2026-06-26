@@ -63,8 +63,7 @@ class _OcrAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 _ExportChoice.markdown, 'Markdown', Icons.code_outlined),
             _exportItem(_ExportChoice.html, 'HTML', Icons.html_outlined),
             _exportItem(_ExportChoice.json, 'JSON', Icons.data_object_outlined),
-            _exportItem(_ExportChoice.csv, 'CSV',
-                Icons.table_chart_outlined),
+            _exportItem(_ExportChoice.csv, 'CSV', Icons.table_chart_outlined),
           ],
         ),
       ],
@@ -167,9 +166,7 @@ class _StatsRow extends StatelessWidget {
           Chip(
             avatar: const Icon(Icons.description_outlined, size: 16),
             label: Text(
-              result.pageCount == 1
-                  ? '1 page'
-                  : '${result.pageCount} pages',
+              result.pageCount == 1 ? '1 page' : '${result.pageCount} pages',
             ),
           ),
         ],
@@ -314,8 +311,7 @@ class _MultiPageAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 _ExportChoice.markdown, 'Markdown', Icons.code_outlined),
             _exportItem(_ExportChoice.html, 'HTML', Icons.html_outlined),
             _exportItem(_ExportChoice.json, 'JSON', Icons.data_object_outlined),
-            _exportItem(
-                _ExportChoice.csv, 'CSV', Icons.table_chart_outlined),
+            _exportItem(_ExportChoice.csv, 'CSV', Icons.table_chart_outlined),
           ],
         ),
       ],

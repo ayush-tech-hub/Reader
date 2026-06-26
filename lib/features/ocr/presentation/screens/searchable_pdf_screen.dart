@@ -7,7 +7,8 @@ class SearchablePdfScreen extends ConsumerStatefulWidget {
   const SearchablePdfScreen({super.key});
 
   @override
-  ConsumerState<SearchablePdfScreen> createState() => _SearchablePdfScreenState();
+  ConsumerState<SearchablePdfScreen> createState() =>
+      _SearchablePdfScreenState();
 }
 
 class _SearchablePdfScreenState extends ConsumerState<SearchablePdfScreen> {
@@ -32,7 +33,8 @@ class _SearchablePdfScreenState extends ConsumerState<SearchablePdfScreen> {
     final inputPath = _inputPath;
     if (inputPath == null) return;
 
-    final outputPath = inputPath.replaceAll(RegExp(r'\.pdf$', caseSensitive: false), '_searchable.pdf');
+    final outputPath = inputPath.replaceAll(
+        RegExp(r'\.pdf$', caseSensitive: false), '_searchable.pdf');
 
     setState(() => _isProcessing = true);
     try {
@@ -84,7 +86,8 @@ class _SearchablePdfScreenState extends ConsumerState<SearchablePdfScreen> {
                   OutlinedButton.icon(
                     onPressed: _isProcessing ? null : _pickPdf,
                     icon: const Icon(Icons.folder_open),
-                    label: Text(_inputPath == null ? 'Select PDF' : 'Change PDF'),
+                    label:
+                        Text(_inputPath == null ? 'Select PDF' : 'Change PDF'),
                   ),
                 ],
               ),
@@ -94,15 +97,20 @@ class _SearchablePdfScreenState extends ConsumerState<SearchablePdfScreen> {
               step: 2,
               label: 'Generate Searchable PDF',
               child: FilledButton.icon(
-                onPressed: (_inputPath != null && !_isProcessing) ? _generateSearchablePdf : null,
+                onPressed: (_inputPath != null && !_isProcessing)
+                    ? _generateSearchablePdf
+                    : null,
                 icon: _isProcessing
                     ? const SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
                       )
                     : const Icon(Icons.picture_as_pdf),
-                label: Text(_isProcessing ? 'Processing...' : 'Generate Searchable PDF'),
+                label: Text(_isProcessing
+                    ? 'Processing...'
+                    : 'Generate Searchable PDF'),
               ),
             ),
           ],
@@ -113,7 +121,8 @@ class _SearchablePdfScreenState extends ConsumerState<SearchablePdfScreen> {
 }
 
 class _StepTile extends StatelessWidget {
-  const _StepTile({required this.step, required this.label, required this.child});
+  const _StepTile(
+      {required this.step, required this.label, required this.child});
 
   final int step;
   final String label;
@@ -130,7 +139,9 @@ class _StepTile extends StatelessWidget {
               radius: 14,
               backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
-              child: Text('$step', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+              child: Text('$step',
+                  style: const TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(width: 10),
             Text(label, style: Theme.of(context).textTheme.titleMedium),

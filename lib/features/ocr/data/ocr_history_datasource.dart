@@ -119,8 +119,7 @@ class OcrHistoryDatasource {
       sourcePath: row['source_path'] as String,
       sourceType: row['source_type'] as String,
       pageTexts: pages,
-      createdAt:
-          DateTime.fromMillisecondsSinceEpoch(row['created_at'] as int),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(row['created_at'] as int),
       languageCode: row['language_code'] as String?,
     );
   }

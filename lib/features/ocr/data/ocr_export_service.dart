@@ -57,7 +57,8 @@ class OcrExportService {
   /// Writes [result.fullText] as plain UTF-8 text.
   Future<String> exportAsTxt(OcrResult result) async {
     final path = await _outputPath(result, '.txt');
-    await File(path).writeAsString(result.fullText, encoding: utf8, flush: true);
+    await File(path)
+        .writeAsString(result.fullText, encoding: utf8, flush: true);
     return path;
   }
 
@@ -94,7 +95,8 @@ class OcrExportService {
     buf.writeln('  <meta charset="UTF-8">');
     buf.writeln(
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0">');
-    buf.writeln('  <title>OCR Result – ${_escapeHtml(result.sourceFileName)}</title>');
+    buf.writeln(
+        '  <title>OCR Result – ${_escapeHtml(result.sourceFileName)}</title>');
     buf.writeln('  <style>');
     buf.writeln('    body { font-family: sans-serif; margin: 2rem; }');
     buf.writeln('    h1   { font-size: 1.4rem; }');

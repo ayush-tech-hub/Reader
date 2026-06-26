@@ -350,32 +350,33 @@ class _StorageCategoryScreenState extends ConsumerState<StorageCategoryScreen> {
                 : files.isEmpty
                     ? Center(child: Text(l10n.noFilesInCategory))
                     : ListView.builder(
-                    itemCount: files.length,
-                    itemBuilder: (context, index) {
-                      final file = files[index];
-                      final selected = _selection.contains(file.path);
-                      return ListTile(
-                        selected: selected,
-                        leading: CircleAvatar(
-                          child: Icon(widget.category.icon, size: 18),
-                        ),
-                        title: Text(
-                          p.basename(file.path),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        subtitle: Text(
-                          '${formatBytes(file.size)} · ${p.dirname(file.path)}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing:
-                            selected ? const Icon(Icons.check_circle) : null,
-                        onTap: () => _open(file),
-                        onLongPress: () => _toggleSelection(file.path),
-                      );
-                    },
-                  ),
+                        itemCount: files.length,
+                        itemBuilder: (context, index) {
+                          final file = files[index];
+                          final selected = _selection.contains(file.path);
+                          return ListTile(
+                            selected: selected,
+                            leading: CircleAvatar(
+                              child: Icon(widget.category.icon, size: 18),
+                            ),
+                            title: Text(
+                              p.basename(file.path),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            subtitle: Text(
+                              '${formatBytes(file.size)} · ${p.dirname(file.path)}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: selected
+                                ? const Icon(Icons.check_circle)
+                                : null,
+                            onTap: () => _open(file),
+                            onLongPress: () => _toggleSelection(file.path),
+                          );
+                        },
+                      ),
       ),
     );
   }
