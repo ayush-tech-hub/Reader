@@ -21,8 +21,6 @@ jobs:
   android:
     name: Android release
     runs-on: ubuntu-latest
-    env:
-      HAS_ANDROID_SIGNING: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -35,6 +33,17 @@ jobs:
             echo "version=$(head -1 RELEASE_VERSION | tr -d ' \r\n')" >> "$GITHUB_OUTPUT"
           else
             echo "version=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check Android signing availability
+        id: signing
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
           fi
 
       - uses: actions/setup-java@v4
@@ -61,6 +70,7 @@ jobs:
           git checkout android/app/src/main/res/values-night/colors.xml
           git checkout android/app/src/main/kotlin/com/opendocs/manager/MainActivity.kt
           git checkout android/app/src/main/kotlin/com/opendocs/manager/pdf/PdfToolsHandler.kt
+          git checkout android/app/src/main/res/xml/ 2>/dev/null || true
           # Custom launcher icon (flutter create overwrites these with the
           # default Flutter mark, so wipe its output and restore our
           # tracked artwork instead of layering on top of it).
@@ -78,14 +88,19 @@ jobs:
           git checkout android/app/src/main/res/mipmap-xxxhdpi
 
       - name: Decode signing keystore
-        if: ${{ env.HAS_ANDROID_SIGNING == 'true' }}
+        if: ${{ steps.signing.outputs.available == 'true' }}
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/release.keystore
+          echo "$KEYSTORE_B64" | base64 -d > android/release.keystore
           cat > android/key.properties <<EOF
           storeFile=../release.keystore
-          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
-          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
           EOF
 
       - name: Build release artifacts
@@ -106,8 +121,6 @@ jobs:
   ios:
     name: iOS release
     runs-on: macos-14
-    env:
-      HAS_IOS_SIGNING: ${{ secrets.IOS_CERT_BASE64 != '' && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -122,6 +135,17 @@ jobs:
             echo "version=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Check iOS signing availability
+        id: signing
+        env:
+          IOS_CERT: ${{ secrets.IOS_CERT_BASE64 }}
+        run: |
+          if [ -n "$IOS_CERT" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
@@ -132,7 +156,7 @@ jobs:
         run: |
           flutter create --org com.opendocs --project-name opendocs_manager .
           # Crucial: Restore your tracked iOS configuration files & ExportOptions
-          git checkout ios/ExportOptions.plist 2>/dev/null || true 
+          git checkout ios/ExportOptions.plist 2>/dev/null || true
           flutter pub get
           flutter gen-l10n
 
@@ -166,7 +190,7 @@ jobs:
           EOF
 
       - name: Import signing certificate & provisioning profile
-        if: ${{ env.HAS_IOS_SIGNING == 'true' }}
+        if: ${{ steps.signing.outputs.available == 'true' }}
         env:
           IOS_CERT_BASE64: ${{ secrets.IOS_CERT_BASE64 }}
           IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
@@ -188,11 +212,11 @@ jobs:
           cp "$PROFILE_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/
 
       - name: Build IPA
-        if: ${{ env.HAS_IOS_SIGNING == 'true' }}
+        if: ${{ steps.signing.outputs.available == 'true' }}
         run: flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
 
       - name: Upload to release
-        if: ${{ env.HAS_IOS_SIGNING == 'true' }}
+        if: ${{ steps.signing.outputs.available == 'true' }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.ver.outputs.version }}
