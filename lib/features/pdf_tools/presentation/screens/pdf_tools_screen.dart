@@ -13,11 +13,44 @@ import 'tool_result_screen.dart';
 /// Hub for all PDF utilities. Each tile picks inputs, runs the operation
 /// using the default save folder (CompressX/PDFs/ or CompressX/Images/), then
 /// pushes [ToolResultScreen] on success.
-class PdfToolsScreen extends ConsumerWidget {
-  const PdfToolsScreen({super.key});
+///
+/// When [initialAction] is provided (one of `'merge'`, `'split'`,
+/// `'compress'`), the corresponding tool is triggered automatically after
+/// the first frame.
+class PdfToolsScreen extends ConsumerStatefulWidget {
+  const PdfToolsScreen({super.key, this.initialAction});
+
+  final String? initialAction;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PdfToolsScreen> createState() => _PdfToolsScreenState();
+}
+
+class _PdfToolsScreenState extends ConsumerState<PdfToolsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    final action = widget.initialAction;
+    if (action != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        switch (action) {
+          case 'merge':
+            _merge(context, ref).ignore();
+            break;
+          case 'split':
+            _split(context, ref).ignore();
+            break;
+          case 'compress':
+            _compress(context, ref).ignore();
+            break;
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final state = ref.watch(pdfToolsProvider);
