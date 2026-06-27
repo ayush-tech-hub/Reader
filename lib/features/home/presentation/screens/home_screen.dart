@@ -148,7 +148,8 @@ class _DashboardTab extends ConsumerWidget {
           _SectionHeader('OCR Suite'),
           _HorizontalCardRow(items: [
             _CardItem(Icons.image_search, 'Image OCR', route: '/ocr/image'),
-            _CardItem(Icons.picture_as_pdf, 'PDF OCR', route: Routes.searchablePdf),
+            _CardItem(Icons.picture_as_pdf, 'PDF OCR',
+                route: Routes.searchablePdf),
             _CardItem(Icons.camera_alt, 'Camera OCR', route: '/ocr/camera'),
             _CardItem(Icons.document_scanner, 'Scan Document',
                 route: '/ocr/camera'),
