@@ -56,6 +56,7 @@ class OcrHistoryDatasource {
   /// Persists [result] to the database.  Replaces any existing row with the
   /// same [OcrResult.id].
   Future<void> save(OcrResult result) async {
+    await init();
     await _database.insert(
       _table,
       _toRow(result),
@@ -65,11 +66,13 @@ class OcrHistoryDatasource {
 
   /// Removes the row identified by [id].  No-op if the id is unknown.
   Future<void> delete(String id) async {
+    await init();
     await _database.delete(_table, where: 'id = ?', whereArgs: [id]);
   }
 
   /// Deletes every row in the history table.
   Future<void> clear() async {
+    await init();
     await _database.delete(_table);
   }
 
@@ -77,6 +80,7 @@ class OcrHistoryDatasource {
 
   /// Returns all stored results ordered from newest to oldest.
   Future<List<OcrResult>> getAll() async {
+    await init();
     final rows = await _database.query(
       _table,
       orderBy: 'created_at DESC',
@@ -86,6 +90,7 @@ class OcrHistoryDatasource {
 
   /// Returns the result with the given [id], or `null` if not found.
   Future<OcrResult?> getById(String id) async {
+    await init();
     final rows = await _database.query(
       _table,
       where: 'id = ?',

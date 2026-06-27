@@ -148,7 +148,7 @@ class _DashboardTab extends ConsumerWidget {
           _SectionHeader('OCR Suite'),
           _HorizontalCardRow(items: [
             _CardItem(Icons.image_search, 'Image OCR', route: '/ocr/image'),
-            _CardItem(Icons.picture_as_pdf, 'PDF OCR', route: Routes.pdfTools),
+            _CardItem(Icons.picture_as_pdf, 'PDF OCR', route: Routes.searchablePdf),
             _CardItem(Icons.camera_alt, 'Camera OCR', route: '/ocr/camera'),
             _CardItem(Icons.document_scanner, 'Scan Document',
                 route: '/ocr/camera'),
@@ -171,7 +171,8 @@ class _DashboardTab extends ConsumerWidget {
                 extensions: ['epub'], routeAfterPick: Routes.reader),
             _CardItem(Icons.code, 'Markdown Reader',
                 extensions: ['md', 'markdown'], routeAfterPick: Routes.reader),
-            _CardItem(Icons.text_fields, 'Text Reader', route: '/reader/txt'),
+            _CardItem(Icons.text_fields, 'Text Reader',
+                extensions: ['txt', 'log'], routeAfterPick: Routes.txtReader),
             _CardItem(Icons.image, 'Image Viewer',
                 extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
                 routeAfterPick: '/reader/image'),
@@ -190,9 +191,12 @@ class _DashboardTab extends ConsumerWidget {
           _HorizontalCardRow(items: [
             _CardItem(Icons.edit_document, 'PDF Editor',
                 route: Routes.pdfTools),
-            _CardItem(Icons.merge, 'Merge PDFs', route: Routes.pdfTools),
-            _CardItem(Icons.call_split, 'Split PDF', route: Routes.pdfTools),
-            _CardItem(Icons.compress, 'Compress PDF', route: Routes.pdfTools),
+            _CardItem(Icons.merge, 'Merge PDFs',
+                route: '${Routes.pdfTools}?action=merge'),
+            _CardItem(Icons.call_split, 'Split PDF',
+                route: '${Routes.pdfTools}?action=split'),
+            _CardItem(Icons.compress, 'Compress PDF',
+                route: '${Routes.pdfTools}?action=compress'),
           ]),
           const SizedBox(height: 20),
 
@@ -330,18 +334,15 @@ class _HorizontalCardRow extends StatelessWidget {
     }
   }
 
-  Future<String?> _pickFile(BuildContext context, _CardItem item) async {
-    String? path;
-    await showModalBottomSheet<void>(
+  Future<String?> _pickFile(BuildContext context, _CardItem item) {
+    return showModalBottomSheet<String?>(
       context: context,
       builder: (ctx) => _FilePickerSheet(
         icon: item.icon,
         label: item.label,
         extensions: item.extensions!,
-        onPicked: (p) => path = p,
       ),
     );
-    return path;
   }
 
   @override
@@ -404,12 +405,10 @@ class _FilePickerSheet extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.extensions,
-    required this.onPicked,
   });
   final IconData icon;
   final String label;
   final List<String> extensions;
-  final ValueChanged<String> onPicked;
 
   @override
   Widget build(BuildContext context) {
@@ -429,16 +428,15 @@ class _FilePickerSheet extends StatelessWidget {
             icon: const Icon(Icons.file_open_outlined),
             label: const Text('Pick file'),
             onPressed: () async {
-              Navigator.of(context).pop();
               final r = await FilePicker.pickFiles(
                   type: FileType.custom, allowedExtensions: extensions);
               final p = r?.files.single.path;
-              if (p != null) onPicked(p);
+              if (context.mounted) Navigator.of(context).pop(p);
             },
           ),
           const SizedBox(height: 8),
           TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(context).pop(null),
               child: const Text('Cancel')),
         ]),
       ),

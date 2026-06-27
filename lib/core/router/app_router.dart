@@ -136,7 +136,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.pdfTools,
-        builder: (context, state) => const PdfToolsScreen(),
+        builder: (context, state) => PdfToolsScreen(
+          initialAction: state.uri.queryParameters['action'],
+        ),
       ),
       GoRoute(
         path: Routes.aiTools,
