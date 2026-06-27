@@ -96,7 +96,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     'For questions about this privacy policy, complaints, or feature '
-                    'requests, please contact us at:\n\nweedywhy@gmail.com',
+                    'requests, please contact us at:\n\nayushallop@gmail.com',
                     style: TextStyle(color: scheme.onPrimaryContainer),
                   ),
                 ],

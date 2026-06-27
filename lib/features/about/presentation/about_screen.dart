@@ -131,7 +131,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 ListTile(
                   leading: const Icon(Icons.mail_outline),
                   title: Text(l10n.contactUs),
-                  subtitle: const Text('weedywhy@gmail.com'),
+                  subtitle: const Text('ayushallop@gmail.com'),
                 ),
               ],
             ),
