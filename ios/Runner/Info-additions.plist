@@ -9,9 +9,9 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleDisplayName</key>
-    <string>PDF Editor &amp; File Manager</string>
+    <string>Tools and Manager</string>
     <key>CFBundleName</key>
-    <string>PDF Editor</string>
+    <string>Tools and Manager</string>
     <key>UISupportsDocumentBrowser</key>
     <true/>
     <key>LSSupportsOpeningDocumentsInPlace</key>
