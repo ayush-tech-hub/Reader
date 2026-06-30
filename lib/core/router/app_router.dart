@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/about/presentation/about_screen.dart';
 import '../../features/about/presentation/privacy_policy_screen.dart';
 import '../../features/ai/presentation/ai_tools_screen.dart';
+import '../../features/ai/presentation/screens/language_pack_manager_screen.dart';
 import '../../features/archive_manager/presentation/screens/archive_screen.dart';
 import '../../features/file_manager/presentation/screens/favorites_screen.dart';
 import '../../features/file_manager/presentation/screens/file_browser_screen.dart';
@@ -38,6 +39,7 @@ abstract final class Routes {
   static const String archive = '/archive';
   static const String pdfTools = '/pdf-tools';
   static const String aiTools = '/tools/ai';
+  static const String languagePacks = '/tools/ai/languages';
   static const String smartSearch = '/tools/search';
   static const String duplicates = '/tools/duplicates';
   static const String storageAnalyzer = '/tools/storage';
@@ -143,6 +145,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.aiTools,
         builder: (context, state) => const AiToolsScreen(),
+      ),
+      GoRoute(
+        path: Routes.languagePacks,
+        builder: (context, state) => const LanguagePackManagerScreen(),
       ),
       GoRoute(
         path: Routes.smartSearch,
