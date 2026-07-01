@@ -203,6 +203,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.percent, 'Percentage Calc', Routes.percentageCalc),
       (Icons.currency_exchange, 'Currency', Routes.currencyConverter),
       (Icons.task_alt, 'Task Manager', Routes.taskManager),
+      (Icons.palette_outlined, 'Color Mixer', Routes.colorMixer),
+      (Icons.account_balance_wallet_outlined, 'Budget Tracker', Routes.budgetTracker),
+      (Icons.edit_note, 'Poem Generator', Routes.poemGenerator),
     ];
 
     return Scaffold(

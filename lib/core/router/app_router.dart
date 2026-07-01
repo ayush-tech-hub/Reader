@@ -133,6 +133,9 @@ import '../../features/text_tools/presentation/age_calculator_screen.dart';
 import '../../features/text_tools/presentation/percentage_screen.dart';
 import '../../features/text_tools/presentation/currency_converter_screen.dart';
 import '../../features/tasks/presentation/task_manager_screen.dart';
+import '../../features/text_tools/presentation/color_mixer_screen.dart';
+import '../../features/budget/presentation/budget_tracker_screen.dart';
+import '../../features/text_tools/presentation/poem_generator_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -271,6 +274,9 @@ abstract final class Routes {
   static const String percentageCalc = '/tools/percent';
   static const String currencyConverter = '/tools/currency';
   static const String taskManager = '/tasks';
+  static const String colorMixer = '/tools/color-mixer';
+  static const String budgetTracker = '/budget';
+  static const String poemGenerator = '/tools/poem';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -907,6 +913,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.taskManager,
         builder: (context, state) => const TaskManagerScreen(),
+      ),
+      GoRoute(
+        path: Routes.colorMixer,
+        builder: (context, state) => const ColorMixerScreen(),
+      ),
+      GoRoute(
+        path: Routes.budgetTracker,
+        builder: (context, state) => const BudgetTrackerScreen(),
+      ),
+      GoRoute(
+        path: Routes.poemGenerator,
+        builder: (context, state) => const PoemGeneratorScreen(),
       ),
     ],
   );
