@@ -93,10 +93,12 @@ class _ClipboardHistoryScreenState extends State<ClipboardHistoryScreen> {
 
   Future<void> _load() async {
     final entries = await _service.load();
-    if (mounted) setState(() {
-      _entries = entries;
-      _loading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _entries = entries;
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _capture() async {

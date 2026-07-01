@@ -51,6 +51,7 @@ import '../../features/pdf_reader/presentation/screens/reader_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_sign_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_tools_screen.dart';
 import '../../features/readers/presentation/reader_screens.dart';
+import '../../features/text_stats/presentation/text_stats_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -107,6 +108,7 @@ abstract final class Routes {
   static const String batchRename = '/tools/batch-rename';
   static const String clipboardHistory = '/clipboard';
   static const String speedReader = '/reader/speed';
+  static const String textStats = '/tools/text-stats';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -408,6 +410,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final text = state.uri.queryParameters['text'];
           return SpeedReaderScreen(text: text);
+        },
+      ),
+      GoRoute(
+        path: Routes.textStats,
+        builder: (context, state) {
+          final text = state.uri.queryParameters['text'];
+          return TextStatsScreen(initialText: text);
         },
       ),
     ],

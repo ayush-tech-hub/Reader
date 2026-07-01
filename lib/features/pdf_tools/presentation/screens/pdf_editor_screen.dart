@@ -379,9 +379,10 @@ class _PdfEditorScreenState extends ConsumerState<PdfEditorScreen> {
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
       itemCount: _pages.length,
       buildDefaultDragHandles: false,
-      onReorderItem: (oldIndex, newIndex) {
+      onReorder: (int oldIndex, int newIndex) {
         _pushHistory();
         setState(() {
+          if (newIndex > oldIndex) newIndex--;
           _pages.insert(newIndex, _pages.removeAt(oldIndex));
         });
       },
@@ -439,7 +440,7 @@ class _PdfEditorScreenState extends ConsumerState<PdfEditorScreen> {
       case PdfEditorMode.delete:
         if (entry.markedForDeletion) {
           return Container(
-            color: cs.error.withValues(alpha: 0.6),
+            color: cs.error.withOpacity(0.6),
             alignment: Alignment.center,
             child: Icon(Icons.delete, color: cs.onError, size: 32),
           );
@@ -478,7 +479,7 @@ class _PdfEditorScreenState extends ConsumerState<PdfEditorScreen> {
           return Container(
             decoration: BoxDecoration(
               border: Border.all(color: cs.tertiary, width: 3),
-              color: cs.tertiary.withValues(alpha: 0.15),
+              color: cs.tertiary.withOpacity(0.15),
             ),
           );
         }

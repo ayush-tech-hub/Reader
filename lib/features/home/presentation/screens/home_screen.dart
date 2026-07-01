@@ -125,6 +125,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.drive_file_rename_outline, 'Batch Rename', Routes.batchRename),
       (Icons.content_paste_outlined, 'Clipboard', Routes.clipboardHistory),
       (Icons.speed, 'Speed Reader', Routes.speedReader),
+      (Icons.analytics_outlined, 'Text Stats', Routes.textStats),
     ];
 
     return Scaffold(

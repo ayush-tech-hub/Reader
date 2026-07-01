@@ -143,10 +143,12 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen> {
         ? p.basename(_filePath!)
         : 'New document';
 
-    return WillPopScope(
-      onWillPop: () async {
-        if (!_dirty) return true;
-        return _confirmDiscard();
+    return PopScope(
+      canPop: !_dirty,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final allow = await _confirmDiscard();
+        if (allow && context.mounted) Navigator.of(context).pop();
       },
       child: Scaffold(
         appBar: AppBar(

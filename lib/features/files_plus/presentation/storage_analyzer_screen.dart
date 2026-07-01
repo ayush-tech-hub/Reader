@@ -304,7 +304,7 @@ class _CategoryCard extends StatelessWidget {
             child: Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: color.withValues(alpha: 0.15),
+                  backgroundColor: color.withOpacity(0.15),
                   foregroundColor: color,
                   child: Icon(category.icon, size: 20),
                 ),
