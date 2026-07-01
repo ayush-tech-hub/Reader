@@ -103,6 +103,29 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
         return ai.simplify(source.length > 5000 ? source.substring(0, 5000) : source);
       });
 
+  Future<void> _rewrite() => _run(() async {
+        final source = _output.isNotEmpty ? _output : await _documentText();
+        return ai.rewrite(source.length > 5000 ? source.substring(0, 5000) : source);
+      });
+
+  Future<void> _extractTables() => _run(() async {
+        final text = await _documentText();
+        final tables = ai.extractTables(text);
+        if (tables.isEmpty) return 'No tables detected in document.';
+        final buf = StringBuffer();
+        for (var i = 0; i < tables.length; i++) {
+          final t = tables[i];
+          buf.writeln('Table ${i + 1} (${t.columnCount} columns, ${t.rows.length} rows)');
+          buf.writeln(t.headers.join(' | '));
+          buf.writeln('${List.filled(t.columnCount, '---').join(' | ')}');
+          for (final row in t.rows) {
+            buf.writeln(row.join(' | '));
+          }
+          buf.writeln();
+        }
+        return buf.toString().trim();
+      });
+
   Future<void> _ask() => _run(() async {
         final l10n = AppLocalizations.of(context);
         final question = _questionController.text.trim();
@@ -313,6 +336,16 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
                 icon: const Icon(Icons.short_text),
                 label: const Text('Simplify'),
                 onPressed: _busy ? null : _simplify,
+              ),
+              FilledButton.tonalIcon(
+                icon: const Icon(Icons.spellcheck),
+                label: const Text('Rewrite'),
+                onPressed: _busy ? null : _rewrite,
+              ),
+              FilledButton.tonalIcon(
+                icon: const Icon(Icons.table_chart_outlined),
+                label: const Text('Tables'),
+                onPressed: _busy ? null : _extractTables,
               ),
               FilledButton.tonalIcon(
                 icon: const Icon(Icons.style_outlined),

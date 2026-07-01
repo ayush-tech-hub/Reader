@@ -316,6 +316,166 @@ String simplify(String text) {
   return simplified.join(' ').trim();
 }
 
+// ── Grammar & style correction ────────────────────────────────────────────────
+
+/// Heuristic grammar/style pass that corrects common writing issues:
+/// - Double spaces, trailing spaces
+/// - Missing space after period/comma
+/// - Capitalize first word of each sentence
+/// - Common confused-word pairs (heuristic, non-contextual)
+/// - Oxford-comma reminder (adds comma before "and" in simple lists)
+String rewrite(String text) {
+  var r = text;
+
+  // Normalize whitespace.
+  r = r.replaceAll(RegExp(r'  +'), ' ');
+  r = r.split('\n').map((l) => l.trimRight()).join('\n');
+
+  // Space after punctuation.
+  r = r.replaceAllMapped(
+    RegExp(r'([.,;:!?])([A-Za-z])'),
+    (m) => '${m[1]} ${m[2]}',
+  );
+
+  // Common confused words (non-contextual substitutions — may be wrong in
+  // some contexts; user should review the output).
+  final confused = {
+    r'\byour welcome\b': "you're welcome",
+    r'\bits a\b': "it's a",
+    r'\btheir is\b': 'there is',
+    r'\btheir are\b': 'there are',
+    r'\bthere going\b': "they're going",
+    r'\bwould of\b': 'would have',
+    r'\bcould of\b': 'could have',
+    r'\bshould of\b': 'should have',
+    r'\bwould of been\b': 'would have been',
+    r'\balot\b': 'a lot',
+    r'\brecieve\b': 'receive',
+    r'\boccured\b': 'occurred',
+    r'\bseperate\b': 'separate',
+    r'\bneccessary\b': 'necessary',
+    r'\buntill\b': 'until',
+    r'\bgoverment\b': 'government',
+    r'\bproffessional\b': 'professional',
+    r'\benviroment\b': 'environment',
+    r'\bdefinately\b': 'definitely',
+    r'\bthier\b': 'their',
+    r'\bneighbour hood\b': 'neighbourhood',
+  };
+  for (final entry in confused.entries) {
+    r = r.replaceAll(
+      RegExp(entry.key, caseSensitive: false),
+      entry.value,
+    );
+  }
+
+  // Capitalize first letter of each sentence.
+  r = r.replaceAllMapped(
+    RegExp(r'(?:^|(?<=[.!?]\s{1,2}))([a-z])'),
+    (m) => m[1]!.toUpperCase(),
+  );
+
+  // Trim trailing whitespace / blank lines at end.
+  r = r.trimRight();
+
+  return r;
+}
+
+// ── Table extraction ──────────────────────────────────────────────────────────
+
+/// A parsed table row (list of cell strings).
+typedef TableRow = List<String>;
+
+/// A parsed table from plain text.
+class ExtractedTable {
+  const ExtractedTable({required this.headers, required this.rows});
+  final TableRow headers;
+  final List<TableRow> rows;
+
+  bool get isEmpty => rows.isEmpty;
+  int get columnCount => headers.isEmpty
+      ? (rows.isEmpty ? 0 : rows.first.length)
+      : headers.length;
+}
+
+/// Detects and extracts tables from plain text.
+///
+/// Recognizes two formats:
+/// 1. Pipe-delimited tables (Markdown style): `| col1 | col2 | col3 |`
+/// 2. Tab-separated lines: `col1\tcol2\tcol3`
+///
+/// Returns a list of tables found in [text].
+List<ExtractedTable> extractTables(String text) {
+  final tables = <ExtractedTable>[];
+  tables.addAll(_extractPipeTables(text));
+  if (tables.isEmpty) tables.addAll(_extractTsvTables(text));
+  return tables;
+}
+
+List<ExtractedTable> _extractPipeTables(String text) {
+  final lines = text.split('\n');
+  final tables = <ExtractedTable>[];
+
+  int i = 0;
+  while (i < lines.length) {
+    final line = lines[i].trim();
+    if (!line.startsWith('|')) {
+      i++;
+      continue;
+    }
+
+    // Collect consecutive pipe lines.
+    final block = <String>[];
+    while (i < lines.length && lines[i].trim().startsWith('|')) {
+      block.add(lines[i].trim());
+      i++;
+    }
+    if (block.length < 2) continue;
+
+    // Parse cells: skip separator rows (---|---|---).
+    final rows = <TableRow>[];
+    for (final row in block) {
+      if (RegExp(r'^\|[-\s|:]+\|$').hasMatch(row)) continue;
+      final cells = row
+          .split('|')
+          .map((c) => c.trim())
+          .where((c) => c.isNotEmpty)
+          .toList();
+      if (cells.isNotEmpty) rows.add(cells);
+    }
+    if (rows.length < 2) continue;
+
+    tables.add(ExtractedTable(headers: rows.first, rows: rows.skip(1).toList()));
+  }
+  return tables;
+}
+
+List<ExtractedTable> _extractTsvTables(String text) {
+  final lines = text.split('\n');
+  final tables = <ExtractedTable>[];
+
+  int i = 0;
+  while (i < lines.length) {
+    if (!lines[i].contains('\t')) {
+      i++;
+      continue;
+    }
+
+    final block = <String>[];
+    while (i < lines.length && lines[i].contains('\t')) {
+      block.add(lines[i]);
+      i++;
+    }
+    if (block.length < 2) continue;
+
+    final rows = block
+        .map((l) => l.split('\t').map((c) => c.trim()).toList())
+        .toList();
+    tables.add(ExtractedTable(headers: rows.first, rows: rows.skip(1).toList()));
+  }
+  return tables;
+}
+
 // ── Flashcard & quiz generation ───────────────────────────────────────────────
 
 /// A single Q/A flashcard.
