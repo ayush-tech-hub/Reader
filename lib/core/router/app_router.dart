@@ -4,7 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/about/presentation/about_screen.dart';
 import '../../features/about/presentation/privacy_policy_screen.dart';
+import '../../features/accessibility/presentation/accessibility_screen.dart';
 import '../../features/ai/presentation/ai_tools_screen.dart';
+import '../../features/document_compare/presentation/document_compare_screen.dart';
+import '../../features/pdf_tools/presentation/screens/pdf_to_images_screen.dart';
 import '../../features/ai/presentation/screens/language_pack_manager_screen.dart';
 import '../../features/app_lock/presentation/app_lock_settings_screen.dart';
 import '../../features/archive_manager/presentation/screens/archive_screen.dart';
@@ -60,6 +63,9 @@ abstract final class Routes {
   static const String searchablePdf = '/ocr/searchable-pdf';
   static const String qrScanner = '/tools/qr';
   static const String appLockSettings = '/settings/app-lock';
+  static const String accessibility = '/settings/accessibility';
+  static const String documentCompare = '/tools/compare';
+  static const String pdfToImages = '/tools/pdf-to-images';
   static const String recycleBin = '/files/trash';
   static const String txtReader = '/reader/txt';
   static const String imageReader = '/reader/image';
@@ -251,6 +257,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.appLockSettings,
         builder: (context, state) => const AppLockSettingsScreen(),
+      ),
+      GoRoute(
+        path: Routes.accessibility,
+        builder: (context, state) => const AccessibilityScreen(),
+      ),
+      GoRoute(
+        path: Routes.documentCompare,
+        builder: (context, state) => const DocumentCompareScreen(),
+      ),
+      GoRoute(
+        path: Routes.pdfToImages,
+        builder: (context, state) => const PdfToImagesScreen(),
       ),
       GoRoute(
         path: Routes.recycleBin,

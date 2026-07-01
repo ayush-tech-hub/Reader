@@ -177,3 +177,54 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
     await prefs.setString(SettingKeys.themeMode, mode.name);
   }
 }
+
+// ---- Accessibility -------------------------------------------------------
+
+final highContrastProvider = NotifierProvider<HighContrastNotifier, bool>(
+  HighContrastNotifier.new,
+);
+
+class HighContrastNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    _load();
+    return false;
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    state = prefs.getBool(SettingKeys.highContrast) ?? false;
+  }
+
+  Future<void> toggle() async {
+    state = !state;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(SettingKeys.highContrast, state);
+  }
+}
+
+/// Allowed discrete font-scale factors.
+const kFontScales = [0.85, 1.0, 1.15, 1.3, 1.5];
+
+final fontScaleProvider = NotifierProvider<FontScaleNotifier, double>(
+  FontScaleNotifier.new,
+);
+
+class FontScaleNotifier extends Notifier<double> {
+  @override
+  double build() {
+    _load();
+    return 1.0;
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    state = prefs.getDouble(SettingKeys.fontScale) ?? 1.0;
+  }
+
+  Future<void> setScale(double scale) async {
+    state = scale;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(SettingKeys.fontScale, scale);
+  }
+}

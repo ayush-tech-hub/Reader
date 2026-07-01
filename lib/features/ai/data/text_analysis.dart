@@ -316,6 +316,191 @@ String simplify(String text) {
   return simplified.join(' ').trim();
 }
 
+// ── Flashcard & quiz generation ───────────────────────────────────────────────
+
+/// A single Q/A flashcard.
+class Flashcard {
+  const Flashcard({required this.question, required this.answer});
+  final String question;
+  final String answer;
+}
+
+/// Generates up to [maxCards] extractive flashcards from [text].
+///
+/// Strategy: pair each keyword with the sentence that first defines /
+/// introduces it as Q = "What does <keyword> mean / refer to?" and
+/// A = that sentence (trimmed). Deduplication keeps only the
+/// highest-scoring sentence per keyword.
+List<Flashcard> generateFlashcards(String text, {int maxCards = 10}) {
+  final sentences = text
+      .split(_sentencePattern)
+      .map((s) => s.trim())
+      .where((s) => s.length > 30)
+      .toList();
+  if (sentences.isEmpty) return const [];
+
+  final frequency = <String, int>{};
+  for (final word in tokenize(text)) {
+    frequency[word] = (frequency[word] ?? 0) + 1;
+  }
+
+  // Score sentences as in summarize().
+  final maxFreq =
+      frequency.values.fold(1, (a, b) => a > b ? a : b).toDouble();
+  final sentenceScore = List.generate(sentences.length, (i) {
+    final words = tokenize(sentences[i]);
+    if (words.isEmpty) return 0.0;
+    return words.fold(0.0, (sum, w) => sum + (frequency[w] ?? 0)) /
+        maxFreq /
+        math.sqrt(words.length);
+  });
+
+  // Top keywords not already used as a question.
+  final keywords = extractKeywords(text, maxKeywords: maxCards * 2);
+  final used = <String>{};
+  final cards = <Flashcard>[];
+
+  for (final kw in keywords) {
+    if (cards.length >= maxCards) break;
+    if (used.contains(kw)) continue;
+
+    // Find the best-scoring sentence that contains this keyword.
+    int? bestIdx;
+    double bestScore = -1;
+    for (var i = 0; i < sentences.length; i++) {
+      if (sentences[i].toLowerCase().contains(kw) &&
+          sentenceScore[i] > bestScore) {
+        bestScore = sentenceScore[i];
+        bestIdx = i;
+      }
+    }
+    if (bestIdx == null) continue;
+
+    final answer = sentences[bestIdx];
+    final q = _questionFor(kw, answer);
+    cards.add(Flashcard(question: q, answer: answer));
+    used.add(kw);
+  }
+  return cards;
+}
+
+String _questionFor(String keyword, String sentence) {
+  // Prefer "What is X?" for nouns / concepts, "How does X work?" for verbs.
+  final lower = sentence.toLowerCase();
+  if (lower.contains(' is ') ||
+      lower.contains(' are ') ||
+      lower.contains(' was ')) {
+    return 'What is $keyword?';
+  }
+  if (lower.contains(' how ') || lower.contains(' process ')) {
+    return 'How does $keyword work?';
+  }
+  return 'What does the text say about "$keyword"?';
+}
+
+/// A multiple-choice quiz question generated from the document.
+class QuizQuestion {
+  const QuizQuestion({
+    required this.question,
+    required this.options,
+    required this.correctIndex,
+  });
+  final String question;
+  final List<String> options;
+  final int correctIndex;
+}
+
+/// Generates up to [maxQuestions] multiple-choice questions from [text].
+///
+/// Each question picks a key sentence, identifies a keyword in it, asks
+/// the user to identify the right sentence (fill-in context), and
+/// provides three distractor sentences as wrong answers.
+List<QuizQuestion> generateQuiz(String text, {int maxQuestions = 8}) {
+  final sentences = text
+      .split(_sentencePattern)
+      .map((s) => s.trim())
+      .where((s) => s.length > 40)
+      .toList();
+  if (sentences.length < 4) return const [];
+
+  final frequency = <String, int>{};
+  for (final word in tokenize(text)) {
+    frequency[word] = (frequency[word] ?? 0) + 1;
+  }
+  final maxFreq =
+      frequency.values.fold(1, (a, b) => a > b ? a : b).toDouble();
+
+  final scored = List.generate(sentences.length, (i) {
+    final words = tokenize(sentences[i]);
+    if (words.isEmpty) return (i, 0.0);
+    final score = words.fold(0.0, (s, w) => s + (frequency[w] ?? 0)) /
+        maxFreq /
+        math.sqrt(words.length);
+    return (i, score);
+  })
+    ..sort((a, b) => b.$2.compareTo(a.$2));
+
+  // Take top N sentences for questions and use the remaining pool as
+  // distractors.
+  final questionCount = math.min(maxQuestions, scored.length);
+  final questions = <QuizQuestion>[];
+  final used = <int>{};
+
+  for (var qi = 0; qi < questionCount && questions.length < maxQuestions; qi++) {
+    final (sentIdx, _) = scored[qi];
+    if (used.contains(sentIdx)) continue;
+    used.add(sentIdx);
+
+    final correctSentence = sentences[sentIdx];
+    final keywords = tokenize(correctSentence);
+    if (keywords.isEmpty) continue;
+
+    // Pick the most frequent keyword from this sentence.
+    keywords.sort((a, b) => (frequency[b] ?? 0).compareTo(frequency[a] ?? 0));
+    final kw = keywords.first;
+
+    // Replace the keyword in the sentence with a blank for the question.
+    final blank = correctSentence.replaceAll(
+      RegExp(r'\b' + RegExp.escape(kw) + r'\b', caseSensitive: false),
+      '___',
+    );
+    final questionText = 'Fill in the blank:\n"$blank"';
+
+    // Collect 3 distractor keywords from other high-scoring sentences.
+    final distractors = <String>[];
+    for (final (di, _) in scored) {
+      if (distractors.length >= 3) break;
+      if (di == sentIdx) continue;
+      final dKws = tokenize(sentences[di]);
+      dKws.sort(
+          (a, b) => (frequency[b] ?? 0).compareTo(frequency[a] ?? 0));
+      if (dKws.isNotEmpty && !distractors.contains(dKws.first) &&
+          dKws.first != kw) {
+        distractors.add(dKws.first);
+      }
+    }
+    if (distractors.length < 3) continue;
+
+    // Shuffle options (correct answer always last before shuffle, then
+    // we track its position).
+    final options = [...distractors, kw];
+    // Simple deterministic pseudo-shuffle: rotate by sentIdx % 4.
+    final shift = sentIdx % 4;
+    final shifted = [
+      ...options.sublist(shift),
+      ...options.sublist(0, shift),
+    ];
+    final correctIndex = shifted.indexOf(kw);
+
+    questions.add(QuizQuestion(
+      question: questionText,
+      options: shifted,
+      correctIndex: correctIndex,
+    ));
+  }
+  return questions;
+}
+
 // ── Hook for optional heavier model ──────────────────────────────────────────
 
 /// Hook for an optional heavier on-device model (e.g. a GGUF LLM via a

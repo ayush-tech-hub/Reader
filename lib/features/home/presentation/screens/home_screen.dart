@@ -107,6 +107,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.sync, l10n.folderSync, Routes.folderSync),
       (Icons.label_outline, l10n.tags, Routes.tags),
       (Icons.delete_outline, 'Recycle Bin', Routes.recycleBin),
+      (Icons.compare_arrows, 'Compare Docs', Routes.documentCompare),
     ];
 
     return Scaffold(
@@ -201,6 +202,8 @@ class _DashboardTab extends ConsumerWidget {
                 route: '${Routes.pdfTools}?action=split'),
             _CardItem(Icons.compress, 'Compress PDF',
                 route: '${Routes.pdfTools}?action=compress'),
+            _CardItem(Icons.image_outlined, 'PDF to Images',
+                route: Routes.pdfToImages),
           ]),
           const SizedBox(height: 20),
 

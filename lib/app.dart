@@ -15,6 +15,8 @@ class OpenDocsApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final highContrast = ref.watch(highContrastProvider);
+    final fontScale = ref.watch(fontScaleProvider);
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
@@ -25,8 +27,8 @@ class OpenDocsApp extends ConsumerWidget {
         return l10n.appTitle;
       },
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
+      theme: highContrast ? AppTheme.highContrastLight() : AppTheme.light(),
+      darkTheme: highContrast ? AppTheme.highContrastDark() : AppTheme.dark(),
       themeMode: themeMode,
       routerConfig: router,
       localizationsDelegates: const [
@@ -61,14 +63,23 @@ class OpenDocsApp extends ConsumerWidget {
       },
       // Wraps the router in the app-lock layer. The lock screen overlays the
       // entire app (including the router) so there is no navigable content
-      // visible until the PIN is verified.
+      // visible until the PIN is verified. Also applies font-scale override.
       builder: (context, child) {
         if (child == null) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
-        return _AppLockWrapper(child: child);
+        Widget content = _AppLockWrapper(child: child);
+        if (fontScale != 1.0) {
+          content = MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: TextScaler.linear(fontScale),
+            ),
+            child: content,
+          );
+        }
+        return content;
       },
     );
   }

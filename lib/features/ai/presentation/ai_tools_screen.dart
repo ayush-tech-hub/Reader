@@ -11,6 +11,8 @@ import '../../../core/router/app_router.dart';
 import '../../../generated/app_localizations.dart';
 import '../data/text_analysis.dart' as ai;
 import 'providers/language_pack_providers.dart';
+import 'screens/flashcard_screen.dart';
+import 'screens/quiz_screen.dart';
 
 /// Local document intelligence: summarization, extractive Q&A over the
 /// search index, on-device OCR and translation. Everything runs
@@ -128,6 +130,38 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
             )
             .join('\n\n');
       });
+
+  Future<void> _flashcards() async {
+    String text;
+    try {
+      text = await _documentText();
+    } catch (e) {
+      if (mounted) setState(() => _output = e.toString());
+      return;
+    }
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => FlashcardScreen(text: text),
+      ),
+    );
+  }
+
+  Future<void> _quiz() async {
+    String text;
+    try {
+      text = await _documentText();
+    } catch (e) {
+      if (mounted) setState(() => _output = e.toString());
+      return;
+    }
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => QuizScreen(text: text),
+      ),
+    );
+  }
 
   Future<void> _ocr() => _run(() async {
         final path = _documentPath;
@@ -279,6 +313,16 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
                 icon: const Icon(Icons.short_text),
                 label: const Text('Simplify'),
                 onPressed: _busy ? null : _simplify,
+              ),
+              FilledButton.tonalIcon(
+                icon: const Icon(Icons.style_outlined),
+                label: const Text('Flashcards'),
+                onPressed: _busy ? null : _flashcards,
+              ),
+              FilledButton.tonalIcon(
+                icon: const Icon(Icons.quiz_outlined),
+                label: const Text('Quiz'),
+                onPressed: _busy ? null : _quiz,
               ),
               FilledButton.tonalIcon(
                 icon: const Icon(Icons.document_scanner),

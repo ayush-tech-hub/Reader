@@ -38,4 +38,6 @@ abstract final class SettingKeys {
   static const String translateWifiOnly = 'translate_wifi_only';
   static const String autoRemoveUnusedLanguages =
       'auto_remove_unused_languages';
+  static const String highContrast = 'high_contrast';
+  static const String fontScale = 'font_scale';
 }
