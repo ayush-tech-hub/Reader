@@ -35,22 +35,32 @@ class StorageHandler(
 
     private fun getRoots(): List<Map<String, Any>> {
         val roots = mutableListOf<Map<String, Any>>()
+        val extDirs = context.getExternalFilesDirs(null)
 
-        val internal = Environment.getExternalStorageDirectory()
-        roots.add(describe(internal.absolutePath, "Internal storage", removable = false))
+        // Primary internal storage. StatFs needs a path accessible without
+        // MANAGE_EXTERNAL_STORAGE; the app-specific external dir is always
+        // accessible and sits on the same filesystem as the public root.
+        val primaryRoot = Environment.getExternalStorageDirectory().absolutePath
+        val primaryStatPath = extDirs.firstOrNull()?.absolutePath ?: primaryRoot
+        roots.add(describe(primaryRoot, "Internal storage", removable = false, statPath = primaryStatPath))
 
-        // Secondary volumes (SD cards / USB) surface as the ancestors of
-        // the app-specific external dirs beyond the first one.
-        context.getExternalFilesDirs(null).drop(1).filterNotNull().forEach { dir ->
+        // Secondary volumes (SD cards / USB) — app-specific dirs on each
+        // volume are accessible without special permission.
+        extDirs.drop(1).filterNotNull().forEach { dir ->
             // .../<volume>/Android/data/<pkg>/files -> <volume>
             val volume = dir.parentFile?.parentFile?.parentFile?.parentFile ?: return@forEach
-            roots.add(describe(volume.absolutePath, volume.name.ifEmpty { "SD card" }, removable = true))
+            roots.add(describe(volume.absolutePath, volume.name.ifEmpty { "SD card" }, removable = true, statPath = dir.absolutePath))
         }
         return roots
     }
 
-    private fun describe(path: String, label: String, removable: Boolean): Map<String, Any> {
-        val stats = runCatching { StatFs(path) }.getOrNull()
+    private fun describe(
+        path: String,
+        label: String,
+        removable: Boolean,
+        statPath: String = path,
+    ): Map<String, Any> {
+        val stats = runCatching { StatFs(statPath) }.getOrNull()
         return mapOf(
             "path" to path,
             "label" to label,
