@@ -145,6 +145,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.help_outline, 'Markdown Ref', Routes.markdownCheatsheet),
       (Icons.access_time_outlined, 'Timestamp', Routes.timestampConverter),
       (Icons.color_lens_outlined, 'Colour Picker', Routes.colorPicker),
+      (Icons.checklist, 'Checklist', Routes.checklist),
     ];
 
     return Scaffold(

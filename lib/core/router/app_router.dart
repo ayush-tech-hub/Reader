@@ -73,6 +73,7 @@ import '../../features/text_tools/presentation/markdown_cheatsheet_screen.dart';
 import '../../features/text_tools/presentation/timestamp_converter_screen.dart';
 import '../../features/text_tools/presentation/color_picker_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_crop_screen.dart';
+import '../../features/checklist/presentation/checklist_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -151,6 +152,7 @@ abstract final class Routes {
   static const String timestampConverter = '/tools/timestamp';
   static const String colorPicker = '/tools/color';
   static const String pdfCrop = '/tools/pdf-crop';
+  static const String checklist = '/checklist';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -547,6 +549,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.pdfCrop,
         builder: (context, state) => const PdfCropScreen(),
+      ),
+      GoRoute(
+        path: Routes.checklist,
+        builder: (context, state) => const ChecklistScreen(),
       ),
     ],
   );
