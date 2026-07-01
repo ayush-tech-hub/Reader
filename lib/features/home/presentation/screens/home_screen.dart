@@ -251,6 +251,8 @@ class _DashboardTab extends ConsumerWidget {
                 route: Routes.pdfWatermark),
             _CardItem(Icons.numbers_outlined, 'Page Numbers',
                 route: Routes.pdfPageNumbers),
+            _CardItem(Icons.crop, 'Crop Margins',
+                route: Routes.pdfCrop),
           ]),
           const SizedBox(height: 20),
 
