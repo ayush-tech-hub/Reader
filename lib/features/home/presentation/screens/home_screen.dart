@@ -161,6 +161,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.code_outlined, 'HTML Entities', Routes.htmlEntities),
       (Icons.contrast, 'Colour Contrast', Routes.colorContrast),
       (Icons.description_outlined, 'PDF Metadata', Routes.pdfMetadata),
+      (Icons.code_outlined, 'Text ↔ Binary', Routes.textBinary),
+      (Icons.wrap_text, 'Word Wrap', Routes.wordWrap),
+      (Icons.calculate_outlined, 'Calculator', Routes.calculator),
     ];
 
     return Scaffold(
@@ -273,6 +276,8 @@ class _DashboardTab extends ConsumerWidget {
                 route: Routes.pdfGrayscale),
             _CardItem(Icons.image_outlined, 'Images to PDF',
                 route: Routes.imageToPdf),
+            _CardItem(Icons.rotate_right, 'Rotate Pages',
+                route: Routes.pdfRotate),
           ]),
           const SizedBox(height: 20),
 

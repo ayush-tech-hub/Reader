@@ -90,6 +90,10 @@ import '../../features/text_tools/presentation/text_encryption_screen.dart';
 import '../../features/text_tools/presentation/html_entities_screen.dart';
 import '../../features/accessibility/presentation/color_contrast_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_metadata_screen.dart';
+import '../../features/text_tools/presentation/text_binary_screen.dart';
+import '../../features/text_tools/presentation/word_wrap_screen.dart';
+import '../../features/pdf_tools/presentation/screens/pdf_rotate_screen.dart';
+import '../../features/text_tools/presentation/calculator_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -185,6 +189,10 @@ abstract final class Routes {
   static const String htmlEntities = '/tools/html-entities';
   static const String colorContrast = '/tools/color-contrast';
   static const String pdfMetadata = '/tools/pdf-metadata';
+  static const String textBinary = '/tools/text-binary';
+  static const String wordWrap = '/tools/word-wrap';
+  static const String pdfRotate = '/tools/pdf-rotate';
+  static const String calculator = '/tools/calculator';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -649,6 +657,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.pdfMetadata,
         builder: (context, state) => const PdfMetadataScreen(),
+      ),
+      GoRoute(
+        path: Routes.textBinary,
+        builder: (context, state) => const TextBinaryScreen(),
+      ),
+      GoRoute(
+        path: Routes.wordWrap,
+        builder: (context, state) => const WordWrapScreen(),
+      ),
+      GoRoute(
+        path: Routes.pdfRotate,
+        builder: (context, state) => const PdfRotateScreen(),
+      ),
+      GoRoute(
+        path: Routes.calculator,
+        builder: (context, state) => const CalculatorScreen(),
       ),
     ],
   );
