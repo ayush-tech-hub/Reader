@@ -164,6 +164,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.code_outlined, 'Text ↔ Binary', Routes.textBinary),
       (Icons.wrap_text, 'Word Wrap', Routes.wordWrap),
       (Icons.calculate_outlined, 'Calculator', Routes.calculator),
+      (Icons.sort_by_alpha, 'Sort Lines', Routes.sortLines),
+      (Icons.find_replace, 'Find & Replace', Routes.findReplace),
+      (Icons.table_chart_outlined, 'CSV Viewer', Routes.csvViewer),
     ];
 
     return Scaffold(

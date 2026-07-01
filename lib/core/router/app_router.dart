@@ -94,6 +94,9 @@ import '../../features/text_tools/presentation/text_binary_screen.dart';
 import '../../features/text_tools/presentation/word_wrap_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_rotate_screen.dart';
 import '../../features/text_tools/presentation/calculator_screen.dart';
+import '../../features/text_tools/presentation/sort_lines_screen.dart';
+import '../../features/text_tools/presentation/find_replace_screen.dart';
+import '../../features/text_tools/presentation/csv_viewer_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -193,6 +196,9 @@ abstract final class Routes {
   static const String wordWrap = '/tools/word-wrap';
   static const String pdfRotate = '/tools/pdf-rotate';
   static const String calculator = '/tools/calculator';
+  static const String sortLines = '/tools/sort-lines';
+  static const String findReplace = '/tools/find-replace';
+  static const String csvViewer = '/tools/csv';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -673,6 +679,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.calculator,
         builder: (context, state) => const CalculatorScreen(),
+      ),
+      GoRoute(
+        path: Routes.sortLines,
+        builder: (context, state) => const SortLinesScreen(),
+      ),
+      GoRoute(
+        path: Routes.findReplace,
+        builder: (context, state) => const FindReplaceScreen(),
+      ),
+      GoRoute(
+        path: Routes.csvViewer,
+        builder: (context, state) => const CsvViewerScreen(),
       ),
     ],
   );
