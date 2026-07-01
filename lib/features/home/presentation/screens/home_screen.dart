@@ -144,6 +144,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.password, 'Password Gen', Routes.passwordGenerator),
       (Icons.help_outline, 'Markdown Ref', Routes.markdownCheatsheet),
       (Icons.access_time_outlined, 'Timestamp', Routes.timestampConverter),
+      (Icons.color_lens_outlined, 'Colour Picker', Routes.colorPicker),
     ];
 
     return Scaffold(

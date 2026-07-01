@@ -71,6 +71,7 @@ import '../../features/text_tools/presentation/number_base_screen.dart';
 import '../../features/text_tools/presentation/password_generator_screen.dart';
 import '../../features/text_tools/presentation/markdown_cheatsheet_screen.dart';
 import '../../features/text_tools/presentation/timestamp_converter_screen.dart';
+import '../../features/text_tools/presentation/color_picker_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -147,6 +148,7 @@ abstract final class Routes {
   static const String passwordGenerator = '/tools/password';
   static const String markdownCheatsheet = '/tools/md-ref';
   static const String timestampConverter = '/tools/timestamp';
+  static const String colorPicker = '/tools/color';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -535,6 +537,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.timestampConverter,
         builder: (context, state) => const TimestampConverterScreen(),
+      ),
+      GoRoute(
+        path: Routes.colorPicker,
+        builder: (context, state) => const ColorPickerScreen(),
       ),
     ],
   );
