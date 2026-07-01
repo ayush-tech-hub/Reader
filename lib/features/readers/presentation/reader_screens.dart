@@ -11,6 +11,7 @@ import 'package:xml/xml.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/plugins/document_plugin.dart';
+import 'office_reader_screens.dart';
 
 /// Registers the built-in viewers with the plugin registry. Third-party
 /// plugins use exactly the same interface.
@@ -23,7 +24,10 @@ void registerBuiltInPlugins() {
     ..register(_CsvPlugin())
     ..register(_JsonPlugin())
     ..register(_XmlViewerPlugin())
-    ..register(_ImagePlugin());
+    ..register(_ImagePlugin())
+    ..register(_DocxPlugin())
+    ..register(_XlsxPlugin())
+    ..register(_PptxPlugin());
 }
 
 class _MarkdownPlugin implements DocumentPlugin {
@@ -112,6 +116,36 @@ class _ImagePlugin implements DocumentPlugin {
   @override
   Widget buildViewer(BuildContext context, String path) =>
       ImageViewerScreen(path: path);
+}
+
+class _DocxPlugin implements DocumentPlugin {
+  @override
+  String get id => 'opendocs.docx';
+  @override
+  Set<String> get extensions => const {'.docx', '.doc'};
+  @override
+  Widget buildViewer(BuildContext context, String path) =>
+      DocxReaderScreen(path: path);
+}
+
+class _XlsxPlugin implements DocumentPlugin {
+  @override
+  String get id => 'opendocs.xlsx';
+  @override
+  Set<String> get extensions => const {'.xlsx', '.xls'};
+  @override
+  Widget buildViewer(BuildContext context, String path) =>
+      XlsxReaderScreen(path: path);
+}
+
+class _PptxPlugin implements DocumentPlugin {
+  @override
+  String get id => 'opendocs.pptx';
+  @override
+  Set<String> get extensions => const {'.pptx', '.ppt'};
+  @override
+  Widget buildViewer(BuildContext context, String path) =>
+      PptxReaderScreen(path: path);
 }
 
 /// Hosts whichever plugin claims [path]; routed as /plugin-view.

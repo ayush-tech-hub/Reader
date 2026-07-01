@@ -41,6 +41,23 @@ class MainActivity : FlutterFragmentActivity() {
     private var barcodeHandler: BarcodeHandler? = null
     private var speechHandler: SpeechHandler? = null
 
+    // Route requested by a widget button tap (consumed once by Flutter).
+    private var pendingWidgetRoute: String? = null
+    private var widgetChannel: MethodChannel? = null
+
+    override fun onStart() {
+        super.onStart()
+        intent?.getStringExtra("widget_route")?.let { pendingWidgetRoute = it }
+    }
+
+    @Suppress("OVERRIDE_DEPRECATION")
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        val route = intent.getStringExtra("widget_route") ?: return
+        pendingWidgetRoute = route
+        widgetChannel?.invokeMethod("navigate", route)
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         Log.d(TAG, "configureFlutterEngine — registering native channels")
@@ -189,6 +206,20 @@ class MainActivity : FlutterFragmentActivity() {
                 result.error("NO_APP", "No app found to handle this file type", null)
             } catch (e: Exception) {
                 result.error("OPEN_ERROR", e.message, null)
+            }
+        }
+
+        // Widget navigation channel: Flutter calls getInitialRoute once on startup;
+        // subsequent taps arrive via invokeMethod("navigate", route).
+        val wChannel = MethodChannel(messenger, "opendocs/widget")
+        widgetChannel = wChannel
+        wChannel.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "getInitialRoute" -> {
+                    result.success(pendingWidgetRoute)
+                    pendingWidgetRoute = null
+                }
+                else -> result.notImplemented()
             }
         }
 

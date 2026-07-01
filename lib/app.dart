@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,6 +10,8 @@ import 'core/theme/app_theme.dart';
 import 'features/app_lock/data/app_lock_service.dart';
 import 'features/app_lock/presentation/app_lock_screen.dart';
 import 'generated/app_localizations.dart';
+
+const _widgetChannel = MethodChannel('opendocs/widget');
 
 class OpenDocsApp extends ConsumerStatefulWidget {
   const OpenDocsApp({super.key});
@@ -24,8 +27,25 @@ class _OpenDocsAppState extends ConsumerState<OpenDocsApp> {
   void initState() {
     super.initState();
     _quickActions.init((route) {
-      final router = ref.read(appRouterProvider);
-      router.go(route);
+      ref.read(appRouterProvider).go(route);
+    });
+    _initWidgetChannel();
+  }
+
+  void _initWidgetChannel() {
+    // Check if the app was launched from a home-screen widget.
+    _widgetChannel.invokeMethod<String>('getInitialRoute').then((route) {
+      if (route != null && route.isNotEmpty) {
+        ref.read(appRouterProvider).go(route);
+      }
+    }).catchError((_) {});
+
+    // Listen for widget taps while the app is already running.
+    _widgetChannel.setMethodCallHandler((call) async {
+      if (call.method == 'navigate') {
+        final route = call.arguments as String?;
+        if (route != null) ref.read(appRouterProvider).go(route);
+      }
     });
   }
 
