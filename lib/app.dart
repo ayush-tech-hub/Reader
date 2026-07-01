@@ -4,16 +4,33 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/di/providers.dart';
 import 'core/router/app_router.dart';
+import 'core/services/quick_actions_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/app_lock/data/app_lock_service.dart';
 import 'features/app_lock/presentation/app_lock_screen.dart';
 import 'generated/app_localizations.dart';
 
-class OpenDocsApp extends ConsumerWidget {
+class OpenDocsApp extends ConsumerStatefulWidget {
   const OpenDocsApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OpenDocsApp> createState() => _OpenDocsAppState();
+}
+
+class _OpenDocsAppState extends ConsumerState<OpenDocsApp> {
+  static const _quickActions = QuickActionsService();
+
+  @override
+  void initState() {
+    super.initState();
+    _quickActions.init((route) {
+      final router = ref.read(appRouterProvider);
+      router.go(route);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
     final highContrast = ref.watch(highContrastProvider);
     final fontScale = ref.watch(fontScaleProvider);

@@ -5,9 +5,11 @@ import 'package:archive/archive_io.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:xml/xml.dart';
 
+import '../../../core/di/providers.dart';
 import '../../../core/plugins/document_plugin.dart';
 
 /// Registers the built-in viewers with the plugin registry. Third-party
@@ -250,18 +252,37 @@ String htmlToText(String html) => html
     .replaceAll(RegExp(r'\n{3,}'), '\n\n')
     .trim();
 
-class EpubReaderScreen extends StatefulWidget {
+class EpubReaderScreen extends ConsumerStatefulWidget {
   const EpubReaderScreen({super.key, required this.path});
 
   final String path;
 
   @override
-  State<EpubReaderScreen> createState() => _EpubReaderScreenState();
+  ConsumerState<EpubReaderScreen> createState() => _EpubReaderScreenState();
 }
 
-class _EpubReaderScreenState extends State<EpubReaderScreen> {
+class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
   late final Future<EpubBook> _book = EpubBook.open(widget.path);
   int _chapterIndex = 0;
+  bool _speaking = false;
+
+  @override
+  void dispose() {
+    ref.read(ttsServiceProvider).stop();
+    super.dispose();
+  }
+
+  Future<void> _ttsToggle(String text) async {
+    final tts = ref.read(ttsServiceProvider);
+    if (_speaking) {
+      await tts.stop();
+      setState(() => _speaking = false);
+    } else {
+      setState(() => _speaking = true);
+      await tts.speak(text);
+      if (mounted) setState(() => _speaking = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -290,6 +311,13 @@ class _EpubReaderScreenState extends State<EpubReaderScreen> {
             title: Text(
               book.title.isEmpty ? p.basename(widget.path) : book.title,
             ),
+            actions: [
+              IconButton(
+                icon: Icon(_speaking ? Icons.stop : Icons.volume_up),
+                tooltip: _speaking ? 'Stop reading' : 'Read aloud',
+                onPressed: () => _ttsToggle(content),
+              ),
+            ],
           ),
           drawer: Drawer(
             child: ListView.builder(
@@ -300,7 +328,11 @@ class _EpubReaderScreenState extends State<EpubReaderScreen> {
                 ),
                 selected: i == index,
                 onTap: () {
-                  setState(() => _chapterIndex = i);
+                  setState(() {
+                    _chapterIndex = i;
+                    _speaking = false;
+                  });
+                  ref.read(ttsServiceProvider).stop();
                   Navigator.of(context).pop();
                 },
               ),
@@ -318,14 +350,26 @@ class _EpubReaderScreenState extends State<EpubReaderScreen> {
                 IconButton(
                   icon: const Icon(Icons.chevron_left),
                   onPressed: index > 0
-                      ? () => setState(() => _chapterIndex = index - 1)
+                      ? () {
+                          ref.read(ttsServiceProvider).stop();
+                          setState(() {
+                            _chapterIndex = index - 1;
+                            _speaking = false;
+                          });
+                        }
                       : null,
                 ),
                 Text('${index + 1} / ${chapters.length}'),
                 IconButton(
                   icon: const Icon(Icons.chevron_right),
                   onPressed: index < chapters.length - 1
-                      ? () => setState(() => _chapterIndex = index + 1)
+                      ? () {
+                          ref.read(ttsServiceProvider).stop();
+                          setState(() {
+                            _chapterIndex = index + 1;
+                            _speaking = false;
+                          });
+                        }
                       : null,
                 ),
               ],
@@ -430,16 +474,16 @@ class _ComicReaderScreenState extends State<ComicReaderScreen> {
 // ---- TXT / LOG / RTF -------------------------------------------------------
 
 /// A standalone screen for plain-text files, also exposed as a plugin.
-class TxtReaderScreen extends StatefulWidget {
+class TxtReaderScreen extends ConsumerStatefulWidget {
   const TxtReaderScreen({super.key, required this.path});
 
   final String path;
 
   @override
-  State<TxtReaderScreen> createState() => _TxtReaderScreenState();
+  ConsumerState<TxtReaderScreen> createState() => _TxtReaderScreenState();
 }
 
-class _TxtReaderScreenState extends State<TxtReaderScreen> {
+class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
   static const _maxBytes = 500 * 1024; // 500 KB
   static const _fontSizes = <String, double>{
     'S': 12,
@@ -449,6 +493,13 @@ class _TxtReaderScreenState extends State<TxtReaderScreen> {
 
   late final Future<(String, bool)> _content = _load();
   String _sizeKey = 'M';
+  bool _speaking = false;
+
+  @override
+  void dispose() {
+    ref.read(ttsServiceProvider).stop();
+    super.dispose();
+  }
 
   Future<(String, bool)> _load() async {
     final file = File(widget.path);
@@ -462,6 +513,18 @@ class _TxtReaderScreenState extends State<TxtReaderScreen> {
     }
     final text = utf8.decode(bytes, allowMalformed: true);
     return (text, false);
+  }
+
+  Future<void> _ttsToggle(String text) async {
+    final tts = ref.read(ttsServiceProvider);
+    if (_speaking) {
+      await tts.stop();
+      setState(() => _speaking = false);
+    } else {
+      setState(() => _speaking = true);
+      await tts.speak(text);
+      if (mounted) setState(() => _speaking = false);
+    }
   }
 
   @override
@@ -507,6 +570,14 @@ class _TxtReaderScreenState extends State<TxtReaderScreen> {
                     text,
                     style: TextStyle(fontSize: _fontSizes[_sizeKey]),
                   ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: FilledButton.icon(
+                  icon: Icon(_speaking ? Icons.stop : Icons.volume_up),
+                  label: Text(_speaking ? 'Stop reading' : 'Read aloud'),
+                  onPressed: () => _ttsToggle(text),
                 ),
               ),
             ],

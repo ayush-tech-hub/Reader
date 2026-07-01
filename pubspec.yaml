@@ -67,6 +67,9 @@ dependencies:
   open_file: ^3.5.10
   image_picker: ^1.1.2
 
+  # Android/iOS home-screen quick actions (app shortcuts)
+  quick_actions: ^1.0.7
+
   # Misc
   equatable: ^2.0.7
   collection: ^1.18.0
