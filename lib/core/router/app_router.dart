@@ -10,6 +10,7 @@ import '../../features/dictionary/presentation/dictionary_screen.dart';
 import '../../features/reading_goals/presentation/reading_goals_screen.dart';
 import '../../features/file_info/presentation/file_info_screen.dart';
 import '../../features/batch_rename/presentation/batch_rename_screen.dart';
+import '../../features/clipboard_history/presentation/clipboard_history_screen.dart';
 import '../../features/markdown_editor/presentation/markdown_editor_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_text_extract_screen.dart';
 import '../../features/reading_notes/presentation/reading_notes_screen.dart';
@@ -103,6 +104,7 @@ abstract final class Routes {
   static const String fileInfo = '/tools/file-info';
   static const String markdownEditor = '/editor/markdown';
   static const String batchRename = '/tools/batch-rename';
+  static const String clipboardHistory = '/clipboard';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -394,6 +396,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.batchRename,
         builder: (context, state) => const BatchRenameScreen(),
+      ),
+      GoRoute(
+        path: Routes.clipboardHistory,
+        builder: (context, state) => const ClipboardHistoryScreen(),
       ),
     ],
   );

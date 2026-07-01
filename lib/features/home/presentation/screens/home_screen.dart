@@ -123,6 +123,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.info_outline, 'File Info', Routes.fileInfo),
       (Icons.edit_note, 'Markdown Editor', Routes.markdownEditor),
       (Icons.drive_file_rename_outline, 'Batch Rename', Routes.batchRename),
+      (Icons.content_paste_outlined, 'Clipboard', Routes.clipboardHistory),
     ];
 
     return Scaffold(
