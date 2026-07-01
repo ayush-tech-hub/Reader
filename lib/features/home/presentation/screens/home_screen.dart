@@ -137,6 +137,8 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.text_fields, 'Lorem Ipsum', Routes.loremIpsum),
       (Icons.data_object, 'Base64 Tool', Routes.base64Tool),
       (Icons.code, 'JSON Formatter', Routes.jsonFormatter),
+      (Icons.search, 'Regex Tester', Routes.regexTester),
+      (Icons.straighten, 'Unit Converter', Routes.unitConverter),
     ];
 
     return Scaffold(
