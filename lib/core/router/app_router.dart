@@ -9,6 +9,7 @@ import '../../features/bookmarks/presentation/bookmarks_screen.dart';
 import '../../features/dictionary/presentation/dictionary_screen.dart';
 import '../../features/reading_goals/presentation/reading_goals_screen.dart';
 import '../../features/file_info/presentation/file_info_screen.dart';
+import '../../features/markdown_editor/presentation/markdown_editor_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_text_extract_screen.dart';
 import '../../features/reading_notes/presentation/reading_notes_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_add_pages_screen.dart';
@@ -99,6 +100,7 @@ abstract final class Routes {
   static const String readingNotes = '/notes';
   static const String pdfTextExtract = '/tools/pdf-text';
   static const String fileInfo = '/tools/file-info';
+  static const String markdownEditor = '/editor/markdown';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -378,6 +380,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final path = state.uri.queryParameters['path'];
           return FileInfoScreen(initialPath: path);
+        },
+      ),
+      GoRoute(
+        path: Routes.markdownEditor,
+        builder: (context, state) {
+          final path = state.uri.queryParameters['path'];
+          return MarkdownEditorScreen(path: path);
         },
       ),
     ],
