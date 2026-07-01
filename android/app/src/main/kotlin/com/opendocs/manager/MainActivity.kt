@@ -10,6 +10,7 @@ import androidx.core.content.FileProvider
 import com.opendocs.manager.archive.ArchiveEngineHandler
 import com.opendocs.manager.ml.BarcodeHandler
 import com.opendocs.manager.ml.OcrHandler
+import com.opendocs.manager.ml.SpeechHandler
 import com.opendocs.manager.ml.TranslateHandler
 import com.opendocs.manager.security.BiometricHandler
 import com.opendocs.manager.pdf.PdfToolsHandler
@@ -38,6 +39,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var ocrHandler: OcrHandler? = null
     private var translateHandler: TranslateHandler? = null
     private var barcodeHandler: BarcodeHandler? = null
+    private var speechHandler: SpeechHandler? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -125,6 +127,17 @@ class MainActivity : FlutterFragmentActivity() {
             Log.e(TAG, "Failed to register biometric channel — biometric auth unavailable", e)
         }
 
+        try {
+            Log.d(TAG, "Initialising SpeechHandler")
+            val handler = SpeechHandler(this)
+            speechHandler = handler
+            MethodChannel(messenger, "opendocs/speech")
+                .setMethodCallHandler(handler)
+            Log.d(TAG, "SpeechHandler registered")
+        } catch (e: Throwable) {
+            Log.e(TAG, "Failed to register speech channel — voice search unavailable", e)
+        }
+
         // File-open channel: opens files, folders, and system settings screens.
         MethodChannel(messenger, "opendocs/file_open").setMethodCallHandler { call, result ->
             if (call.method == "openAppSettings") {
@@ -180,6 +193,13 @@ class MainActivity : FlutterFragmentActivity() {
         }
 
         Log.d(TAG, "configureFlutterEngine — all channels configured")
+    }
+
+    @Suppress("OVERRIDE_DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (speechHandler?.onActivityResult(requestCode, resultCode, data) != true) {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
     }
 
     override fun onDestroy() {

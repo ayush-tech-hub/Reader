@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/router/app_router.dart';
+import '../../../core/widgets/voice_search_button.dart';
 import '../../../generated/app_localizations.dart';
 import '../../ai/data/text_analysis.dart' as ai;
 import '../data/document_index_service.dart';
@@ -91,9 +92,23 @@ class _SmartSearchScreenState extends ConsumerState<SmartSearchScreen> {
               decoration: InputDecoration(
                 labelText: l10n.searchAllPdfs,
                 prefixIcon: const Icon(Icons.search),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: _search,
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    VoiceSearchButton(
+                      prompt: 'Speak your search…',
+                      onResult: (text) {
+                        if (text != null && text.isNotEmpty) {
+                          _queryController.text = text;
+                          _search();
+                        }
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: _search,
+                    ),
+                  ],
                 ),
               ),
               onSubmitted: (_) => _search(),

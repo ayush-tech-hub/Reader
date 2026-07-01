@@ -316,6 +316,147 @@ String simplify(String text) {
   return simplified.join(' ').trim();
 }
 
+// ── Citation extraction ───────────────────────────────────────────────────────
+
+/// A citation found in a document.
+class Citation {
+  const Citation({
+    required this.raw,
+    required this.kind,
+    this.year,
+    this.authors,
+  });
+
+  final String raw;
+  final CitationKind kind;
+  final String? year;
+  final String? authors;
+}
+
+enum CitationKind { inText, reference, doi, url }
+
+/// Extracts citations from [text] using common academic patterns.
+///
+/// Recognises:
+/// - APA/MLA in-text: (Author, year) / (Author et al., year)
+/// - Numbered references: [1], [1,2], (1)
+/// - DOI: doi:10.xxx / https://doi.org/...
+/// - Reference list entries that start with a year or author pattern
+List<Citation> extractCitations(String text) {
+  final citations = <Citation>[];
+  final seen = <String>{};
+
+  void add(Citation c) {
+    if (seen.add(c.raw)) citations.add(c);
+  }
+
+  // In-text (Author, year)
+  for (final m in RegExp(
+    r'\(([A-Z][a-zA-Z\-]+(?:\s+(?:et al\.?|and\s+[A-Z][a-zA-Z]+))?),\s*(\d{4}[a-z]?)\)',
+  ).allMatches(text)) {
+    add(Citation(
+      raw: m.group(0)!,
+      kind: CitationKind.inText,
+      authors: m.group(1),
+      year: m.group(2),
+    ));
+  }
+
+  // Numbered in-text [n] or [n,m]
+  for (final m
+      in RegExp(r'\[(\d+(?:[,\s]\d+)*)\]').allMatches(text)) {
+    add(Citation(raw: m.group(0)!, kind: CitationKind.inText));
+  }
+
+  // DOI
+  for (final m in RegExp(
+    r'(?:doi:\s*|https?://doi\.org/)(10\.\d{4,}/\S+)',
+    caseSensitive: false,
+  ).allMatches(text)) {
+    add(Citation(raw: 'doi:${m.group(1)}', kind: CitationKind.doi));
+  }
+
+  // URLs that look like references
+  for (final m in RegExp(
+    r'https?://[^\s,\)\]]+',
+    caseSensitive: false,
+  ).allMatches(text)) {
+    final url = m.group(0)!;
+    if (!url.contains('doi.org')) {
+      add(Citation(raw: url, kind: CitationKind.url));
+    }
+  }
+
+  // Reference-list lines: start with [n] or a year
+  for (final line in text.split('\n')) {
+    final l = line.trim();
+    if (l.length < 20) continue;
+    if (RegExp(r'^\[\d+\]').hasMatch(l) ||
+        RegExp(r'^\d{4}\.\s').hasMatch(l) ||
+        RegExp(r'^[A-Z][a-z]+,\s*[A-Z]\.').hasMatch(l)) {
+      add(Citation(raw: l, kind: CitationKind.reference));
+    }
+  }
+
+  return citations;
+}
+
+// ── Formula extraction ────────────────────────────────────────────────────────
+
+/// A formula or equation found in a document.
+class Formula {
+  const Formula({required this.raw, required this.context});
+  final String raw;
+  final String context;
+}
+
+/// Extracts formula-like strings from [text].
+///
+/// Recognises LaTeX `$...$` / `$$...$$` blocks and inline patterns
+/// such as `E = mc²` / `y = mx + b`.
+List<Formula> extractFormulas(String text) {
+  final formulas = <Formula>[];
+  final seen = <String>{};
+
+  void add(String raw, String ctx) {
+    if (seen.add(raw)) formulas.add(Formula(raw: raw, context: ctx));
+  }
+
+  // LaTeX display math $$...$$
+  for (final m in RegExp(r'\$\$(.+?)\$\$', dotAll: true).allMatches(text)) {
+    final raw = m.group(1)!.trim();
+    if (raw.length > 1) add(raw, '');
+  }
+
+  // LaTeX inline math $...$
+  for (final m
+      in RegExp(r'\$([^\$\n]{2,80})\$').allMatches(text)) {
+    final raw = m.group(1)!.trim();
+    if (raw.isNotEmpty) add(raw, '');
+  }
+
+  // Equation-like patterns: something = something with operators/vars
+  for (final m in RegExp(
+    r'([A-Za-z_][A-Za-z0-9_]?\s*[=≈≤≥<>]\s*[A-Za-z0-9_+\-*/^²³√π\s().,]+)',
+  ).allMatches(text)) {
+    final raw = m.group(0)!.trim();
+    if (raw.length >= 5 && raw.length <= 120) {
+      // Find surrounding context (the sentence).
+      final start = text.lastIndexOf(RegExp(r'[.!?\n]'), m.start);
+      final end = text.indexOf(RegExp(r'[.!?\n]'), m.end);
+      final ctx = text
+          .substring(
+            start < 0 ? 0 : start + 1,
+            end < 0 ? text.length : end,
+          )
+          .trim();
+      add(raw, ctx.length > 200 ? '${ctx.substring(0, 200)}…' : ctx);
+    }
+  }
+
+  return formulas;
+}
+
 // ── Grammar & style correction ────────────────────────────────────────────────
 
 /// Heuristic grammar/style pass that corrects common writing issues:

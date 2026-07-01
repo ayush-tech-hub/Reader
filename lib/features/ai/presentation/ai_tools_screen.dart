@@ -108,6 +108,30 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
         return ai.rewrite(source.length > 5000 ? source.substring(0, 5000) : source);
       });
 
+  Future<void> _citations() => _run(() async {
+        final text = await _documentText();
+        final cites = ai.extractCitations(text);
+        if (cites.isEmpty) return 'No citations detected.';
+        final buf = StringBuffer('Found ${cites.length} citation(s):\n\n');
+        for (final c in cites) {
+          final kind = c.kind.name.toUpperCase();
+          buf.writeln('[$kind] ${c.raw}');
+          if (c.authors != null) buf.writeln('  Authors: ${c.authors}');
+          if (c.year != null) buf.writeln('  Year: ${c.year}');
+          buf.writeln();
+        }
+        return buf.toString().trim();
+      });
+
+  Future<void> _formulas() => _run(() async {
+        final text = await _documentText();
+        final fmls = ai.extractFormulas(text);
+        if (fmls.isEmpty) return 'No formulas detected.';
+        return fmls
+            .map((f) => f.context.isEmpty ? f.raw : '${f.raw}\n  ↳ ${f.context}')
+            .join('\n\n');
+      });
+
   Future<void> _extractTables() => _run(() async {
         final text = await _documentText();
         final tables = ai.extractTables(text);
@@ -346,6 +370,16 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
                 icon: const Icon(Icons.table_chart_outlined),
                 label: const Text('Tables'),
                 onPressed: _busy ? null : _extractTables,
+              ),
+              FilledButton.tonalIcon(
+                icon: const Icon(Icons.format_quote_outlined),
+                label: const Text('Citations'),
+                onPressed: _busy ? null : _citations,
+              ),
+              FilledButton.tonalIcon(
+                icon: const Icon(Icons.functions),
+                label: const Text('Formulas'),
+                onPressed: _busy ? null : _formulas,
               ),
               FilledButton.tonalIcon(
                 icon: const Icon(Icons.style_outlined),

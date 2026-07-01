@@ -109,6 +109,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.delete_outline, 'Recycle Bin', Routes.recycleBin),
       (Icons.compare_arrows, 'Compare Docs', Routes.documentCompare),
       (Icons.security, 'Secure Folder', Routes.secureFolder),
+      (Icons.tune, 'Enhance Image', Routes.imageEnhance),
     ];
 
     return Scaffold(
