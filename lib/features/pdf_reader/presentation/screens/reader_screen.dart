@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -200,6 +201,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 PopupMenuItem(value: 'fitWidth', child: Text(l10n.fitToWidth)),
                 PopupMenuItem(value: 'split', child: Text(l10n.splitScreen)),
                 PopupMenuItem(value: 'readAloud', child: Text(l10n.readAloud)),
+                const PopupMenuItem(
+                    value: 'docInfo', child: Text('Document info')),
                 const PopupMenuDivider(),
                 PopupMenuItem(value: 'share', child: Text(l10n.shareFile)),
               ],
@@ -374,9 +377,78 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         unawaited(_openSplitView());
       case 'readAloud':
         unawaited(_toggleReadAloud());
+      case 'docInfo':
+        unawaited(_showDocInfo());
       case 'share':
         unawaited(Share.shareXFiles([XFile(widget.path)]));
     }
+  }
+
+  Future<void> _showDocInfo() async {
+    final file = File(widget.path);
+    final fileSizeBytes = file.existsSync() ? await file.length() : 0;
+    final state = ref.read(readerProvider(widget.path));
+    final totalPages = state.totalPages;
+
+    // Count words across indexed content if available.
+    int wordCount = 0;
+    int charCount = 0;
+    if (_controller.isReady) {
+      // ignore: deprecated_member_use
+      final pages = _controller.pages;
+      for (final pg in pages.take(5)) {
+        final text = await pg.loadText();
+        charCount += text.fullText.length;
+        wordCount += text.fullText
+            .trim()
+            .split(RegExp(r'\s+'))
+            .where((w) => w.isNotEmpty)
+            .length;
+      }
+      if (pages.length > 5) {
+        // Extrapolate from first 5 pages.
+        wordCount = (wordCount / 5 * pages.length).round();
+        charCount = (charCount / 5 * pages.length).round();
+      }
+    }
+
+    final readingMins = wordCount > 0 ? (wordCount / 200).ceil() : 0;
+    final fileSizeMb = fileSizeBytes / (1024 * 1024);
+
+    if (!mounted) return;
+    unawaited(showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Document info'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _InfoRow('Pages', '$totalPages'),
+            _InfoRow('Est. words', _fmtNum(wordCount)),
+            _InfoRow('Est. characters', _fmtNum(charCount)),
+            _InfoRow('Reading time', '~$readingMins min'),
+            _InfoRow(
+              'File size',
+              fileSizeMb < 1
+                  ? '${(fileSizeBytes / 1024).toStringAsFixed(1)} KB'
+                  : '${fileSizeMb.toStringAsFixed(1)} MB',
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    ));
+  }
+
+  static String _fmtNum(int n) {
+    if (n == 0) return '–';
+    if (n < 1000) return '$n';
+    return '${(n / 1000).toStringAsFixed(1)}k';
   }
 
   /// Reads the current page aloud via the OS TTS engine; tapping the
@@ -624,6 +696,30 @@ class SplitReaderScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: isWide ? Row(children: children) : Column(children: children),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow(this.label, this.value);
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Theme.of(context).colorScheme.outline)),
+          Text(value, style: Theme.of(context).textTheme.bodyMedium),
+        ],
       ),
     );
   }

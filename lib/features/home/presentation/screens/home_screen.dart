@@ -115,6 +115,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.menu_book_outlined, 'Dictionary', Routes.dictionary),
       (Icons.bar_chart, 'Reading Stats', Routes.readingStats),
       (Icons.tab_outlined, 'Workspace', Routes.workspace),
+      (Icons.bookmark_border, 'All Bookmarks', Routes.bookmarks),
     ];
 
     return Scaffold(

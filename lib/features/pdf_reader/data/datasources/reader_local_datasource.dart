@@ -109,6 +109,26 @@ class ReaderLocalDataSource {
     await _db.delete('bookmarks', where: 'id = ?', whereArgs: [id]);
   }
 
+  Future<List<Bookmark>> getAllBookmarks() async {
+    final rows = await _db.query(
+      'bookmarks',
+      orderBy: 'created_at DESC',
+    );
+    return rows
+        .map(
+          (row) => Bookmark(
+            id: row['id'] as int,
+            documentPath: row['document_path'] as String,
+            page: row['page'] as int,
+            label: row['label'] as String,
+            createdAt: DateTime.fromMillisecondsSinceEpoch(
+              row['created_at'] as int,
+            ),
+          ),
+        )
+        .toList();
+  }
+
   // ---- Annotations ---------------------------------------------------
 
   Future<List<Annotation>> getAnnotations(String documentPath) async {

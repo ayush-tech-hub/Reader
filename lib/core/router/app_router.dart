@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/about/presentation/about_screen.dart';
+import '../../features/bookmarks/presentation/bookmarks_screen.dart';
 import '../../features/dictionary/presentation/dictionary_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_add_pages_screen.dart';
 import '../../features/reading_stats/presentation/reading_stats_screen.dart';
@@ -85,6 +86,7 @@ abstract final class Routes {
   static const String pdfAddPages = '/tools/pdf-add-pages';
   static const String readingStats = '/stats';
   static const String workspace = '/workspace';
+  static const String bookmarks = '/bookmarks';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -334,6 +336,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final path = state.uri.queryParameters['path'];
           return WorkspaceScreen(initialPath: path);
         },
+      ),
+      GoRoute(
+        path: Routes.bookmarks,
+        builder: (context, state) => const BookmarksScreen(),
       ),
     ],
   );
