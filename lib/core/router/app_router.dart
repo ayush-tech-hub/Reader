@@ -105,6 +105,14 @@ import '../../features/quotes/presentation/quote_screen.dart';
 import '../../features/text_tools/presentation/color_palette_screen.dart';
 import '../../features/text_tools/presentation/number_formatter_screen.dart';
 import '../../features/text_tools/presentation/typing_test_screen.dart';
+import '../../features/text_tools/presentation/writing_prompts_screen.dart';
+import '../../features/text_tools/presentation/ascii_art_screen.dart';
+import '../../features/text_tools/presentation/focus_timer_screen.dart';
+import '../../features/vocabulary/presentation/vocabulary_screen.dart';
+import '../../features/text_tools/presentation/text_summarizer_screen.dart';
+import '../../features/pdf_tools/presentation/screens/pdf_delete_pages_screen.dart';
+import '../../features/text_tools/presentation/text_to_speech_screen.dart';
+import '../../features/pdf_tools/presentation/screens/pdf_extract_pages_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -215,6 +223,14 @@ abstract final class Routes {
   static const String colorPalette = '/tools/color-palette';
   static const String numberFormatter = '/tools/number-fmt';
   static const String typingTest = '/tools/typing';
+  static const String writingPrompts = '/tools/writing-prompts';
+  static const String asciiArt = '/tools/ascii-art';
+  static const String focusTimer = '/tools/focus-timer';
+  static const String vocabulary = '/vocabulary';
+  static const String textSummarizer = '/tools/summarizer';
+  static const String pdfDeletePages = '/tools/pdf-delete-pages';
+  static const String textToSpeech = '/tools/tts';
+  static const String pdfExtractPages = '/tools/pdf-extract-pages';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -739,6 +755,38 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.typingTest,
         builder: (context, state) => const TypingTestScreen(),
+      ),
+      GoRoute(
+        path: Routes.writingPrompts,
+        builder: (context, state) => const WritingPromptsScreen(),
+      ),
+      GoRoute(
+        path: Routes.asciiArt,
+        builder: (context, state) => const AsciiArtScreen(),
+      ),
+      GoRoute(
+        path: Routes.focusTimer,
+        builder: (context, state) => const FocusTimerScreen(),
+      ),
+      GoRoute(
+        path: Routes.vocabulary,
+        builder: (context, state) => const VocabularyScreen(),
+      ),
+      GoRoute(
+        path: Routes.textSummarizer,
+        builder: (context, state) => const TextSummarizerScreen(),
+      ),
+      GoRoute(
+        path: Routes.pdfDeletePages,
+        builder: (context, state) => const PdfDeletePagesScreen(),
+      ),
+      GoRoute(
+        path: Routes.textToSpeech,
+        builder: (context, state) => const TextToSpeechScreen(),
+      ),
+      GoRoute(
+        path: Routes.pdfExtractPages,
+        builder: (context, state) => const PdfExtractPagesScreen(),
       ),
     ],
   );

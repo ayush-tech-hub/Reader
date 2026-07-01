@@ -175,6 +175,14 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.palette_outlined, 'Colour Palette', Routes.colorPalette),
       (Icons.format_list_numbered, 'Number Formatter', Routes.numberFormatter),
       (Icons.keyboard_outlined, 'Typing Test', Routes.typingTest),
+      (Icons.edit_outlined, 'Writing Prompts', Routes.writingPrompts),
+      (Icons.terminal, 'ASCII Art', Routes.asciiArt),
+      (Icons.timer_outlined, 'Focus Timer', Routes.focusTimer),
+      (Icons.abc, 'Vocabulary', Routes.vocabulary),
+      (Icons.summarize_outlined, 'Summariser', Routes.textSummarizer),
+      (Icons.delete_sweep_outlined, 'Delete PDF Pages', Routes.pdfDeletePages),
+      (Icons.record_voice_over_outlined, 'Text to Speech', Routes.textToSpeech),
+      (Icons.content_cut, 'Extract PDF Pages', Routes.pdfExtractPages),
     ];
 
     return Scaffold(
@@ -289,6 +297,10 @@ class _DashboardTab extends ConsumerWidget {
                 route: Routes.imageToPdf),
             _CardItem(Icons.rotate_right, 'Rotate Pages',
                 route: Routes.pdfRotate),
+            _CardItem(Icons.delete_sweep_outlined, 'Delete Pages',
+                route: Routes.pdfDeletePages),
+            _CardItem(Icons.content_cut, 'Extract Pages',
+                route: Routes.pdfExtractPages),
           ]),
           const SizedBox(height: 20),
 
