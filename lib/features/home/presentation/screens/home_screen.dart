@@ -158,6 +158,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.menu_book_outlined, 'Reading List', Routes.readingList),
       (Icons.style_outlined, 'Flashcards', Routes.flashcards),
       (Icons.lock_outlined, 'Ciphers', Routes.textEncryption),
+      (Icons.code_outlined, 'HTML Entities', Routes.htmlEntities),
+      (Icons.contrast, 'Colour Contrast', Routes.colorContrast),
+      (Icons.description_outlined, 'PDF Metadata', Routes.pdfMetadata),
     ];
 
     return Scaffold(

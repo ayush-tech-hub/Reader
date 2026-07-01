@@ -87,6 +87,9 @@ import '../../features/reading_list/presentation/reading_list_screen.dart';
 import '../../features/pdf_tools/presentation/screens/image_to_pdf_screen.dart';
 import '../../features/flashcards/presentation/flashcard_screen.dart';
 import '../../features/text_tools/presentation/text_encryption_screen.dart';
+import '../../features/text_tools/presentation/html_entities_screen.dart';
+import '../../features/accessibility/presentation/color_contrast_screen.dart';
+import '../../features/pdf_tools/presentation/screens/pdf_metadata_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -179,6 +182,9 @@ abstract final class Routes {
   static const String imageToPdf = '/tools/image-to-pdf';
   static const String flashcards = '/flashcards';
   static const String textEncryption = '/tools/cipher';
+  static const String htmlEntities = '/tools/html-entities';
+  static const String colorContrast = '/tools/color-contrast';
+  static const String pdfMetadata = '/tools/pdf-metadata';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -631,6 +637,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.textEncryption,
         builder: (context, state) => const TextEncryptionScreen(),
+      ),
+      GoRoute(
+        path: Routes.htmlEntities,
+        builder: (context, state) => const HtmlEntitiesScreen(),
+      ),
+      GoRoute(
+        path: Routes.colorContrast,
+        builder: (context, state) => const ColorContrastScreen(),
+      ),
+      GoRoute(
+        path: Routes.pdfMetadata,
+        builder: (context, state) => const PdfMetadataScreen(),
       ),
     ],
   );
