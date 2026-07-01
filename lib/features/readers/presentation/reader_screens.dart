@@ -8,6 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart' show PdfPageFormat;
+import 'package:pdf/widgets.dart' as pw;
+import 'package:share_plus/share_plus.dart';
 import 'package:xml/xml.dart';
 
 import '../../../core/di/providers.dart';
@@ -331,12 +335,18 @@ class EpubReaderScreen extends ConsumerStatefulWidget {
 }
 
 class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
+  static const _fontSizes = <String, double>{'S': 12, 'M': 15, 'L': 20};
+
   late final Future<EpubBook> _book = EpubBook.open(widget.path);
+  final _scrollCtrl = ScrollController();
   int _chapterIndex = 0;
   bool _speaking = false;
+  _ReadTheme _theme = _ReadTheme.normal;
+  String _sizeKey = 'M';
 
   @override
   void dispose() {
+    _scrollCtrl.dispose();
     ref.read(ttsServiceProvider).stop();
     super.dispose();
   }
@@ -351,6 +361,34 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
       await tts.speak(text);
       if (mounted) setState(() => _speaking = false);
     }
+  }
+
+  void _showThemePicker(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(12),
+              child: Text('Reading Theme',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            for (final t in _ReadTheme.values)
+              RadioListTile<_ReadTheme>(
+                value: t,
+                groupValue: _theme,
+                title: Text(t.label),
+                onChanged: (v) {
+                  if (v != null) setState(() => _theme = v);
+                  Navigator.of(ctx).pop();
+                },
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -375,12 +413,38 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
         final index =
             chapters.isEmpty ? 0 : _chapterIndex.clamp(0, chapters.length - 1);
         final content = chapters.isEmpty ? '' : chapters[index].$2;
+        final bgColor = _theme.background;
+        final textColor = _theme.textColor ??
+            Theme.of(context).textTheme.bodyLarge?.color;
         return Scaffold(
+          backgroundColor: _theme == _ReadTheme.normal ? null : bgColor,
           appBar: AppBar(
+            backgroundColor: _theme == _ReadTheme.normal ? null : bgColor,
             title: Text(
               book.title.isEmpty ? p.basename(widget.path) : book.title,
             ),
             actions: [
+              // Font size
+              for (final key in _fontSizes.keys)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: ChoiceChip(
+                    label: Text(key),
+                    selected: _sizeKey == key,
+                    onSelected: (_) => setState(() => _sizeKey = key),
+                  ),
+                ),
+              // Theme
+              IconButton(
+                icon: Icon(_theme == _ReadTheme.night
+                    ? Icons.dark_mode
+                    : _theme == _ReadTheme.sepia
+                        ? Icons.wb_sunny_outlined
+                        : Icons.palette_outlined),
+                tooltip: 'Reading theme',
+                onPressed: () => _showThemePicker(context),
+              ),
+              // TTS
               IconButton(
                 icon: Icon(_speaking ? Icons.stop : Icons.volume_up),
                 tooltip: _speaking ? 'Stop reading' : 'Read aloud',
@@ -408,8 +472,15 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
             ),
           ),
           body: SingleChildScrollView(
+            controller: _scrollCtrl,
             padding: const EdgeInsets.all(16),
-            child: SelectableText(content),
+            child: SelectableText(
+              content,
+              style: TextStyle(
+                fontSize: _fontSizes[_sizeKey],
+                color: textColor,
+              ),
+            ),
           ),
           bottomNavigationBar: BottomAppBar(
             height: 56,
@@ -541,6 +612,8 @@ class _ComicReaderScreenState extends State<ComicReaderScreen> {
 }
 
 // ---- TXT / LOG ─────────────────────────────────────────────────────────────
+
+enum _TxtAction { exportPdf, share }
 
 enum _ReadTheme {
   normal('Normal', Colors.transparent, null),
@@ -691,6 +764,45 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
     }
   }
 
+  Future<void> _exportAsPdf(BuildContext context, String text) async {
+    try {
+      final doc = pw.Document();
+      // Split into ~50-line chunks per page so text fits on A4.
+      const linesPerPage = 50;
+      final lines = text.split('\n');
+      for (var start = 0; start < lines.length; start += linesPerPage) {
+        final chunk = lines
+            .skip(start)
+            .take(linesPerPage)
+            .join('\n');
+        doc.addPage(pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.all(40),
+          build: (_) => pw.Text(chunk,
+              style: const pw.TextStyle(fontSize: 11)),
+        ));
+      }
+      final dir = await getApplicationDocumentsDirectory();
+      final outName = '${p.basenameWithoutExtension(widget.path)}.pdf';
+      final outPath = '${dir.path}/$outName';
+      await File(outPath).writeAsBytes(await doc.save());
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Saved as $outName'),
+          action: SnackBarAction(
+            label: 'Share',
+            onPressed: () => Share.shareXFiles([XFile(outPath)]),
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Export failed: $e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bgColor = _theme.background;
@@ -729,6 +841,38 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
                 : Icons.play_circle_outline),
             tooltip: _autoScrolling ? 'Pause auto-scroll' : 'Auto-scroll',
             onPressed: _toggleAutoScroll,
+          ),
+          // Overflow menu: export options
+          PopupMenuButton<_TxtAction>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (action) {
+              if (action == _TxtAction.exportPdf) {
+                _content.then((v) => _exportAsPdf(context, v.$1));
+              } else if (action == _TxtAction.share) {
+                _content.then((v) => Share.share(v.$1,
+                    subject: p.basename(widget.path)));
+              }
+            },
+            itemBuilder: (_) => [
+              const PopupMenuItem(
+                value: _TxtAction.exportPdf,
+                child: ListTile(
+                  leading: Icon(Icons.picture_as_pdf_outlined),
+                  title: Text('Export as PDF'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+              ),
+              const PopupMenuItem(
+                value: _TxtAction.share,
+                child: ListTile(
+                  leading: Icon(Icons.share_outlined),
+                  title: Text('Share text'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+              ),
+            ],
           ),
           const SizedBox(width: 4),
         ],

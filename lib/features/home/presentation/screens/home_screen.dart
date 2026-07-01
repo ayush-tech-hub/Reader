@@ -129,6 +129,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.format_quote_outlined, 'Citation Extractor', Routes.citation),
       (Icons.cloud_outlined, 'Cloud Storage', Routes.cloud),
       (Icons.file_copy_outlined, 'Doc Templates', Routes.templates),
+      (Icons.tag, 'File Hash', Routes.fileHash),
     ];
 
     return Scaffold(
