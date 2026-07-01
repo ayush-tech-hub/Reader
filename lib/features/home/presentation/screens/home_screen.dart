@@ -126,6 +126,8 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.content_paste_outlined, 'Clipboard', Routes.clipboardHistory),
       (Icons.speed, 'Speed Reader', Routes.speedReader),
       (Icons.analytics_outlined, 'Text Stats', Routes.textStats),
+      (Icons.format_quote_outlined, 'Citation Extractor', Routes.citation),
+      (Icons.cloud_outlined, 'Cloud Storage', Routes.cloud),
     ];
 
     return Scaffold(
@@ -204,6 +206,9 @@ class _DashboardTab extends ConsumerWidget {
                 routeAfterPick: Routes.reader),
             _CardItem(Icons.slideshow, 'PowerPoint Viewer',
                 extensions: ['ppt', 'pptx', 'odp'],
+                routeAfterPick: Routes.reader),
+            _CardItem(Icons.book_outlined, 'MOBI / AZW',
+                extensions: ['mobi', 'azw', 'azw3'],
                 routeAfterPick: Routes.reader),
             _CardItem(Icons.folder_open, 'All Files', route: Routes.browser),
           ]),

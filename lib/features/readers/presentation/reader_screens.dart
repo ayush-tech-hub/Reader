@@ -11,6 +11,7 @@ import 'package:xml/xml.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/plugins/document_plugin.dart';
+import 'mobi_reader_screen.dart';
 import 'office_reader_screens.dart';
 
 /// Registers the built-in viewers with the plugin registry. Third-party
@@ -27,7 +28,8 @@ void registerBuiltInPlugins() {
     ..register(_ImagePlugin())
     ..register(_DocxPlugin())
     ..register(_XlsxPlugin())
-    ..register(_PptxPlugin());
+    ..register(_PptxPlugin())
+    ..register(_MobiPlugin());
 }
 
 class _MarkdownPlugin implements DocumentPlugin {
@@ -146,6 +148,16 @@ class _PptxPlugin implements DocumentPlugin {
   @override
   Widget buildViewer(BuildContext context, String path) =>
       PptxReaderScreen(path: path);
+}
+
+class _MobiPlugin implements DocumentPlugin {
+  @override
+  String get id => 'opendocs.mobi';
+  @override
+  Set<String> get extensions => const {'.mobi', '.azw', '.azw3'};
+  @override
+  Widget buildViewer(BuildContext context, String path) =>
+      MobiReaderScreen(path: path);
 }
 
 /// Hosts whichever plugin claims [path]; routed as /plugin-view.
