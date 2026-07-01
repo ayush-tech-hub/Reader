@@ -321,3 +321,247 @@ class _PptxReaderScreenState extends State<PptxReaderScreen> {
     );
   }
 }
+
+// ── RTF ───────────────────────────────────────────────────────────────────────
+
+/// Extracts plain text from RTF (Rich Text Format) files.
+///
+/// Uses a lightweight state-machine pass rather than a full RTF parser:
+/// - Ignorable destinations `{\*…}` are removed before text extraction
+/// - `\par`, `\line`, `\page` become newlines; `\tab` becomes a tab
+/// - `\uN?` sequences are decoded to Unicode code points
+/// - `\'HH` sequences are decoded as Windows-1252 bytes
+/// - All remaining control words and RTF group delimiters are stripped
+class RtfReaderScreen extends StatelessWidget {
+  const RtfReaderScreen({super.key, required this.path});
+  final String path;
+
+  static Future<String> _extract(String filePath) async {
+    final raw = await File(filePath).readAsString(
+      encoding: latin1, // RTF header specifies encoding; latin1 is a safe default
+    );
+    return _parseRtf(raw);
+  }
+
+  static String _parseRtf(String rtf) {
+    // 1. Remove ignorable destinations: {\* ...} at the top level.
+    //    We do a simple single-pass removal of flat {\*...} groups.
+    var s = rtf.replaceAll(RegExp(r'\{\\\*[^{}]*\}'), '');
+
+    // 2. Replace structural control words with whitespace equivalents.
+    s = s
+        .replaceAll(RegExp(r'\\par\b\s?'), '\n')
+        .replaceAll(RegExp(r'\\line\b\s?'), '\n')
+        .replaceAll(RegExp(r'\\page\b\s?'), '\n\n')
+        .replaceAll(RegExp(r'\\tab\b\s?'), '\t')
+        .replaceAll(RegExp(r'\\sect\b\s?'), '\n\n');
+
+    // 3. Decode Unicode escapes: \uN? (N is a signed 16-bit decimal).
+    s = s.replaceAllMapped(
+      RegExp(r'\\u(-?\d+)\??'),
+      (m) {
+        var code = int.parse(m.group(1)!);
+        if (code < 0) code += 65536;
+        try {
+          return String.fromCharCode(code);
+        } catch (_) {
+          return '';
+        }
+      },
+    );
+
+    // 4. Decode hex-encoded bytes: \'HH (Windows-1252).
+    s = s.replaceAllMapped(
+      RegExp(r"\\'([0-9a-fA-F]{2})"),
+      (m) {
+        final byte = int.parse(m.group(1)!, radix: 16);
+        // Windows-1252 overrides for the 0x80-0x9F range
+        const cp1252 = {
+          0x80: '€', 0x82: '‚', 0x83: 'ƒ', 0x84: '„',
+          0x85: '…', 0x86: '†', 0x87: '‡', 0x88: 'ˆ',
+          0x89: '‰', 0x8A: 'Š', 0x8B: '‹', 0x8C: 'Œ',
+          0x8E: 'Ž', 0x91: '‘', 0x92: '’', 0x93: '“',
+          0x94: '”', 0x95: '•', 0x96: '–', 0x97: '—',
+          0x98: '˜', 0x99: '™', 0x9A: 'š', 0x9B: '›',
+          0x9C: 'œ', 0x9E: 'ž', 0x9F: 'Ÿ',
+        };
+        return cp1252[byte] ?? String.fromCharCode(byte);
+      },
+    );
+
+    // 5. Remove all remaining control words and symbols.
+    s = s.replaceAll(RegExp(r'\\[a-zA-Z]+\-?\d*\s?'), '');
+    s = s.replaceAll(RegExp(r'\\[^a-zA-Z\r\n]'), '');
+
+    // 6. Remove RTF group delimiters.
+    s = s.replaceAll(RegExp(r'[{}]'), '');
+
+    // 7. Normalise whitespace.
+    s = s
+        .replaceAll(RegExp(r'[ \t]{2,}'), ' ')
+        .replaceAll(RegExp(r'\n{3,}'), '\n\n')
+        .trim();
+
+    if (s.isEmpty) throw const FormatException('No readable text found in RTF file');
+    return s;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(p.basename(path))),
+      body: FutureBuilder<String>(
+        future: _extract(path),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text(snapshot.error.toString()));
+          }
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: SelectableText(
+              snapshot.data!,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ── ODT ───────────────────────────────────────────────────────────────────────
+
+/// Reads OpenDocument Text (.odt) files — the native format for
+/// LibreOffice Writer and Apache OpenOffice Writer.
+///
+/// ODT is a ZIP archive containing `content.xml`. Text paragraphs live in
+/// `<text:p>` elements; headings in `<text:h>`. Both are extracted and
+/// joined with blank lines between them.
+class OdtReaderScreen extends StatelessWidget {
+  const OdtReaderScreen({super.key, required this.path});
+  final String path;
+
+  static Future<List<String>> _extract(String filePath) async {
+    final bytes = await File(filePath).readAsBytes();
+    final archive = ZipDecoder().decodeBytes(bytes);
+
+    final entry = archive.files.firstWhere(
+      (f) => f.name == 'content.xml',
+      orElse: () => throw const FormatException('Not a valid ODT file'),
+    );
+
+    final doc = XmlDocument.parse(
+      utf8.decode(entry.content as List<int>, allowMalformed: true),
+    );
+
+    final paragraphs = <String>[];
+    // Both regular paragraphs and headings use the same text content structure.
+    for (final el in doc.findAllElements('text:p')) {
+      final text = _textOf(el);
+      if (text.isNotEmpty) paragraphs.add(text);
+    }
+    for (final el in doc.findAllElements('text:h')) {
+      final text = _textOf(el);
+      if (text.isNotEmpty) paragraphs.add(text);
+    }
+
+    // Re-sort by document order using element index in the flat list.
+    // findAllElements returns in document order, but we called it twice,
+    // so merge and re-sort by the elements' positions in the document.
+    // Simpler: collect once over the body with a combined selector.
+    return _extractInOrder(doc);
+  }
+
+  static String _textOf(XmlElement el) {
+    // <text:s c="N"/> → N spaces; <text:tab/> → tab; text nodes → literal text
+    final buf = StringBuffer();
+    for (final node in el.children) {
+      if (node is XmlText) {
+        buf.write(node.value);
+      } else if (node is XmlElement) {
+        if (node.name.local == 's') {
+          final count = int.tryParse(node.getAttribute('text:c') ?? '1') ?? 1;
+          buf.write(' ' * count);
+        } else if (node.name.local == 'tab') {
+          buf.write('\t');
+        } else if (node.name.local == 'line-break') {
+          buf.write('\n');
+        } else {
+          // Recurse into spans, anchors, etc.
+          buf.write(_textOf(node));
+        }
+      }
+    }
+    return buf.toString().trim();
+  }
+
+  static List<String> _extractInOrder(XmlDocument doc) {
+    final paragraphs = <String>[];
+    // Walk body elements in document order.
+    final body = doc
+        .findAllElements('office:body')
+        .firstOrNull
+        ?.findAllElements('office:text')
+        .firstOrNull;
+    if (body == null) {
+      // Fallback: collect all text:p in document order
+      for (final el in doc.findAllElements('text:p')) {
+        final t = _textOf(el);
+        if (t.isNotEmpty) paragraphs.add(t);
+      }
+      return paragraphs;
+    }
+    for (final el in body.children.whereType<XmlElement>()) {
+      _collectText(el, paragraphs);
+    }
+    return paragraphs;
+  }
+
+  static void _collectText(XmlElement el, List<String> out) {
+    final local = el.name.local;
+    if (local == 'p' || local == 'h') {
+      final t = _textOf(el);
+      if (t.isNotEmpty) out.add(t);
+    } else {
+      for (final child in el.children.whereType<XmlElement>()) {
+        _collectText(child, out);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(p.basename(path))),
+      body: FutureBuilder<List<String>>(
+        future: _extract(path),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text(snapshot.error.toString()));
+          }
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final paras = snapshot.data!;
+          if (paras.isEmpty) {
+            return const Center(child: Text('Document appears to be empty'));
+          }
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: paras.length,
+            itemBuilder: (_, i) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: SelectableText(
+                paras[i],
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}

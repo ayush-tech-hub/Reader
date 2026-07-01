@@ -54,6 +54,7 @@ import '../../features/readers/presentation/reader_screens.dart';
 import '../../features/text_stats/presentation/text_stats_screen.dart';
 import '../../features/citation/presentation/citation_screen.dart';
 import '../../features/cloud/presentation/cloud_screen.dart';
+import '../../features/markdown_editor/presentation/templates_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -113,6 +114,7 @@ abstract final class Routes {
   static const String textStats = '/tools/text-stats';
   static const String citation = '/tools/citation';
   static const String cloud = '/cloud';
+  static const String templates = '/editor/templates';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -433,6 +435,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.cloud,
         builder: (context, state) => const CloudStorageScreen(),
+      ),
+      GoRoute(
+        path: Routes.templates,
+        builder: (context, state) => const DocumentTemplatesScreen(),
       ),
     ],
   );

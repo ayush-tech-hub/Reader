@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -29,7 +30,9 @@ void registerBuiltInPlugins() {
     ..register(_DocxPlugin())
     ..register(_XlsxPlugin())
     ..register(_PptxPlugin())
-    ..register(_MobiPlugin());
+    ..register(_MobiPlugin())
+    ..register(_RtfPlugin())
+    ..register(_OdtPlugin());
 }
 
 class _MarkdownPlugin implements DocumentPlugin {
@@ -158,6 +161,26 @@ class _MobiPlugin implements DocumentPlugin {
   @override
   Widget buildViewer(BuildContext context, String path) =>
       MobiReaderScreen(path: path);
+}
+
+class _RtfPlugin implements DocumentPlugin {
+  @override
+  String get id => 'opendocs.rtf';
+  @override
+  Set<String> get extensions => const {'.rtf'};
+  @override
+  Widget buildViewer(BuildContext context, String path) =>
+      RtfReaderScreen(path: path);
+}
+
+class _OdtPlugin implements DocumentPlugin {
+  @override
+  String get id => 'opendocs.odt';
+  @override
+  Set<String> get extensions => const {'.odt', '.ott'};
+  @override
+  Widget buildViewer(BuildContext context, String path) =>
+      OdtReaderScreen(path: path);
 }
 
 /// Hosts whichever plugin claims [path]; routed as /plugin-view.
@@ -517,7 +540,18 @@ class _ComicReaderScreenState extends State<ComicReaderScreen> {
   }
 }
 
-// ---- TXT / LOG / RTF -------------------------------------------------------
+// ---- TXT / LOG ─────────────────────────────────────────────────────────────
+
+enum _ReadTheme {
+  normal('Normal', Colors.transparent, null),
+  sepia('Sepia', Color(0xFFF8F0E3), Color(0xFF5C4033)),
+  night('Night', Color(0xFF1A1A2E), Color(0xFFD0D0D0));
+
+  const _ReadTheme(this.label, this.background, this.textColor);
+  final String label;
+  final Color background;
+  final Color? textColor;
+}
 
 /// A standalone screen for plain-text files, also exposed as a plugin.
 class TxtReaderScreen extends ConsumerStatefulWidget {
@@ -531,20 +565,104 @@ class TxtReaderScreen extends ConsumerStatefulWidget {
 
 class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
   static const _maxBytes = 500 * 1024; // 500 KB
-  static const _fontSizes = <String, double>{
-    'S': 12,
-    'M': 15,
-    'L': 20,
-  };
+  static const _fontSizes = <String, double>{'S': 12, 'M': 15, 'L': 20};
+  // Auto-scroll speed options in pixels/second
+  static const _scrollSpeeds = <String, double>{'Slow': 20, 'Med': 45, 'Fast': 90};
 
   late final Future<(String, bool)> _content = _load();
+  final _scrollCtrl = ScrollController();
   String _sizeKey = 'M';
   bool _speaking = false;
+  _ReadTheme _theme = _ReadTheme.normal;
+  bool _autoScrolling = false;
+  String _scrollSpeedKey = 'Med';
+  Timer? _scrollTimer;
 
   @override
   void dispose() {
+    _scrollTimer?.cancel();
+    _scrollCtrl.dispose();
     ref.read(ttsServiceProvider).stop();
     super.dispose();
+  }
+
+  void _startAutoScroll() {
+    _scrollTimer?.cancel();
+    final pps = _scrollSpeeds[_scrollSpeedKey]!;
+    _scrollTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
+      if (!_scrollCtrl.hasClients) return;
+      final next = _scrollCtrl.offset + pps * 0.05;
+      if (next >= _scrollCtrl.position.maxScrollExtent) {
+        setState(() => _autoScrolling = false);
+        _scrollTimer?.cancel();
+      } else {
+        _scrollCtrl.jumpTo(next);
+      }
+    });
+  }
+
+  void _toggleAutoScroll() {
+    setState(() => _autoScrolling = !_autoScrolling);
+    if (_autoScrolling) {
+      _startAutoScroll();
+    } else {
+      _scrollTimer?.cancel();
+    }
+  }
+
+  void _showThemePicker(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(12),
+              child: Text('Reading Theme',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            for (final t in _ReadTheme.values)
+              RadioListTile<_ReadTheme>(
+                value: t,
+                groupValue: _theme,
+                title: Text(t.label),
+                onChanged: (v) {
+                  if (v != null) setState(() => _theme = v);
+                  Navigator.of(ctx).pop();
+                },
+              ),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+              child: Row(
+                children: [
+                  const Text('Auto-scroll: '),
+                  for (final entry in _scrollSpeeds.entries)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 6),
+                      child: ChoiceChip(
+                        label: Text(entry.key),
+                        selected: _scrollSpeedKey == entry.key,
+                        onSelected: (_) {
+                          setState(() {
+                            _scrollSpeedKey = entry.key;
+                            if (_autoScrolling) {
+                              _scrollTimer?.cancel();
+                              _startAutoScroll();
+                            }
+                          });
+                          Navigator.of(ctx).pop();
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<(String, bool)> _load() async {
@@ -575,10 +693,16 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bgColor = _theme.background;
+    final textColor = _theme.textColor ?? Theme.of(context).textTheme.bodyLarge?.color;
+
     return Scaffold(
+      backgroundColor: _theme == _ReadTheme.normal ? null : bgColor,
       appBar: AppBar(
+        backgroundColor: _theme == _ReadTheme.normal ? null : bgColor,
         title: Text(p.basename(widget.path)),
         actions: [
+          // Font size chooser
           for (final key in _fontSizes.keys)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -588,7 +712,25 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
                 onSelected: (_) => setState(() => _sizeKey = key),
               ),
             ),
-          const SizedBox(width: 8),
+          // Theme + auto-scroll settings
+          IconButton(
+            icon: Icon(_theme == _ReadTheme.night
+                ? Icons.dark_mode
+                : _theme == _ReadTheme.sepia
+                    ? Icons.wb_sunny_outlined
+                    : Icons.palette_outlined),
+            tooltip: 'Theme & auto-scroll',
+            onPressed: () => _showThemePicker(context),
+          ),
+          // Auto-scroll toggle
+          IconButton(
+            icon: Icon(_autoScrolling
+                ? Icons.pause_circle_outline
+                : Icons.play_circle_outline),
+            tooltip: _autoScrolling ? 'Pause auto-scroll' : 'Auto-scroll',
+            onPressed: _toggleAutoScroll,
+          ),
+          const SizedBox(width: 4),
         ],
       ),
       body: FutureBuilder<(String, bool)>(
@@ -611,10 +753,14 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
                 ),
               Expanded(
                 child: SingleChildScrollView(
+                  controller: _scrollCtrl,
                   padding: const EdgeInsets.all(16),
                   child: SelectableText(
                     text,
-                    style: TextStyle(fontSize: _fontSizes[_sizeKey]),
+                    style: TextStyle(
+                      fontSize: _fontSizes[_sizeKey],
+                      color: textColor,
+                    ),
                   ),
                 ),
               ),

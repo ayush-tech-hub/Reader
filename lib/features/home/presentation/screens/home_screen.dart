@@ -128,6 +128,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.analytics_outlined, 'Text Stats', Routes.textStats),
       (Icons.format_quote_outlined, 'Citation Extractor', Routes.citation),
       (Icons.cloud_outlined, 'Cloud Storage', Routes.cloud),
+      (Icons.file_copy_outlined, 'Doc Templates', Routes.templates),
     ];
 
     return Scaffold(
@@ -190,7 +191,7 @@ class _DashboardTab extends ConsumerWidget {
             _CardItem(Icons.menu_book, 'PDF Reader',
                 extensions: ['pdf'], routeAfterPick: Routes.reader),
             _CardItem(Icons.article, 'Document Reader',
-                extensions: ['doc', 'docx', 'odt', 'rtf'],
+                extensions: ['doc', 'docx', 'odt', 'ott', 'rtf'],
                 routeAfterPick: Routes.reader),
             _CardItem(Icons.book, 'EPUB Reader',
                 extensions: ['epub'], routeAfterPick: Routes.reader),
