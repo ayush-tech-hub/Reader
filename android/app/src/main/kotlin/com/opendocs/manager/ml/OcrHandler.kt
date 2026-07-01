@@ -11,6 +11,11 @@ import android.os.ParcelFileDescriptor
 import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.TextRecognizer
+import com.google.mlkit.vision.text.chinese.ChineseTextRecognizerOptions
+import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions
+import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
+import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -30,6 +35,16 @@ class OcrHandler(private val context: Context) : MethodChannel.MethodCallHandler
     companion object {
         private const val RENDER_DPI_SCALE = 2 // ~144dpi; OCR sweet spot
         private const val MAX_DIMENSION = 3000
+
+        /** Returns the recognizer that handles the requested writing system.
+         *  Callers are responsible for closing the returned instance. */
+        fun recognizerForScript(script: String?): TextRecognizer = when (script) {
+            "chinese" -> TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
+            "devanagari" -> TextRecognition.getClient(DevanagariTextRecognizerOptions.Builder().build())
+            "japanese" -> TextRecognition.getClient(JapaneseTextRecognizerOptions.Builder().build())
+            "korean" -> TextRecognition.getClient(KoreanTextRecognizerOptions.Builder().build())
+            else -> TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+        }
     }
 
     fun shutdown() = executor.shutdown()
@@ -38,9 +53,10 @@ class OcrHandler(private val context: Context) : MethodChannel.MethodCallHandler
         when (call.method) {
             "recognizePdf" -> {
                 val path = call.argument<String>("path")!!
+                val script = call.argument<String>("script")
                 executor.execute {
                     try {
-                        val pages = recognizePdf(path)
+                        val pages = recognizePdf(path, script)
                         mainHandler.post { result.success(pages) }
                     } catch (e: Throwable) {
                         mainHandler.post { result.error("OCR_ERROR", e.message, null) }
@@ -49,9 +65,10 @@ class OcrHandler(private val context: Context) : MethodChannel.MethodCallHandler
             }
             "recognizeImage" -> {
                 val path = call.argument<String>("path")!!
+                val script = call.argument<String>("script")
                 executor.execute {
                     try {
-                        val text = recognizeImage(path)
+                        val text = recognizeImage(path, script)
                         mainHandler.post { result.success(text) }
                     } catch (e: Throwable) {
                         mainHandler.post { result.error("OCR_ERROR", e.message, null) }
@@ -60,9 +77,10 @@ class OcrHandler(private val context: Context) : MethodChannel.MethodCallHandler
             }
             "recognizeImageBatch" -> {
                 val paths = call.argument<List<String>>("paths")!!
+                val script = call.argument<String>("script")
                 executor.execute {
                     try {
-                        val texts = paths.map { recognizeImage(it) }
+                        val texts = paths.map { recognizeImage(it, script) }
                         mainHandler.post { result.success(texts) }
                     } catch (e: Throwable) {
                         mainHandler.post { result.error("OCR_ERROR", e.message, null) }
@@ -73,12 +91,12 @@ class OcrHandler(private val context: Context) : MethodChannel.MethodCallHandler
         }
     }
 
-    private fun recognizeImage(path: String): String {
+    private fun recognizeImage(path: String, script: String? = null): String {
         val raw = BitmapFactory.decodeFile(path)
             ?: throw IllegalArgumentException("Cannot decode image: $path")
         val bitmap = clampBitmap(raw)
         try {
-            val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+            val recognizer = recognizerForScript(script)
             val image = InputImage.fromBitmap(bitmap, 0)
             val visionText = Tasks.await(recognizer.process(image))
             return visionText.text
@@ -97,8 +115,8 @@ class OcrHandler(private val context: Context) : MethodChannel.MethodCallHandler
         return Bitmap.createBitmap(src, 0, 0, w, h, matrix, true)
     }
 
-    private fun recognizePdf(path: String): List<String> {
-        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    private fun recognizePdf(path: String, script: String? = null): List<String> {
+        val recognizer = recognizerForScript(script)
         val texts = mutableListOf<String>()
         ParcelFileDescriptor.open(
             File(path),

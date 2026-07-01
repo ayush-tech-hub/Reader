@@ -81,7 +81,11 @@ dependencies {
     // Battery-efficient background jobs.
     implementation("androidx.work:work-runtime-ktx:2.9.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
-    // On-device ML: OCR (bundled Latin model) and translation.
+    // On-device ML: OCR (Latin + CJK + Devanagari bundled models) and translation.
     implementation("com.google.mlkit:text-recognition:16.0.1")
+    implementation("com.google.mlkit:text-recognition-chinese:16.0.1")
+    implementation("com.google.mlkit:text-recognition-devanagari:16.0.1")
+    implementation("com.google.mlkit:text-recognition-japanese:16.0.1")
+    implementation("com.google.mlkit:text-recognition-korean:16.0.1")
     implementation("com.google.mlkit:translate:17.0.3")
 }

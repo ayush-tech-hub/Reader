@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../providers/ocr_providers.dart';
+import '../widgets/ocr_script_selector.dart';
 import 'ocr_result_screen.dart';
 
 /// Screen for camera-based OCR.
@@ -21,6 +22,7 @@ class CameraOcrScreen extends ConsumerStatefulWidget {
 class _CameraOcrScreenState extends ConsumerState<CameraOcrScreen> {
   final _picker = ImagePicker();
   bool _isRunning = false;
+  String? _script;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +49,12 @@ class _CameraOcrScreenState extends ConsumerState<CameraOcrScreen> {
                 style: Theme.of(context).textTheme.bodySmall,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
+              OcrScriptSelector(
+                value: _script,
+                onChanged: (v) => setState(() => _script = v),
+              ),
+              const SizedBox(height: 16),
               if (_isRunning)
                 const CircularProgressIndicator()
               else
@@ -84,9 +91,7 @@ class _CameraOcrScreenState extends ConsumerState<CameraOcrScreen> {
 
     final result = await ref
         .read(ocrJobProvider.notifier)
-        // Camera captures are saved with sourceType = 'camera' internally
-        // via recognizeImage; the notifier uses the image channel.
-        .recognizeImage(captured.path);
+        .recognizeImage(captured.path, script: _script);
 
     if (!mounted) return;
     setState(() => _isRunning = false);

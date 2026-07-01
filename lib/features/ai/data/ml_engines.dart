@@ -14,12 +14,29 @@ class OcrEngine {
 
   /// Recognizes text on every page of a (scanned) PDF; returns one
   /// string per page.
-  Future<List<String>> recognizePdf(String path) async {
+  ///
+  /// [script] selects the writing system: `null`/`'latin'` (default),
+  /// `'chinese'`, `'devanagari'`, `'japanese'`, or `'korean'`.
+  Future<List<String>> recognizePdf(String path, {String? script}) async {
     try {
-      final pages = await _channel.invokeListMethod<String>('recognizePdf', {
-        'path': path,
-      });
+      final args = <String, dynamic>{'path': path};
+      if (script != null) args['script'] = script;
+      final pages = await _channel.invokeListMethod<String>('recognizePdf', args);
       return pages ?? const [];
+    } on PlatformException catch (e) {
+      throw NativeEngineException(e.message ?? 'OCR failed', e);
+    }
+  }
+
+  /// Recognizes text in a single image file.
+  ///
+  /// [script] selects the writing system; same values as [recognizePdf].
+  Future<String> recognizeImage(String path, {String? script}) async {
+    try {
+      final args = <String, dynamic>{'path': path};
+      if (script != null) args['script'] = script;
+      final text = await _channel.invokeMethod<String>('recognizeImage', args);
+      return text ?? '';
     } on PlatformException catch (e) {
       throw NativeEngineException(e.message ?? 'OCR failed', e);
     }

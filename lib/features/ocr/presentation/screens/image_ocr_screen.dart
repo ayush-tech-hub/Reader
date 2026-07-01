@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../providers/ocr_providers.dart';
+import '../widgets/ocr_script_selector.dart';
 import 'ocr_result_screen.dart';
 
 /// Screen for picking one or more images and running OCR on them.
@@ -25,6 +26,7 @@ class ImageOcrScreen extends ConsumerStatefulWidget {
 class _ImageOcrScreenState extends ConsumerState<ImageOcrScreen> {
   final _picker = ImagePicker();
   XFile? _pickedFile;
+  String? _script;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,19 @@ class _ImageOcrScreenState extends ConsumerState<ImageOcrScreen> {
     final isRunning = jobState.isRunning;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Image OCR')),
+      appBar: AppBar(
+        title: const Text('Image OCR'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(40),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: OcrScriptSelector(
+              value: _script,
+              onChanged: (v) => setState(() => _script = v),
+            ),
+          ),
+        ),
+      ),
       body: _pickedFile == null
           ? _EmptyState(
               onGallery: isRunning ? null : _pickFromGallery,
@@ -81,7 +95,9 @@ class _ImageOcrScreenState extends ConsumerState<ImageOcrScreen> {
     final path = _pickedFile?.path;
     if (path == null) return;
 
-    final result = await ref.read(ocrJobProvider.notifier).recognizeImage(path);
+    final result = await ref
+        .read(ocrJobProvider.notifier)
+        .recognizeImage(path, script: _script);
 
     if (!mounted) return;
 

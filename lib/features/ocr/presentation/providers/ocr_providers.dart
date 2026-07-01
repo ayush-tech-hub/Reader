@@ -1,4 +1,4 @@
-import 'package:flutter/services.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../features/ai/data/ml_engines.dart';
@@ -126,8 +126,6 @@ class OcrJobState {
 
 /// Drives individual OCR jobs and automatically saves results to history.
 class OcrJobNotifier extends Notifier<OcrJobState> {
-  static const _imageChannel = MethodChannel('opendocs/ocr');
-
   OcrEngine get _engine => ref.read(ocrEngineProvider);
 
   @override
@@ -143,12 +141,12 @@ class OcrJobNotifier extends Notifier<OcrJobState> {
   /// Runs OCR on every page of a PDF at [path] and saves the result to
   /// history.
   ///
-  /// Returns the completed [OcrResult] on success, or `null` when an error
-  /// occurs (the error message is reflected in [OcrJobState.error]).
-  Future<OcrResult?> recognizePdf(String path) async {
+  /// [script] selects the writing system (`null` = Latin/auto).
+  /// Returns the completed [OcrResult] on success, or `null` on error.
+  Future<OcrResult?> recognizePdf(String path, {String? script}) async {
     _startJob();
     try {
-      final pages = await _engine.recognizePdf(path);
+      final pages = await _engine.recognizePdf(path, script: script);
       final result = OcrResult.generate(
         sourcePath: path,
         sourceType: 'pdf',
@@ -163,17 +161,16 @@ class OcrJobNotifier extends Notifier<OcrJobState> {
   }
 
   /// Runs OCR on a single image at [path] and saves the result to history.
-  Future<OcrResult?> recognizeImage(String path) async {
+  ///
+  /// [script] selects the writing system (`null` = Latin/auto).
+  Future<OcrResult?> recognizeImage(String path, {String? script}) async {
     _startJob();
     try {
-      final text = await _imageChannel.invokeMethod<String>(
-        'recognizeImage',
-        {'path': path},
-      );
+      final text = await _engine.recognizeImage(path, script: script);
       final result = OcrResult.generate(
         sourcePath: path,
         sourceType: 'image',
-        pageTexts: [text ?? ''],
+        pageTexts: [text],
       );
       await _saveAndFinish(result);
       return result;
@@ -189,23 +186,20 @@ class OcrJobNotifier extends Notifier<OcrJobState> {
   /// Runs OCR on a list of image [paths], updating [OcrJobState.progress]
   /// after each image, and saves a single combined [OcrResult] to history.
   ///
-  /// The returned [OcrResult] contains one [OcrResult.pageTexts] entry per
-  /// source image.
-  Future<OcrResult?> recognizeImageBatch(List<String> paths) async {
+  /// [script] selects the writing system; applied uniformly to all images.
+  Future<OcrResult?> recognizeImageBatch(
+    List<String> paths, {
+    String? script,
+  }) async {
     if (paths.isEmpty) return null;
     _startJob();
 
     final pageTexts = <String>[];
     try {
       for (var i = 0; i < paths.length; i++) {
-        final text = await _imageChannel.invokeMethod<String>(
-          'recognizeImage',
-          {'path': paths[i]},
-        );
-        pageTexts.add(text ?? '');
-        state = state.copyWith(
-          progress: (i + 1) / paths.length,
-        );
+        final text = await _engine.recognizeImage(paths[i], script: script);
+        pageTexts.add(text);
+        state = state.copyWith(progress: (i + 1) / paths.length);
       }
 
       // Use the first path as the canonical source for metadata.

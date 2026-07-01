@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../domain/entities/ocr_result.dart';
 import '../providers/ocr_providers.dart';
+import '../widgets/ocr_script_selector.dart';
 import 'ocr_result_screen.dart';
 
 // ── Batch item data model ─────────────────────────────────────────────────────
@@ -76,6 +77,7 @@ class _BatchOcrScreenState extends ConsumerState<BatchOcrScreen> {
   final List<_BatchItem> _queue = [];
   bool _isProcessing = false;
   int _doneCount = 0;
+  String? _script;
 
   bool get _hasWaiting => _queue.any((i) => i.status == _BatchStatus.waiting);
   bool get _allDone =>
@@ -124,9 +126,16 @@ class _BatchOcrScreenState extends ConsumerState<BatchOcrScreen> {
 
           const Divider(height: 1),
 
-          // Bottom action row
+          // Script selector + action row
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+            child: OcrScriptSelector(
+              value: _script,
+              onChanged: (v) => setState(() => _script = v),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
             child: Row(
               children: [
                 Expanded(
@@ -243,9 +252,9 @@ class _BatchOcrScreenState extends ConsumerState<BatchOcrScreen> {
 
       try {
         if (item.isPdf) {
-          result = await notifier.recognizePdf(item.path);
+          result = await notifier.recognizePdf(item.path, script: _script);
         } else {
-          result = await notifier.recognizeImage(item.path);
+          result = await notifier.recognizeImage(item.path, script: _script);
         }
         if (result == null) {
           errorMsg = ref.read(ocrJobProvider).error ?? 'Recognition failed';
