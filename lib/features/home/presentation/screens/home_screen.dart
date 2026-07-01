@@ -201,6 +201,8 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.swap_horiz, 'JSON ↔ CSV', Routes.jsonCsv),
       (Icons.cake_outlined, 'Age Calculator', Routes.ageCalculator),
       (Icons.percent, 'Percentage Calc', Routes.percentageCalc),
+      (Icons.currency_exchange, 'Currency', Routes.currencyConverter),
+      (Icons.task_alt, 'Task Manager', Routes.taskManager),
     ];
 
     return Scaffold(

@@ -131,6 +131,8 @@ import '../../features/text_tools/presentation/markdown_html_screen.dart';
 import '../../features/text_tools/presentation/json_csv_screen.dart';
 import '../../features/text_tools/presentation/age_calculator_screen.dart';
 import '../../features/text_tools/presentation/percentage_screen.dart';
+import '../../features/text_tools/presentation/currency_converter_screen.dart';
+import '../../features/tasks/presentation/task_manager_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -267,6 +269,8 @@ abstract final class Routes {
   static const String jsonCsv = '/tools/json-csv';
   static const String ageCalculator = '/tools/age';
   static const String percentageCalc = '/tools/percent';
+  static const String currencyConverter = '/tools/currency';
+  static const String taskManager = '/tasks';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -895,6 +899,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.percentageCalc,
         builder: (context, state) => const PercentageScreen(),
+      ),
+      GoRoute(
+        path: Routes.currencyConverter,
+        builder: (context, state) => const CurrencyConverterScreen(),
+      ),
+      GoRoute(
+        path: Routes.taskManager,
+        builder: (context, state) => const TaskManagerScreen(),
       ),
     ],
   );
