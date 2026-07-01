@@ -7,6 +7,149 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+// ── Minimal Markdown → HTML converter ─────────────────────────────────────────
+// Handles the most common Markdown elements.  Not a full spec-compliant parser —
+// intended for export of typical prose documents.
+String _markdownToHtml(String md) {
+  final lines = md.split('\n');
+  final buf = StringBuffer(
+      '<!DOCTYPE html><html><head><meta charset="UTF-8">'
+      '<style>body{font-family:sans-serif;max-width:800px;margin:2em auto;'
+      'padding:0 1em;line-height:1.6}pre{background:#f4f4f4;padding:1em;'
+      'border-radius:4px;overflow-x:auto}code{background:#f4f4f4;padding:.2em .4em}'
+      'blockquote{border-left:4px solid #ccc;margin:0;padding-left:1em;color:#666}'
+      'hr{border:none;border-top:1px solid #ddd}</style></head><body>\n');
+
+  bool inCode = false;
+  bool inUl = false;
+  bool inOl = false;
+
+  void closeList() {
+    if (inUl) {
+      buf.write('</ul>\n');
+      inUl = false;
+    }
+    if (inOl) {
+      buf.write('</ol>\n');
+      inOl = false;
+    }
+  }
+
+  String inline(String s) {
+    // Escape HTML
+    s = s
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
+    // Bold + italic
+    s = s.replaceAllMapped(RegExp(r'\*\*\*(.+?)\*\*\*'),
+        (m) => '<strong><em>${m[1]}</em></strong>');
+    s = s.replaceAllMapped(RegExp(r'\*\*(.+?)\*\*'),
+        (m) => '<strong>${m[1]}</strong>');
+    s = s.replaceAllMapped(RegExp(r'(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)'),
+        (m) => '<em>${m[1]}</em>');
+    s = s.replaceAllMapped(RegExp(r'__(.+?)__'),
+        (m) => '<strong>${m[1]}</strong>');
+    s = s.replaceAllMapped(RegExp(r'_(.+?)_'), (m) => '<em>${m[1]}</em>');
+    // Inline code
+    s = s.replaceAllMapped(RegExp(r'`(.+?)`'), (m) => '<code>${m[1]}</code>');
+    // Links
+    s = s.replaceAllMapped(RegExp(r'\[([^\]]+)\]\(([^)]+)\)'),
+        (m) => '<a href="${m[2]}">${m[1]}</a>');
+    // Strikethrough
+    s = s.replaceAllMapped(RegExp(r'~~(.+?)~~'), (m) => '<del>${m[1]}</del>');
+    return s;
+  }
+
+  for (var line in lines) {
+    // Fenced code block
+    if (line.startsWith('```')) {
+      if (inCode) {
+        buf.write('</code></pre>\n');
+        inCode = false;
+      } else {
+        closeList();
+        buf.write('<pre><code>');
+        inCode = true;
+      }
+      continue;
+    }
+    if (inCode) {
+      buf.write(
+          '${line.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')}\n');
+      continue;
+    }
+
+    // Headings
+    final hMatch = RegExp(r'^(#{1,6})\s+(.+)').firstMatch(line);
+    if (hMatch != null) {
+      closeList();
+      final level = hMatch.group(1)!.length;
+      buf.write('<h$level>${inline(hMatch.group(2)!)}</h$level>\n');
+      continue;
+    }
+
+    // Horizontal rule
+    if (RegExp(r'^[-*_]{3,}\s*$').hasMatch(line)) {
+      closeList();
+      buf.write('<hr>\n');
+      continue;
+    }
+
+    // Blockquote
+    if (line.startsWith('> ')) {
+      closeList();
+      buf.write('<blockquote><p>${inline(line.substring(2))}</p></blockquote>\n');
+      continue;
+    }
+
+    // Unordered list
+    final ulMatch = RegExp(r'^[*\-+]\s+(.+)').firstMatch(line);
+    if (ulMatch != null) {
+      if (inOl) {
+        buf.write('</ol>\n');
+        inOl = false;
+      }
+      if (!inUl) {
+        buf.write('<ul>\n');
+        inUl = true;
+      }
+      buf.write('<li>${inline(ulMatch.group(1)!)}</li>\n');
+      continue;
+    }
+
+    // Ordered list
+    final olMatch = RegExp(r'^\d+\.\s+(.+)').firstMatch(line);
+    if (olMatch != null) {
+      if (inUl) {
+        buf.write('</ul>\n');
+        inUl = false;
+      }
+      if (!inOl) {
+        buf.write('<ol>\n');
+        inOl = true;
+      }
+      buf.write('<li>${inline(olMatch.group(1)!)}</li>\n');
+      continue;
+    }
+
+    // Blank line → paragraph break
+    if (line.trim().isEmpty) {
+      closeList();
+      buf.write('\n');
+      continue;
+    }
+
+    closeList();
+    buf.write('<p>${inline(line)}</p>\n');
+  }
+
+  closeList();
+  if (inCode) buf.write('</code></pre>\n');
+  buf.write('</body></html>');
+  return buf.toString();
+}
+
 enum _EditorMode { edit, split, preview }
 
 /// A simple Markdown editor with live preview.
@@ -130,11 +273,23 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen> {
   Future<void> _share() async {
     final src = _filePath;
     if (src == null) {
-      // Share text directly.
       await Share.share(_ctrl.text, subject: 'Markdown document');
       return;
     }
     await Share.shareXFiles([XFile(src)], subject: p.basename(src));
+  }
+
+  Future<void> _exportHtml() async {
+    if (_ctrl.text.trim().isEmpty) return;
+    final html = _markdownToHtml(_ctrl.text);
+    final dir = await getApplicationDocumentsDirectory();
+    final baseName = _filePath != null
+        ? p.basenameWithoutExtension(_filePath!)
+        : 'document';
+    final outPath = p.join(dir.path, '$baseName.html');
+    await File(outPath).writeAsString(html);
+    if (!mounted) return;
+    await Share.shareXFiles([XFile(outPath)], subject: '$baseName.html');
   }
 
   @override
@@ -197,6 +352,7 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen> {
               onSelected: (v) {
                 if (v == 'saveAs') _saveAs();
                 if (v == 'share') _share();
+                if (v == 'exportHtml') _exportHtml();
                 if (v == 'new') {
                   if (_dirty) {
                     _confirmDiscard().then((ok) {
@@ -221,6 +377,8 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen> {
                 const PopupMenuItem(value: 'new', child: Text('New')),
                 const PopupMenuItem(value: 'saveAs', child: Text('Save as…')),
                 const PopupMenuItem(value: 'share', child: Text('Share')),
+                const PopupMenuItem(
+                    value: 'exportHtml', child: Text('Export as HTML')),
               ],
             ),
           ],

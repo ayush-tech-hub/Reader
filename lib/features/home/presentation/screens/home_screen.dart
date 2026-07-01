@@ -139,6 +139,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.code, 'JSON Formatter', Routes.jsonFormatter),
       (Icons.search, 'Regex Tester', Routes.regexTester),
       (Icons.straighten, 'Unit Converter', Routes.unitConverter),
+      (Icons.bar_chart, 'Word Frequency', Routes.wordFrequency),
     ];
 
     return Scaffold(

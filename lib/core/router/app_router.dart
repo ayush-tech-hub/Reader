@@ -66,6 +66,7 @@ import '../../features/text_tools/presentation/base64_screen.dart';
 import '../../features/text_tools/presentation/json_formatter_screen.dart';
 import '../../features/text_tools/presentation/regex_tester_screen.dart';
 import '../../features/text_tools/presentation/unit_converter_screen.dart';
+import '../../features/text_tools/presentation/word_frequency_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -137,6 +138,7 @@ abstract final class Routes {
   static const String jsonFormatter = '/tools/json';
   static const String regexTester = '/tools/regex';
   static const String unitConverter = '/tools/units';
+  static const String wordFrequency = '/tools/word-freq';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -505,6 +507,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.unitConverter,
         builder: (context, state) => const UnitConverterScreen(),
+      ),
+      GoRoute(
+        path: Routes.wordFrequency,
+        builder: (context, state) => const WordFrequencyScreen(),
       ),
     ],
   );
