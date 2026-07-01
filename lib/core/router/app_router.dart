@@ -113,6 +113,9 @@ import '../../features/text_tools/presentation/text_summarizer_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_delete_pages_screen.dart';
 import '../../features/text_tools/presentation/text_to_speech_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_extract_pages_screen.dart';
+import '../../features/text_tools/presentation/sudoku_solver_screen.dart';
+import '../../features/text_tools/presentation/grammar_guide_screen.dart';
+import '../../features/notes/presentation/quick_notes_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -231,6 +234,9 @@ abstract final class Routes {
   static const String pdfDeletePages = '/tools/pdf-delete-pages';
   static const String textToSpeech = '/tools/tts';
   static const String pdfExtractPages = '/tools/pdf-extract-pages';
+  static const String sudokuSolver = '/tools/sudoku';
+  static const String grammarGuide = '/tools/grammar';
+  static const String quickNotes = '/notes/quick';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -787,6 +793,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.pdfExtractPages,
         builder: (context, state) => const PdfExtractPagesScreen(),
+      ),
+      GoRoute(
+        path: Routes.sudokuSolver,
+        builder: (context, state) => const SudokuSolverScreen(),
+      ),
+      GoRoute(
+        path: Routes.grammarGuide,
+        builder: (context, state) => const GrammarGuideScreen(),
+      ),
+      GoRoute(
+        path: Routes.quickNotes,
+        builder: (context, state) => const QuickNotesScreen(),
       ),
     ],
   );

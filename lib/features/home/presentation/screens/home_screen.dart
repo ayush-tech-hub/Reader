@@ -183,6 +183,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.delete_sweep_outlined, 'Delete PDF Pages', Routes.pdfDeletePages),
       (Icons.record_voice_over_outlined, 'Text to Speech', Routes.textToSpeech),
       (Icons.content_cut, 'Extract PDF Pages', Routes.pdfExtractPages),
+      (Icons.grid_4x4, 'Sudoku Solver', Routes.sudokuSolver),
+      (Icons.menu_book_outlined, 'Grammar Guide', Routes.grammarGuide),
+      (Icons.sticky_note_2_outlined, 'Quick Notes', Routes.quickNotes),
     ];
 
     return Scaffold(
