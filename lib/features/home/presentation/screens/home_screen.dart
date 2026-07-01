@@ -130,6 +130,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.cloud_outlined, 'Cloud Storage', Routes.cloud),
       (Icons.file_copy_outlined, 'Doc Templates', Routes.templates),
       (Icons.tag, 'File Hash', Routes.fileHash),
+      (Icons.backup_outlined, 'Backup & Restore', Routes.backup),
     ];
 
     return Scaffold(
