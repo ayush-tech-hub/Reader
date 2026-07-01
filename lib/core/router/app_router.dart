@@ -102,6 +102,8 @@ import '../../features/text_tools/presentation/markdown_table_screen.dart';
 import '../../features/text_tools/presentation/uuid_generator_screen.dart';
 import '../../features/archive_manager/presentation/screens/zip_creator_screen.dart';
 import '../../features/quotes/presentation/quote_screen.dart';
+import '../../features/text_tools/presentation/color_palette_screen.dart';
+import '../../features/text_tools/presentation/number_formatter_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -209,6 +211,8 @@ abstract final class Routes {
   static const String uuidGenerator = '/tools/uuid';
   static const String zipCreator = '/tools/zip';
   static const String quotes = '/quotes';
+  static const String colorPalette = '/tools/color-palette';
+  static const String numberFormatter = '/tools/number-fmt';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -721,6 +725,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.quotes,
         builder: (context, state) => const QuoteScreen(),
+      ),
+      GoRoute(
+        path: Routes.colorPalette,
+        builder: (context, state) => const ColorPaletteScreen(),
+      ),
+      GoRoute(
+        path: Routes.numberFormatter,
+        builder: (context, state) => const NumberFormatterScreen(),
       ),
     ],
   );

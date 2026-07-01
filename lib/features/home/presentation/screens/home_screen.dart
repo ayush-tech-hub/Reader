@@ -172,6 +172,8 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.fingerprint, 'UUID Generator', Routes.uuidGenerator),
       (Icons.compress, 'Create ZIP', Routes.zipCreator),
       (Icons.format_quote_outlined, 'Reading Quotes', Routes.quotes),
+      (Icons.palette_outlined, 'Colour Palette', Routes.colorPalette),
+      (Icons.format_list_numbered, 'Number Formatter', Routes.numberFormatter),
     ];
 
     return Scaffold(
