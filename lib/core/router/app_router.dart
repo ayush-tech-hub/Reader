@@ -61,6 +61,9 @@ import '../../features/about/presentation/backup_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_page_numbers_screen.dart';
 import '../../features/reading_timer/presentation/reading_timer_screen.dart';
 import '../../features/text_tools/presentation/text_cleaner_screen.dart';
+import '../../features/text_tools/presentation/lorem_ipsum_screen.dart';
+import '../../features/text_tools/presentation/base64_screen.dart';
+import '../../features/text_tools/presentation/json_formatter_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -127,6 +130,9 @@ abstract final class Routes {
   static const String pdfPageNumbers = '/tools/pdf-page-numbers';
   static const String readingTimer = '/timer';
   static const String textCleaner = '/tools/text-cleaner';
+  static const String loremIpsum = '/tools/lorem-ipsum';
+  static const String base64Tool = '/tools/base64';
+  static const String jsonFormatter = '/tools/json';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -475,6 +481,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.textCleaner,
         builder: (context, state) => const TextCleanerScreen(),
+      ),
+      GoRoute(
+        path: Routes.loremIpsum,
+        builder: (context, state) => const LoremIpsumScreen(),
+      ),
+      GoRoute(
+        path: Routes.base64Tool,
+        builder: (context, state) => const Base64Screen(),
+      ),
+      GoRoute(
+        path: Routes.jsonFormatter,
+        builder: (context, state) => const JsonFormatterScreen(),
       ),
     ],
   );

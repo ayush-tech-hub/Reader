@@ -134,6 +134,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.numbers_outlined, 'PDF Page Numbers', Routes.pdfPageNumbers),
       (Icons.timer_outlined, 'Reading Timer', Routes.readingTimer),
       (Icons.auto_fix_high, 'Text Cleaner', Routes.textCleaner),
+      (Icons.text_fields, 'Lorem Ipsum', Routes.loremIpsum),
+      (Icons.data_object, 'Base64 Tool', Routes.base64Tool),
+      (Icons.code, 'JSON Formatter', Routes.jsonFormatter),
     ];
 
     return Scaffold(
