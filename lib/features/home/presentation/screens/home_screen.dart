@@ -146,6 +146,8 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.access_time_outlined, 'Timestamp', Routes.timestampConverter),
       (Icons.color_lens_outlined, 'Colour Picker', Routes.colorPicker),
       (Icons.checklist, 'Checklist', Routes.checklist),
+      (Icons.invert_colors, 'PDF Greyscale', Routes.pdfGrayscale),
+      (Icons.difference_outlined, 'Text Diff', Routes.textDiff),
     ];
 
     return Scaffold(
@@ -254,6 +256,8 @@ class _DashboardTab extends ConsumerWidget {
                 route: Routes.pdfPageNumbers),
             _CardItem(Icons.crop, 'Crop Margins',
                 route: Routes.pdfCrop),
+            _CardItem(Icons.invert_colors, 'Greyscale',
+                route: Routes.pdfGrayscale),
           ]),
           const SizedBox(height: 20),
 
