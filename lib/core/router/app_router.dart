@@ -125,6 +125,9 @@ import '../../features/journal/presentation/journal_screen.dart';
 import '../../features/books/presentation/book_tracker_screen.dart';
 import '../../features/text_tools/presentation/tip_calculator_screen.dart';
 import '../../features/text_tools/presentation/event_countdown_screen.dart';
+import '../../features/shopping/presentation/shopping_list_screen.dart';
+import '../../features/text_tools/presentation/random_picker_screen.dart';
+import '../../features/text_tools/presentation/markdown_html_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -255,6 +258,9 @@ abstract final class Routes {
   static const String bookTracker = '/books';
   static const String tipCalculator = '/tools/tip';
   static const String eventCountdown = '/tools/events';
+  static const String shoppingList = '/shopping';
+  static const String randomPicker = '/tools/random';
+  static const String markdownHtml = '/tools/md-html';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -859,6 +865,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.eventCountdown,
         builder: (context, state) => const EventCountdownScreen(),
+      ),
+      GoRoute(
+        path: Routes.shoppingList,
+        builder: (context, state) => const ShoppingListScreen(),
+      ),
+      GoRoute(
+        path: Routes.randomPicker,
+        builder: (context, state) => const RandomPickerScreen(),
+      ),
+      GoRoute(
+        path: Routes.markdownHtml,
+        builder: (context, state) => const MarkdownHtmlScreen(),
       ),
     ],
   );

@@ -195,6 +195,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.auto_stories_outlined, 'Book Tracker', Routes.bookTracker),
       (Icons.receipt_long_outlined, 'Tip Calculator', Routes.tipCalculator),
       (Icons.event_available, 'Event Countdown', Routes.eventCountdown),
+      (Icons.shopping_cart_outlined, 'Shopping List', Routes.shoppingList),
+      (Icons.casino_outlined, 'Random Picker', Routes.randomPicker),
+      (Icons.html_outlined, 'Markdown → HTML', Routes.markdownHtml),
     ];
 
     return Scaffold(
