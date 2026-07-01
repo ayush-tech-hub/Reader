@@ -157,6 +157,8 @@ class _DashboardTab extends ConsumerWidget {
                 route: '/ocr/searchable-pdf'),
             _CardItem(Icons.history, 'OCR History', route: '/ocr/history'),
             _CardItem(Icons.dynamic_feed, 'Batch OCR', route: '/ocr/batch'),
+            _CardItem(Icons.qr_code_scanner, 'QR Scanner',
+                route: Routes.qrScanner),
           ]),
           const SizedBox(height: 20),
 

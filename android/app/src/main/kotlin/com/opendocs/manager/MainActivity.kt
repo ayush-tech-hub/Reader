@@ -8,6 +8,7 @@ import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import com.opendocs.manager.archive.ArchiveEngineHandler
+import com.opendocs.manager.ml.BarcodeHandler
 import com.opendocs.manager.ml.OcrHandler
 import com.opendocs.manager.ml.TranslateHandler
 import com.opendocs.manager.pdf.PdfToolsHandler
@@ -35,6 +36,7 @@ class MainActivity : FlutterActivity() {
     private var pdfToolsHandler: PdfToolsHandler? = null
     private var ocrHandler: OcrHandler? = null
     private var translateHandler: TranslateHandler? = null
+    private var barcodeHandler: BarcodeHandler? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -102,6 +104,17 @@ class MainActivity : FlutterActivity() {
             Log.e(TAG, "Failed to register translate channel — translation unavailable", e)
         }
 
+        try {
+            Log.d(TAG, "Initialising BarcodeHandler")
+            val handler = BarcodeHandler()
+            barcodeHandler = handler
+            MethodChannel(messenger, "opendocs/barcode")
+                .setMethodCallHandler(handler)
+            Log.d(TAG, "BarcodeHandler registered")
+        } catch (e: Throwable) {
+            Log.e(TAG, "Failed to register barcode channel — barcode scanning unavailable", e)
+        }
+
         // File-open channel: opens files, folders, and system settings screens.
         MethodChannel(messenger, "opendocs/file_open").setMethodCallHandler { call, result ->
             if (call.method == "openAppSettings") {
@@ -164,6 +177,7 @@ class MainActivity : FlutterActivity() {
         pdfToolsHandler?.shutdown()
         ocrHandler?.shutdown()
         translateHandler?.shutdown()
+        barcodeHandler?.shutdown()
         super.onDestroy()
     }
 

@@ -8,6 +8,7 @@ abstract final class NativeChannels {
   static const String ocr = 'opendocs/ocr';
   static const String translate = 'opendocs/translate';
   static const String translateProgress = 'opendocs/translate_progress';
+  static const String barcode = 'opendocs/barcode';
 }
 
 abstract final class ArchiveMethods {

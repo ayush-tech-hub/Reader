@@ -7,6 +7,7 @@ import '../../features/about/presentation/privacy_policy_screen.dart';
 import '../../features/ai/presentation/ai_tools_screen.dart';
 import '../../features/ai/presentation/screens/language_pack_manager_screen.dart';
 import '../../features/archive_manager/presentation/screens/archive_screen.dart';
+import '../../features/barcode/presentation/qr_scanner_screen.dart';
 import '../../features/file_manager/presentation/screens/favorites_screen.dart';
 import '../../features/file_manager/presentation/screens/file_browser_screen.dart';
 import '../../features/files_plus/data/storage_scanner.dart';
@@ -55,6 +56,7 @@ abstract final class Routes {
   static const String ocrHistory = '/ocr/history';
   static const String batchOcr = '/ocr/batch';
   static const String searchablePdf = '/ocr/searchable-pdf';
+  static const String qrScanner = '/tools/qr';
   static const String txtReader = '/reader/txt';
   static const String imageReader = '/reader/image';
 }
@@ -237,6 +239,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.searchablePdf,
         builder: (context, state) => const SearchablePdfScreen(),
+      ),
+      GoRoute(
+        path: Routes.qrScanner,
+        builder: (context, state) => const QrScannerScreen(),
       ),
       GoRoute(
         path: Routes.imageReader,
