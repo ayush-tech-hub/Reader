@@ -85,6 +85,22 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
         return ai.summarize(text, maxSentences: 7);
       });
 
+  Future<void> _keywords() => _run(() async {
+        final text = await _documentText();
+        final words = ai.extractKeywords(text, maxKeywords: 15);
+        return 'Key topics:\n\n${words.map((w) => '• $w').join('\n')}';
+      });
+
+  Future<void> _bulletPoints() => _run(() async {
+        final text = await _documentText();
+        return ai.extractBulletPoints(text, maxPoints: 8);
+      });
+
+  Future<void> _simplify() => _run(() async {
+        final source = _output.isNotEmpty ? _output : await _documentText();
+        return ai.simplify(source.length > 5000 ? source.substring(0, 5000) : source);
+      });
+
   Future<void> _ask() => _run(() async {
         final l10n = AppLocalizations.of(context);
         final question = _questionController.text.trim();
@@ -248,6 +264,21 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
                 icon: const Icon(Icons.summarize),
                 label: Text(l10n.summarize),
                 onPressed: _busy ? null : _summarize,
+              ),
+              FilledButton.tonalIcon(
+                icon: const Icon(Icons.format_list_bulleted),
+                label: const Text('Bullet points'),
+                onPressed: _busy ? null : _bulletPoints,
+              ),
+              FilledButton.tonalIcon(
+                icon: const Icon(Icons.tag),
+                label: const Text('Keywords'),
+                onPressed: _busy ? null : _keywords,
+              ),
+              FilledButton.tonalIcon(
+                icon: const Icon(Icons.short_text),
+                label: const Text('Simplify'),
+                onPressed: _busy ? null : _simplify,
               ),
               FilledButton.tonalIcon(
                 icon: const Icon(Icons.document_scanner),
