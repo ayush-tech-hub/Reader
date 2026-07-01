@@ -189,6 +189,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.public, 'World Clock', Routes.worldClock),
       (Icons.shuffle_outlined, 'Anagram Finder', Routes.anagramFinder),
       (Icons.account_balance_outlined, 'Loan Calculator', Routes.loanCalculator),
+      (Icons.monitor_weight_outlined, 'BMI Calculator', Routes.bmiCalculator),
+      (Icons.timer_outlined, 'Stopwatch', Routes.stopwatch),
+      (Icons.book_outlined, 'Journal', Routes.journal),
     ];
 
     return Scaffold(

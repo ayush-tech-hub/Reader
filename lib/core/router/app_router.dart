@@ -119,6 +119,9 @@ import '../../features/notes/presentation/quick_notes_screen.dart';
 import '../../features/text_tools/presentation/world_clock_screen.dart';
 import '../../features/text_tools/presentation/anagram_screen.dart';
 import '../../features/text_tools/presentation/loan_calculator_screen.dart';
+import '../../features/text_tools/presentation/bmi_calculator_screen.dart';
+import '../../features/text_tools/presentation/stopwatch_screen.dart';
+import '../../features/journal/presentation/journal_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -243,6 +246,9 @@ abstract final class Routes {
   static const String worldClock = '/tools/world-clock';
   static const String anagramFinder = '/tools/anagram';
   static const String loanCalculator = '/tools/loan';
+  static const String bmiCalculator = '/tools/bmi';
+  static const String stopwatch = '/tools/stopwatch';
+  static const String journal = '/journal';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -823,6 +829,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.loanCalculator,
         builder: (context, state) => const LoanCalculatorScreen(),
+      ),
+      GoRoute(
+        path: Routes.bmiCalculator,
+        builder: (context, state) => const BmiCalculatorScreen(),
+      ),
+      GoRoute(
+        path: Routes.stopwatch,
+        builder: (context, state) => const StopwatchScreen(),
+      ),
+      GoRoute(
+        path: Routes.journal,
+        builder: (context, state) => const JournalScreen(),
       ),
     ],
   );
