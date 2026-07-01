@@ -174,6 +174,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.format_quote_outlined, 'Reading Quotes', Routes.quotes),
       (Icons.palette_outlined, 'Colour Palette', Routes.colorPalette),
       (Icons.format_list_numbered, 'Number Formatter', Routes.numberFormatter),
+      (Icons.keyboard_outlined, 'Typing Test', Routes.typingTest),
     ];
 
     return Scaffold(

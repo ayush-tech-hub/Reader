@@ -104,6 +104,7 @@ import '../../features/archive_manager/presentation/screens/zip_creator_screen.d
 import '../../features/quotes/presentation/quote_screen.dart';
 import '../../features/text_tools/presentation/color_palette_screen.dart';
 import '../../features/text_tools/presentation/number_formatter_screen.dart';
+import '../../features/text_tools/presentation/typing_test_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -213,6 +214,7 @@ abstract final class Routes {
   static const String quotes = '/quotes';
   static const String colorPalette = '/tools/color-palette';
   static const String numberFormatter = '/tools/number-fmt';
+  static const String typingTest = '/tools/typing';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -733,6 +735,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.numberFormatter,
         builder: (context, state) => const NumberFormatterScreen(),
+      ),
+      GoRoute(
+        path: Routes.typingTest,
+        builder: (context, state) => const TypingTestScreen(),
       ),
     ],
   );
