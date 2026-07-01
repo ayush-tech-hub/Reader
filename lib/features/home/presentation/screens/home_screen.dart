@@ -120,6 +120,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.draw_outlined, 'Annotations', Routes.annotationsExport),
       (Icons.sticky_note_2_outlined, 'Reading Notes', Routes.readingNotes),
       (Icons.text_snippet_outlined, 'Extract Text', Routes.pdfTextExtract),
+      (Icons.info_outline, 'File Info', Routes.fileInfo),
     ];
 
     return Scaffold(
