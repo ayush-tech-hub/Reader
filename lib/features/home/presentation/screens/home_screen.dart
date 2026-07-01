@@ -167,6 +167,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.sort_by_alpha, 'Sort Lines', Routes.sortLines),
       (Icons.find_replace, 'Find & Replace', Routes.findReplace),
       (Icons.table_chart_outlined, 'CSV Viewer', Routes.csvViewer),
+      (Icons.local_fire_department, 'Habit Tracker', Routes.habitTracker),
+      (Icons.table_rows_outlined, 'MD Table', Routes.markdownTable),
+      (Icons.fingerprint, 'UUID Generator', Routes.uuidGenerator),
     ];
 
     return Scaffold(

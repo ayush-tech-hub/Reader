@@ -97,6 +97,9 @@ import '../../features/text_tools/presentation/calculator_screen.dart';
 import '../../features/text_tools/presentation/sort_lines_screen.dart';
 import '../../features/text_tools/presentation/find_replace_screen.dart';
 import '../../features/text_tools/presentation/csv_viewer_screen.dart';
+import '../../features/habits/presentation/habit_tracker_screen.dart';
+import '../../features/text_tools/presentation/markdown_table_screen.dart';
+import '../../features/text_tools/presentation/uuid_generator_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -199,6 +202,9 @@ abstract final class Routes {
   static const String sortLines = '/tools/sort-lines';
   static const String findReplace = '/tools/find-replace';
   static const String csvViewer = '/tools/csv';
+  static const String habitTracker = '/habits';
+  static const String markdownTable = '/tools/md-table';
+  static const String uuidGenerator = '/tools/uuid';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -691,6 +697,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.csvViewer,
         builder: (context, state) => const CsvViewerScreen(),
+      ),
+      GoRoute(
+        path: Routes.habitTracker,
+        builder: (context, state) => const HabitTrackerScreen(),
+      ),
+      GoRoute(
+        path: Routes.markdownTable,
+        builder: (context, state) => const MarkdownTableScreen(),
+      ),
+      GoRoute(
+        path: Routes.uuidGenerator,
+        builder: (context, state) => const UuidGeneratorScreen(),
       ),
     ],
   );
