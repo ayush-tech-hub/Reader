@@ -122,6 +122,20 @@ class _AboutScreenState extends State<AboutScreen> {
             child: Column(
               children: [
                 ListTile(
+                  leading: const Icon(Icons.lock_outline),
+                  title: const Text('App lock'),
+                  subtitle: const Text('PIN & biometric protection'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(Routes.appLockSettings),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
                   leading: const Icon(Icons.privacy_tip_outlined),
                   title: Text(l10n.privacyPolicy),
                   trailing: const Icon(Icons.chevron_right),

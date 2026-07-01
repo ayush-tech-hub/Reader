@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/di/providers.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/app_lock/data/app_lock_service.dart';
+import 'features/app_lock/presentation/app_lock_screen.dart';
 import 'generated/app_localizations.dart';
 
 class OpenDocsApp extends ConsumerWidget {
@@ -57,16 +59,93 @@ class OpenDocsApp extends ConsumerWidget {
         }
         return supportedLocales.first;
       },
-      // Riverpod state errors surface here; log and show a minimal widget
-      // instead of a blank screen in release builds.
+      // Wraps the router in the app-lock layer. The lock screen overlays the
+      // entire app (including the router) so there is no navigable content
+      // visible until the PIN is verified.
       builder: (context, child) {
         if (child == null) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
-        return child;
+        return _AppLockWrapper(child: child);
       },
     );
+  }
+}
+
+// ── App-lock lifecycle wrapper ────────────────────────────────────────────────
+
+class _AppLockWrapper extends StatefulWidget {
+  const _AppLockWrapper({required this.child});
+  final Widget child;
+
+  @override
+  State<_AppLockWrapper> createState() => _AppLockWrapperState();
+}
+
+class _AppLockWrapperState extends State<_AppLockWrapper>
+    with WidgetsBindingObserver {
+  final _service = AppLockService();
+
+  bool _locked = false;
+  bool _checked = false;
+  DateTime? _backgroundedAt;
+
+  // Re-lock after being backgrounded for more than 30 seconds.
+  static const _lockAfterSeconds = 30;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _checkOnStartup();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  Future<void> _checkOnStartup() async {
+    final enabled = await _service.isEnabled();
+    if (mounted) {
+      setState(() {
+        _locked = enabled;
+        _checked = true;
+      });
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _backgroundedAt = DateTime.now();
+    } else if (state == AppLifecycleState.resumed &&
+        _backgroundedAt != null) {
+      final elapsed =
+          DateTime.now().difference(_backgroundedAt!).inSeconds;
+      _backgroundedAt = null;
+      if (elapsed >= _lockAfterSeconds) _recheckLock();
+    }
+  }
+
+  Future<void> _recheckLock() async {
+    final enabled = await _service.isEnabled();
+    if (mounted && enabled) setState(() => _locked = true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_checked) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (_locked) {
+      return AppLockScreen(
+        onUnlocked: () => setState(() => _locked = false),
+      );
+    }
+    return widget.child;
   }
 }

@@ -11,9 +11,10 @@ import com.opendocs.manager.archive.ArchiveEngineHandler
 import com.opendocs.manager.ml.BarcodeHandler
 import com.opendocs.manager.ml.OcrHandler
 import com.opendocs.manager.ml.TranslateHandler
+import com.opendocs.manager.security.BiometricHandler
 import com.opendocs.manager.pdf.PdfToolsHandler
 import com.opendocs.manager.storage.StorageHandler
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
@@ -30,7 +31,7 @@ import java.io.File
  * unregistered; the Dart side receives a MissingPluginException when the
  * feature is used and can surface a meaningful error to the user.
  */
-class MainActivity : FlutterActivity() {
+class MainActivity : FlutterFragmentActivity() {
 
     private var archiveHandler: ArchiveEngineHandler? = null
     private var pdfToolsHandler: PdfToolsHandler? = null
@@ -113,6 +114,15 @@ class MainActivity : FlutterActivity() {
             Log.d(TAG, "BarcodeHandler registered")
         } catch (e: Throwable) {
             Log.e(TAG, "Failed to register barcode channel — barcode scanning unavailable", e)
+        }
+
+        try {
+            Log.d(TAG, "Initialising BiometricHandler")
+            MethodChannel(messenger, "opendocs/biometric")
+                .setMethodCallHandler(BiometricHandler(this))
+            Log.d(TAG, "BiometricHandler registered")
+        } catch (e: Throwable) {
+            Log.e(TAG, "Failed to register biometric channel — biometric auth unavailable", e)
         }
 
         // File-open channel: opens files, folders, and system settings screens.
