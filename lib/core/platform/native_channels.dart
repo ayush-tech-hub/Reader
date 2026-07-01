@@ -34,6 +34,7 @@ abstract final class PdfToolsMethods {
   static const String setMetadata = 'setMetadata';
   static const String encrypt = 'encrypt';
   static const String decrypt = 'decrypt';
+  static const String addBlankPages = 'addBlankPages';
 }
 
 abstract final class StorageMethods {

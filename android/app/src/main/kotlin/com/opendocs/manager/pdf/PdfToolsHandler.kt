@@ -78,6 +78,7 @@ class PdfToolsHandler(
                     "setMetadata" -> setMetadata(call)
                     "encrypt" -> encrypt(call)
                     "decrypt" -> decrypt(call)
+                    "addBlankPages" -> addBlankPages(call)
                     else -> {
                         mainHandler.post { result.notImplemented() }
                         return@execute
@@ -415,6 +416,50 @@ class PdfToolsHandler(
         PDDocument.load(File(source), password).use { document ->
             document.isAllSecurityToBeRemoved = true
             document.save(outputPath)
+        }
+        return outputPath
+    }
+
+    /**
+     * Inserts blank pages into a PDF at specified positions.
+     *
+     * Arguments:
+     * - source: String path to the input PDF
+     * - outputPath: String path for the result
+     * - insertions: List<Map<String, Any>> — each map has:
+     *     "afterPage": Int (1-based; 0 = insert before page 1)
+     *     "count": Int (how many blank pages to insert)
+     * If no insertions provided, one blank page is appended at the end.
+     */
+    private fun addBlankPages(call: MethodCall): String {
+        val source = call.argument<String>("source")!!
+        val outputPath = call.argument<String>("outputPath")!!
+        @Suppress("UNCHECKED_CAST")
+        val insertions = call.argument<List<Map<String, Any>>>("insertions")
+            ?: listOf(mapOf("afterPage" to -1, "count" to 1))
+
+        PDDocument.load(File(source)).use { doc ->
+            // Process insertions in reverse order so indices stay valid.
+            val sorted = insertions.sortedByDescending { (it["afterPage"] as? Int) ?: -1 }
+            for (ins in sorted) {
+                val afterPage = (ins["afterPage"] as? Int) ?: -1
+                val count = (ins["count"] as? Int) ?: 1
+                // Determine the page size to match: use adjacent page or A4.
+                val refPage = if (afterPage in 1..doc.numberOfPages)
+                    doc.getPage(afterPage - 1)
+                else if (doc.numberOfPages > 0) doc.getPage(0)
+                else null
+                val mediaBox = refPage?.mediaBox
+                    ?: com.tom_roush.pdfbox.pdmodel.common.PDRectangle.A4
+                val insertAt = if (afterPage < 0 || afterPage >= doc.numberOfPages)
+                    doc.numberOfPages
+                else afterPage
+                for (i in 0 until count) {
+                    val blank = PDPage(mediaBox)
+                    doc.pages.insertBefore(blank, if (insertAt < doc.numberOfPages) doc.getPage(insertAt) else null)
+                }
+            }
+            doc.save(outputPath)
         }
         return outputPath
     }

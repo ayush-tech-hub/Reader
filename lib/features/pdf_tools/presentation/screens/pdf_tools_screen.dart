@@ -7,6 +7,7 @@ import '../../../../core/services/save_location_service.dart';
 import '../../../../generated/app_localizations.dart';
 import '../../domain/entities/pdf_tool_entities.dart';
 import '../providers/pdf_tools_providers.dart';
+import 'pdf_add_pages_screen.dart';
 import 'pdf_editor_screen.dart';
 import 'tool_result_screen.dart';
 
@@ -116,6 +117,13 @@ class _PdfToolsScreenState extends ConsumerState<PdfToolsScreen> {
       _Tool(Icons.edit_note, l10n.editMetadata, () => _metadata(context, ref)),
       _Tool(Icons.lock, l10n.encryptPdf, () => _encrypt(context, ref)),
       _Tool(Icons.lock_open, l10n.decryptPdf, () => _decrypt(context, ref)),
+      _Tool(
+        Icons.note_add_outlined,
+        'Add blank pages',
+        () => Navigator.of(context).push<void>(
+          MaterialPageRoute<void>(builder: (_) => const PdfAddPagesScreen()),
+        ),
+      ),
     ];
 
     return Scaffold(

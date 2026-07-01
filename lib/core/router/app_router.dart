@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/about/presentation/about_screen.dart';
+import '../../features/dictionary/presentation/dictionary_screen.dart';
+import '../../features/pdf_tools/presentation/screens/pdf_add_pages_screen.dart';
 import '../../features/about/presentation/privacy_policy_screen.dart';
 import '../../features/accessibility/presentation/accessibility_screen.dart';
 import '../../features/ai/presentation/ai_tools_screen.dart';
@@ -77,6 +79,8 @@ abstract final class Routes {
   static const String recycleBin = '/files/trash';
   static const String txtReader = '/reader/txt';
   static const String imageReader = '/reader/image';
+  static const String dictionary = '/tools/dictionary';
+  static const String pdfAddPages = '/tools/pdf-add-pages';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -307,6 +311,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           }
           return ImageViewerScreen(path: path);
         },
+      ),
+      GoRoute(
+        path: Routes.dictionary,
+        builder: (context, state) => const DictionaryScreen(),
+      ),
+      GoRoute(
+        path: Routes.pdfAddPages,
+        builder: (context, state) => const PdfAddPagesScreen(),
       ),
     ],
   );
