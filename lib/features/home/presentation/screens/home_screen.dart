@@ -192,6 +192,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.monitor_weight_outlined, 'BMI Calculator', Routes.bmiCalculator),
       (Icons.timer_outlined, 'Stopwatch', Routes.stopwatch),
       (Icons.book_outlined, 'Journal', Routes.journal),
+      (Icons.auto_stories_outlined, 'Book Tracker', Routes.bookTracker),
+      (Icons.receipt_long_outlined, 'Tip Calculator', Routes.tipCalculator),
+      (Icons.event_available, 'Event Countdown', Routes.eventCountdown),
     ];
 
     return Scaffold(

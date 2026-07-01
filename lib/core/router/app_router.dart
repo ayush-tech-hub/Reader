@@ -122,6 +122,9 @@ import '../../features/text_tools/presentation/loan_calculator_screen.dart';
 import '../../features/text_tools/presentation/bmi_calculator_screen.dart';
 import '../../features/text_tools/presentation/stopwatch_screen.dart';
 import '../../features/journal/presentation/journal_screen.dart';
+import '../../features/books/presentation/book_tracker_screen.dart';
+import '../../features/text_tools/presentation/tip_calculator_screen.dart';
+import '../../features/text_tools/presentation/event_countdown_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -249,6 +252,9 @@ abstract final class Routes {
   static const String bmiCalculator = '/tools/bmi';
   static const String stopwatch = '/tools/stopwatch';
   static const String journal = '/journal';
+  static const String bookTracker = '/books';
+  static const String tipCalculator = '/tools/tip';
+  static const String eventCountdown = '/tools/events';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -841,6 +847,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.journal,
         builder: (context, state) => const JournalScreen(),
+      ),
+      GoRoute(
+        path: Routes.bookTracker,
+        builder: (context, state) => const BookTrackerScreen(),
+      ),
+      GoRoute(
+        path: Routes.tipCalculator,
+        builder: (context, state) => const TipCalculatorScreen(),
+      ),
+      GoRoute(
+        path: Routes.eventCountdown,
+        builder: (context, state) => const EventCountdownScreen(),
       ),
     ],
   );
