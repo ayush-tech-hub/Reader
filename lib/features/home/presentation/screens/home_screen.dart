@@ -122,6 +122,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.text_snippet_outlined, 'Extract Text', Routes.pdfTextExtract),
       (Icons.info_outline, 'File Info', Routes.fileInfo),
       (Icons.edit_note, 'Markdown Editor', Routes.markdownEditor),
+      (Icons.drive_file_rename_outline, 'Batch Rename', Routes.batchRename),
     ];
 
     return Scaffold(

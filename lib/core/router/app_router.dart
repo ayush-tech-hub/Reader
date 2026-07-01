@@ -9,6 +9,7 @@ import '../../features/bookmarks/presentation/bookmarks_screen.dart';
 import '../../features/dictionary/presentation/dictionary_screen.dart';
 import '../../features/reading_goals/presentation/reading_goals_screen.dart';
 import '../../features/file_info/presentation/file_info_screen.dart';
+import '../../features/batch_rename/presentation/batch_rename_screen.dart';
 import '../../features/markdown_editor/presentation/markdown_editor_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_text_extract_screen.dart';
 import '../../features/reading_notes/presentation/reading_notes_screen.dart';
@@ -101,6 +102,7 @@ abstract final class Routes {
   static const String pdfTextExtract = '/tools/pdf-text';
   static const String fileInfo = '/tools/file-info';
   static const String markdownEditor = '/editor/markdown';
+  static const String batchRename = '/tools/batch-rename';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -388,6 +390,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final path = state.uri.queryParameters['path'];
           return MarkdownEditorScreen(path: path);
         },
+      ),
+      GoRoute(
+        path: Routes.batchRename,
+        builder: (context, state) => const BatchRenameScreen(),
       ),
     ],
   );
