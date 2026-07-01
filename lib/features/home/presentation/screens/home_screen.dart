@@ -170,6 +170,8 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.local_fire_department, 'Habit Tracker', Routes.habitTracker),
       (Icons.table_rows_outlined, 'MD Table', Routes.markdownTable),
       (Icons.fingerprint, 'UUID Generator', Routes.uuidGenerator),
+      (Icons.compress, 'Create ZIP', Routes.zipCreator),
+      (Icons.format_quote_outlined, 'Reading Quotes', Routes.quotes),
     ];
 
     return Scaffold(

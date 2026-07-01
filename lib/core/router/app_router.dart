@@ -100,6 +100,8 @@ import '../../features/text_tools/presentation/csv_viewer_screen.dart';
 import '../../features/habits/presentation/habit_tracker_screen.dart';
 import '../../features/text_tools/presentation/markdown_table_screen.dart';
 import '../../features/text_tools/presentation/uuid_generator_screen.dart';
+import '../../features/archive_manager/presentation/screens/zip_creator_screen.dart';
+import '../../features/quotes/presentation/quote_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -205,6 +207,8 @@ abstract final class Routes {
   static const String habitTracker = '/habits';
   static const String markdownTable = '/tools/md-table';
   static const String uuidGenerator = '/tools/uuid';
+  static const String zipCreator = '/tools/zip';
+  static const String quotes = '/quotes';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -709,6 +713,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.uuidGenerator,
         builder: (context, state) => const UuidGeneratorScreen(),
+      ),
+      GoRoute(
+        path: Routes.zipCreator,
+        builder: (context, state) => const ZipCreatorScreen(),
+      ),
+      GoRoute(
+        path: Routes.quotes,
+        builder: (context, state) => const QuoteScreen(),
       ),
     ],
   );
