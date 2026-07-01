@@ -142,6 +142,8 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.bar_chart, 'Word Frequency', Routes.wordFrequency),
       (Icons.numbers, 'Number Base', Routes.numberBase),
       (Icons.password, 'Password Gen', Routes.passwordGenerator),
+      (Icons.help_outline, 'Markdown Ref', Routes.markdownCheatsheet),
+      (Icons.access_time_outlined, 'Timestamp', Routes.timestampConverter),
     ];
 
     return Scaffold(
