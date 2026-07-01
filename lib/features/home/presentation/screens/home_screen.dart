@@ -198,6 +198,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.shopping_cart_outlined, 'Shopping List', Routes.shoppingList),
       (Icons.casino_outlined, 'Random Picker', Routes.randomPicker),
       (Icons.html_outlined, 'Markdown → HTML', Routes.markdownHtml),
+      (Icons.swap_horiz, 'JSON ↔ CSV', Routes.jsonCsv),
+      (Icons.cake_outlined, 'Age Calculator', Routes.ageCalculator),
+      (Icons.percent, 'Percentage Calc', Routes.percentageCalc),
     ];
 
     return Scaffold(

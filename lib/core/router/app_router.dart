@@ -128,6 +128,9 @@ import '../../features/text_tools/presentation/event_countdown_screen.dart';
 import '../../features/shopping/presentation/shopping_list_screen.dart';
 import '../../features/text_tools/presentation/random_picker_screen.dart';
 import '../../features/text_tools/presentation/markdown_html_screen.dart';
+import '../../features/text_tools/presentation/json_csv_screen.dart';
+import '../../features/text_tools/presentation/age_calculator_screen.dart';
+import '../../features/text_tools/presentation/percentage_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -261,6 +264,9 @@ abstract final class Routes {
   static const String shoppingList = '/shopping';
   static const String randomPicker = '/tools/random';
   static const String markdownHtml = '/tools/md-html';
+  static const String jsonCsv = '/tools/json-csv';
+  static const String ageCalculator = '/tools/age';
+  static const String percentageCalc = '/tools/percent';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -877,6 +883,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.markdownHtml,
         builder: (context, state) => const MarkdownHtmlScreen(),
+      ),
+      GoRoute(
+        path: Routes.jsonCsv,
+        builder: (context, state) => const JsonCsvScreen(),
+      ),
+      GoRoute(
+        path: Routes.ageCalculator,
+        builder: (context, state) => const AgeCalculatorScreen(),
+      ),
+      GoRoute(
+        path: Routes.percentageCalc,
+        builder: (context, state) => const PercentageScreen(),
       ),
     ],
   );
