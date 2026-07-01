@@ -116,6 +116,9 @@ import '../../features/pdf_tools/presentation/screens/pdf_extract_pages_screen.d
 import '../../features/text_tools/presentation/sudoku_solver_screen.dart';
 import '../../features/text_tools/presentation/grammar_guide_screen.dart';
 import '../../features/notes/presentation/quick_notes_screen.dart';
+import '../../features/text_tools/presentation/world_clock_screen.dart';
+import '../../features/text_tools/presentation/anagram_screen.dart';
+import '../../features/text_tools/presentation/loan_calculator_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -237,6 +240,9 @@ abstract final class Routes {
   static const String sudokuSolver = '/tools/sudoku';
   static const String grammarGuide = '/tools/grammar';
   static const String quickNotes = '/notes/quick';
+  static const String worldClock = '/tools/world-clock';
+  static const String anagramFinder = '/tools/anagram';
+  static const String loanCalculator = '/tools/loan';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -805,6 +811,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.quickNotes,
         builder: (context, state) => const QuickNotesScreen(),
+      ),
+      GoRoute(
+        path: Routes.worldClock,
+        builder: (context, state) => const WorldClockScreen(),
+      ),
+      GoRoute(
+        path: Routes.anagramFinder,
+        builder: (context, state) => const AnagramScreen(),
+      ),
+      GoRoute(
+        path: Routes.loanCalculator,
+        builder: (context, state) => const LoanCalculatorScreen(),
       ),
     ],
   );

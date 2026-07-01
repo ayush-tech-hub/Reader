@@ -186,6 +186,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.grid_4x4, 'Sudoku Solver', Routes.sudokuSolver),
       (Icons.menu_book_outlined, 'Grammar Guide', Routes.grammarGuide),
       (Icons.sticky_note_2_outlined, 'Quick Notes', Routes.quickNotes),
+      (Icons.public, 'World Clock', Routes.worldClock),
+      (Icons.shuffle_outlined, 'Anagram Finder', Routes.anagramFinder),
+      (Icons.account_balance_outlined, 'Loan Calculator', Routes.loanCalculator),
     ];
 
     return Scaffold(
