@@ -110,6 +110,8 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.compare_arrows, 'Compare Docs', Routes.documentCompare),
       (Icons.security, 'Secure Folder', Routes.secureFolder),
       (Icons.tune, 'Enhance Image', Routes.imageEnhance),
+      (Icons.receipt_long, 'Invoice Scan', Routes.invoiceScan),
+      (Icons.draw, 'Sign PDF', Routes.pdfSign),
     ];
 
     return Scaffold(

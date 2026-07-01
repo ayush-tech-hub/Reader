@@ -401,6 +401,116 @@ List<Citation> extractCitations(String text) {
   return citations;
 }
 
+// ── Invoice / receipt extraction ─────────────────────────────────────────────
+
+/// Structured fields extracted from an invoice or receipt.
+class InvoiceData {
+  const InvoiceData({
+    this.invoiceNumber,
+    this.date,
+    this.dueDate,
+    this.vendor,
+    this.total,
+    this.subtotal,
+    this.tax,
+    this.lineItems = const [],
+  });
+
+  final String? invoiceNumber;
+  final String? date;
+  final String? dueDate;
+  final String? vendor;
+  final String? total;
+  final String? subtotal;
+  final String? tax;
+  final List<String> lineItems;
+
+  bool get isEmpty =>
+      invoiceNumber == null &&
+      date == null &&
+      vendor == null &&
+      total == null;
+}
+
+/// Extracts common invoice / receipt fields from OCR or plain text.
+InvoiceData parseInvoice(String text) {
+  String? find(RegExp pattern) {
+    final m = pattern.firstMatch(text);
+    // Return the first non-null capturing group.
+    if (m == null) return null;
+    for (var i = 1; i <= m.groupCount; i++) {
+      final g = m.group(i);
+      if (g != null && g.trim().isNotEmpty) return g.trim();
+    }
+    return null;
+  }
+
+  final invoiceNumber = find(RegExp(
+    r'(?:invoice|inv|bill)\s*(?:no\.?|number|#)?\s*[:\-]?\s*([A-Z0-9\-\/]{3,20})',
+    caseSensitive: false,
+  ));
+
+  final date = find(RegExp(
+    r'(?:date|issued?)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s*\d{1,2},?\s*\d{4})',
+    caseSensitive: false,
+  ));
+
+  final dueDate = find(RegExp(
+    r'(?:due|payment due)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2})',
+    caseSensitive: false,
+  ));
+
+  final total = find(RegExp(
+    r'(?:total|amount due|balance due|grand total)\s*[:\-]?\s*(?:[A-Z]{0,3}\s*)?([£$€¥₹]?\s*\d[\d,]*\.?\d{0,2})',
+    caseSensitive: false,
+  ));
+
+  final subtotal = find(RegExp(
+    r'(?:sub-?total|net)\s*[:\-]?\s*(?:[A-Z]{0,3}\s*)?([£$€¥₹]?\s*\d[\d,]*\.?\d{0,2})',
+    caseSensitive: false,
+  ));
+
+  final tax = find(RegExp(
+    r'(?:tax|vat|gst|hst)\s*[:\-]?\s*(?:[A-Z]{0,3}\s*)?([£$€¥₹]?\s*\d[\d,]*\.?\d{0,2})',
+    caseSensitive: false,
+  ));
+
+  // Vendor: first all-caps line or line before "invoice"
+  String? vendor;
+  final lines = text.split('\n').map((l) => l.trim()).where((l) => l.isNotEmpty).toList();
+  if (lines.isNotEmpty) {
+    for (final line in lines.take(5)) {
+      if (line.length >= 3 && line.length <= 60 &&
+          RegExp(r'^[A-Z]').hasMatch(line) &&
+          !RegExp(r'invoice|bill|receipt|date|no\.', caseSensitive: false).hasMatch(line)) {
+        vendor = line;
+        break;
+      }
+    }
+  }
+
+  // Line items: lines with a quantity and a price
+  final lineItems = <String>[];
+  for (final line in lines) {
+    if (RegExp(
+      r'^\d+\s+.+\s+[£$€¥₹]?\d[\d,]*\.?\d{0,2}\s*$',
+    ).hasMatch(line)) {
+      lineItems.add(line);
+    }
+  }
+
+  return InvoiceData(
+    invoiceNumber: invoiceNumber,
+    date: date,
+    dueDate: dueDate,
+    vendor: vendor,
+    total: total,
+    subtotal: subtotal,
+    tax: tax,
+    lineItems: lineItems,
+  );
+}
+
 // ── Formula extraction ────────────────────────────────────────────────────────
 
 /// A formula or equation found in a document.

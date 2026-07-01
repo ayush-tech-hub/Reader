@@ -9,6 +9,7 @@ import '../../features/ai/presentation/ai_tools_screen.dart';
 import '../../features/document_compare/presentation/document_compare_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_to_images_screen.dart';
 import '../../features/image_enhance/presentation/image_enhance_screen.dart';
+import '../../features/invoice_scan/presentation/invoice_scan_screen.dart';
 import '../../features/secure_folder/presentation/secure_folder_screen.dart';
 import '../../features/ai/presentation/screens/language_pack_manager_screen.dart';
 import '../../features/app_lock/presentation/app_lock_settings_screen.dart';
@@ -32,6 +33,7 @@ import '../../features/ocr/presentation/screens/ocr_result_screen.dart';
 import '../../features/ocr/presentation/screens/searchable_pdf_screen.dart';
 import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/pdf_reader/presentation/screens/reader_screen.dart';
+import '../../features/pdf_tools/presentation/screens/pdf_sign_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_tools_screen.dart';
 import '../../features/readers/presentation/reader_screens.dart';
 import '../di/providers.dart';
@@ -70,6 +72,8 @@ abstract final class Routes {
   static const String pdfToImages = '/tools/pdf-to-images';
   static const String secureFolder = '/files/vault';
   static const String imageEnhance = '/tools/image-enhance';
+  static const String invoiceScan = '/tools/invoice-scan';
+  static const String pdfSign = '/tools/pdf-sign';
   static const String recycleBin = '/files/trash';
   static const String txtReader = '/reader/txt';
   static const String imageReader = '/reader/image';
@@ -281,6 +285,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.imageEnhance,
         builder: (context, state) => const ImageEnhanceScreen(),
+      ),
+      GoRoute(
+        path: Routes.invoiceScan,
+        builder: (context, state) => const InvoiceScanScreen(),
+      ),
+      GoRoute(
+        path: Routes.pdfSign,
+        builder: (context, state) => const PdfSignScreen(),
       ),
       GoRoute(
         path: Routes.recycleBin,
