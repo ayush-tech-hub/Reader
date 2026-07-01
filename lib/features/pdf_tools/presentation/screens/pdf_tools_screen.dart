@@ -9,6 +9,7 @@ import '../../domain/entities/pdf_tool_entities.dart';
 import '../providers/pdf_tools_providers.dart';
 import 'pdf_add_pages_screen.dart';
 import 'pdf_editor_screen.dart';
+import 'pdf_text_extract_screen.dart';
 import 'tool_result_screen.dart';
 
 /// Hub for all PDF utilities. Each tile picks inputs, runs the operation
@@ -122,6 +123,14 @@ class _PdfToolsScreenState extends ConsumerState<PdfToolsScreen> {
         'Add blank pages',
         () => Navigator.of(context).push<void>(
           MaterialPageRoute<void>(builder: (_) => const PdfAddPagesScreen()),
+        ),
+      ),
+      _Tool(
+        Icons.text_snippet_outlined,
+        'Extract text',
+        () => Navigator.of(context).push<void>(
+          MaterialPageRoute<void>(
+              builder: (_) => const PdfTextExtractScreen()),
         ),
       ),
     ];
