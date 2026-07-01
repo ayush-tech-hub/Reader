@@ -58,6 +58,9 @@ import '../../features/markdown_editor/presentation/templates_screen.dart';
 import '../../features/file_info/presentation/file_hash_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_watermark_screen.dart';
 import '../../features/about/presentation/backup_screen.dart';
+import '../../features/pdf_tools/presentation/screens/pdf_page_numbers_screen.dart';
+import '../../features/reading_timer/presentation/reading_timer_screen.dart';
+import '../../features/text_tools/presentation/text_cleaner_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -121,6 +124,9 @@ abstract final class Routes {
   static const String fileHash = '/tools/file-hash';
   static const String pdfWatermark = '/tools/pdf-watermark';
   static const String backup = '/settings/backup';
+  static const String pdfPageNumbers = '/tools/pdf-page-numbers';
+  static const String readingTimer = '/timer';
+  static const String textCleaner = '/tools/text-cleaner';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -457,6 +463,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.backup,
         builder: (context, state) => const BackupRestoreScreen(),
+      ),
+      GoRoute(
+        path: Routes.pdfPageNumbers,
+        builder: (context, state) => const PdfPageNumbersScreen(),
+      ),
+      GoRoute(
+        path: Routes.readingTimer,
+        builder: (context, state) => const ReadingTimerScreen(),
+      ),
+      GoRoute(
+        path: Routes.textCleaner,
+        builder: (context, state) => const TextCleanerScreen(),
       ),
     ],
   );

@@ -131,6 +131,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.file_copy_outlined, 'Doc Templates', Routes.templates),
       (Icons.tag, 'File Hash', Routes.fileHash),
       (Icons.backup_outlined, 'Backup & Restore', Routes.backup),
+      (Icons.numbers_outlined, 'PDF Page Numbers', Routes.pdfPageNumbers),
+      (Icons.timer_outlined, 'Reading Timer', Routes.readingTimer),
+      (Icons.auto_fix_high, 'Text Cleaner', Routes.textCleaner),
     ];
 
     return Scaffold(
@@ -235,6 +238,8 @@ class _DashboardTab extends ConsumerWidget {
                 route: Routes.pdfToImages),
             _CardItem(Icons.water_drop_outlined, 'PDF Watermark',
                 route: Routes.pdfWatermark),
+            _CardItem(Icons.numbers_outlined, 'Page Numbers',
+                route: Routes.pdfPageNumbers),
           ]),
           const SizedBox(height: 20),
 
