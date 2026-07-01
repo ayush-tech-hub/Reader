@@ -16,6 +16,7 @@ import 'package:xml/xml.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/plugins/document_plugin.dart';
+import 'fb2_reader_screen.dart';
 import 'mobi_reader_screen.dart';
 import 'office_reader_screens.dart';
 
@@ -36,7 +37,8 @@ void registerBuiltInPlugins() {
     ..register(_PptxPlugin())
     ..register(_MobiPlugin())
     ..register(_RtfPlugin())
-    ..register(_OdtPlugin());
+    ..register(_OdtPlugin())
+    ..register(_Fb2Plugin());
 }
 
 class _MarkdownPlugin implements DocumentPlugin {
@@ -185,6 +187,16 @@ class _OdtPlugin implements DocumentPlugin {
   @override
   Widget buildViewer(BuildContext context, String path) =>
       OdtReaderScreen(path: path);
+}
+
+class _Fb2Plugin implements DocumentPlugin {
+  @override
+  String get id => 'opendocs.fb2';
+  @override
+  Set<String> get extensions => const {'.fb2', '.fbz'};
+  @override
+  Widget buildViewer(BuildContext context, String path) =>
+      Fb2ReaderScreen(path: path);
 }
 
 /// Hosts whichever plugin claims [path]; routed as /plugin-view.

@@ -212,6 +212,9 @@ class _DashboardTab extends ConsumerWidget {
             _CardItem(Icons.book_outlined, 'MOBI / AZW',
                 extensions: ['mobi', 'azw', 'azw3'],
                 routeAfterPick: Routes.reader),
+            _CardItem(Icons.menu_book_outlined, 'FictionBook (FB2)',
+                extensions: ['fb2', 'fbz'],
+                routeAfterPick: Routes.reader),
             _CardItem(Icons.folder_open, 'All Files', route: Routes.browser),
           ]),
           const SizedBox(height: 20),
@@ -229,6 +232,8 @@ class _DashboardTab extends ConsumerWidget {
                 route: '${Routes.pdfTools}?action=compress'),
             _CardItem(Icons.image_outlined, 'PDF to Images',
                 route: Routes.pdfToImages),
+            _CardItem(Icons.water_drop_outlined, 'PDF Watermark',
+                route: Routes.pdfWatermark),
           ]),
           const SizedBox(height: 20),
 

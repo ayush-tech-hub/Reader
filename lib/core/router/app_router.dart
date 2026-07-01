@@ -56,6 +56,7 @@ import '../../features/citation/presentation/citation_screen.dart';
 import '../../features/cloud/presentation/cloud_screen.dart';
 import '../../features/markdown_editor/presentation/templates_screen.dart';
 import '../../features/file_info/presentation/file_hash_screen.dart';
+import '../../features/pdf_tools/presentation/screens/pdf_watermark_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -117,6 +118,7 @@ abstract final class Routes {
   static const String cloud = '/cloud';
   static const String templates = '/editor/templates';
   static const String fileHash = '/tools/file-hash';
+  static const String pdfWatermark = '/tools/pdf-watermark';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -445,6 +447,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.fileHash,
         builder: (context, state) => const FileHashScreen(),
+      ),
+      GoRoute(
+        path: Routes.pdfWatermark,
+        builder: (context, state) => const PdfWatermarkScreen(),
       ),
     ],
   );
