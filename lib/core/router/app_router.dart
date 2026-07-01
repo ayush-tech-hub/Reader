@@ -81,6 +81,9 @@ import '../../features/text_tools/presentation/string_hasher_screen.dart';
 import '../../features/text_tools/presentation/morse_code_screen.dart';
 import '../../features/text_tools/presentation/roman_numeral_screen.dart';
 import '../../features/text_tools/presentation/url_encoder_screen.dart';
+import '../../features/text_tools/presentation/readability_screen.dart';
+import '../../features/text_tools/presentation/date_calculator_screen.dart';
+import '../../features/reading_list/presentation/reading_list_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -167,6 +170,9 @@ abstract final class Routes {
   static const String morseCode = '/tools/morse';
   static const String romanNumerals = '/tools/roman';
   static const String urlEncoder = '/tools/url-encode';
+  static const String readability = '/tools/readability';
+  static const String dateCalculator = '/tools/date-calc';
+  static const String readingList = '/reading-list';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -595,6 +601,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.urlEncoder,
         builder: (context, state) => const UrlEncoderScreen(),
+      ),
+      GoRoute(
+        path: Routes.readability,
+        builder: (context, state) => const ReadabilityScreen(),
+      ),
+      GoRoute(
+        path: Routes.dateCalculator,
+        builder: (context, state) => const DateCalculatorScreen(),
+      ),
+      GoRoute(
+        path: Routes.readingList,
+        builder: (context, state) => const ReadingListScreen(),
       ),
     ],
   );

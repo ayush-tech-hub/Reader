@@ -153,6 +153,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.radio, 'Morse Code', Routes.morseCode),
       (Icons.looks_one_outlined, 'Roman Numerals', Routes.romanNumerals),
       (Icons.link, 'URL Encoder', Routes.urlEncoder),
+      (Icons.spellcheck, 'Readability', Routes.readability),
+      (Icons.calendar_month_outlined, 'Date Calculator', Routes.dateCalculator),
+      (Icons.menu_book_outlined, 'Reading List', Routes.readingList),
     ];
 
     return Scaffold(
