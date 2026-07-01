@@ -76,6 +76,11 @@ import '../../features/pdf_tools/presentation/screens/pdf_crop_screen.dart';
 import '../../features/checklist/presentation/checklist_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_grayscale_screen.dart';
 import '../../features/text_tools/presentation/text_diff_screen.dart';
+import '../../features/text_tools/presentation/case_converter_screen.dart';
+import '../../features/text_tools/presentation/string_hasher_screen.dart';
+import '../../features/text_tools/presentation/morse_code_screen.dart';
+import '../../features/text_tools/presentation/roman_numeral_screen.dart';
+import '../../features/text_tools/presentation/url_encoder_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -157,6 +162,11 @@ abstract final class Routes {
   static const String checklist = '/checklist';
   static const String pdfGrayscale = '/tools/pdf-grayscale';
   static const String textDiff = '/tools/text-diff';
+  static const String caseConverter = '/tools/case';
+  static const String stringHasher = '/tools/hash';
+  static const String morseCode = '/tools/morse';
+  static const String romanNumerals = '/tools/roman';
+  static const String urlEncoder = '/tools/url-encode';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -565,6 +575,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.textDiff,
         builder: (context, state) => const TextDiffScreen(),
+      ),
+      GoRoute(
+        path: Routes.caseConverter,
+        builder: (context, state) => const CaseConverterScreen(),
+      ),
+      GoRoute(
+        path: Routes.stringHasher,
+        builder: (context, state) => const StringHasherScreen(),
+      ),
+      GoRoute(
+        path: Routes.morseCode,
+        builder: (context, state) => const MorseCodeScreen(),
+      ),
+      GoRoute(
+        path: Routes.romanNumerals,
+        builder: (context, state) => const RomanNumeralScreen(),
+      ),
+      GoRoute(
+        path: Routes.urlEncoder,
+        builder: (context, state) => const UrlEncoderScreen(),
       ),
     ],
   );

@@ -148,6 +148,11 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.checklist, 'Checklist', Routes.checklist),
       (Icons.invert_colors, 'PDF Greyscale', Routes.pdfGrayscale),
       (Icons.difference_outlined, 'Text Diff', Routes.textDiff),
+      (Icons.text_rotate_up, 'Case Converter', Routes.caseConverter),
+      (Icons.fingerprint, 'String Hasher', Routes.stringHasher),
+      (Icons.radio, 'Morse Code', Routes.morseCode),
+      (Icons.looks_one_outlined, 'Roman Numerals', Routes.romanNumerals),
+      (Icons.link, 'URL Encoder', Routes.urlEncoder),
     ];
 
     return Scaffold(
