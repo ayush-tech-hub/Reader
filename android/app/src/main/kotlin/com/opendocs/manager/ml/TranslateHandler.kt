@@ -86,7 +86,7 @@ class TranslateHandler(
 
         /** All language codes ML Kit Translate can download, queried live
          * from the SDK so the list never drifts out of date. */
-        fun allSupportedCodes(): Set<String> = TranslateLanguage.getAllLanguages()
+        fun allSupportedCodes(): Set<String> = TranslateLanguage.getAllLanguages().toSet()
     }
 
     fun shutdown() {
