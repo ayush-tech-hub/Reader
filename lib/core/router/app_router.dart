@@ -67,6 +67,8 @@ import '../../features/text_tools/presentation/json_formatter_screen.dart';
 import '../../features/text_tools/presentation/regex_tester_screen.dart';
 import '../../features/text_tools/presentation/unit_converter_screen.dart';
 import '../../features/text_tools/presentation/word_frequency_screen.dart';
+import '../../features/text_tools/presentation/number_base_screen.dart';
+import '../../features/text_tools/presentation/password_generator_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -139,6 +141,8 @@ abstract final class Routes {
   static const String regexTester = '/tools/regex';
   static const String unitConverter = '/tools/units';
   static const String wordFrequency = '/tools/word-freq';
+  static const String numberBase = '/tools/number-base';
+  static const String passwordGenerator = '/tools/password';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -511,6 +515,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.wordFrequency,
         builder: (context, state) => const WordFrequencyScreen(),
+      ),
+      GoRoute(
+        path: Routes.numberBase,
+        builder: (context, state) => const NumberBaseScreen(),
+      ),
+      GoRoute(
+        path: Routes.passwordGenerator,
+        builder: (context, state) => const PasswordGeneratorScreen(),
       ),
     ],
   );

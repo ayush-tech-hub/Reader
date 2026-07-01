@@ -140,6 +140,8 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.search, 'Regex Tester', Routes.regexTester),
       (Icons.straighten, 'Unit Converter', Routes.unitConverter),
       (Icons.bar_chart, 'Word Frequency', Routes.wordFrequency),
+      (Icons.numbers, 'Number Base', Routes.numberBase),
+      (Icons.password, 'Password Gen', Routes.passwordGenerator),
     ];
 
     return Scaffold(
