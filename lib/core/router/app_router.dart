@@ -17,6 +17,7 @@ import '../../features/files_plus/presentation/storage_analyzer_screen.dart';
 import '../../features/files_plus/presentation/storage_category_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/library/presentation/smart_search_screen.dart';
+import '../../features/recycle_bin/presentation/recycle_bin_screen.dart';
 import '../../features/ocr/domain/entities/ocr_result.dart';
 import '../../features/ocr/presentation/screens/batch_ocr_screen.dart';
 import '../../features/ocr/presentation/screens/camera_ocr_screen.dart';
@@ -59,6 +60,7 @@ abstract final class Routes {
   static const String searchablePdf = '/ocr/searchable-pdf';
   static const String qrScanner = '/tools/qr';
   static const String appLockSettings = '/settings/app-lock';
+  static const String recycleBin = '/files/trash';
   static const String txtReader = '/reader/txt';
   static const String imageReader = '/reader/image';
 }
@@ -249,6 +251,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.appLockSettings,
         builder: (context, state) => const AppLockSettingsScreen(),
+      ),
+      GoRoute(
+        path: Routes.recycleBin,
+        builder: (context, state) => const RecycleBinScreen(),
       ),
       GoRoute(
         path: Routes.imageReader,

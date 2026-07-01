@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/platform/native_channels.dart';
+import '../../../../features/recycle_bin/data/recycle_bin_service.dart';
 import '../../domain/entities/file_entry.dart';
 
 /// Direct filesystem access (dart:io) plus the native storage channel
@@ -134,7 +135,15 @@ class FileSystemDataSource {
     }
   }
 
+  /// Moves [paths] to the recycle bin rather than deleting them permanently.
+  /// Files in the app-support trash can be restored or permanently deleted
+  /// from the RecycleBinScreen.
   Future<void> delete(List<String> paths) async {
+    await RecycleBinService().moveToTrash(paths);
+  }
+
+  /// Permanently removes [paths] without going through the recycle bin.
+  Future<void> deletePermanently(List<String> paths) async {
     for (final path in paths) {
       final type = await FileSystemEntity.type(path, followLinks: false);
       if (type == FileSystemEntityType.directory) {

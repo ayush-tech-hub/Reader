@@ -106,6 +106,7 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.dynamic_feed, l10n.batchTools, Routes.batchTools),
       (Icons.sync, l10n.folderSync, Routes.folderSync),
       (Icons.label_outline, l10n.tags, Routes.tags),
+      (Icons.delete_outline, 'Recycle Bin', Routes.recycleBin),
     ];
 
     return Scaffold(
