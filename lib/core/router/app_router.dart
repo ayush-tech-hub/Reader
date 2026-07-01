@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/about/presentation/about_screen.dart';
 import '../../features/annotations/presentation/annotations_export_screen.dart';
+import '../../features/theme_picker/presentation/theme_picker_screen.dart';
 import '../../features/bookmarks/presentation/bookmarks_screen.dart';
 import '../../features/dictionary/presentation/dictionary_screen.dart';
 import '../../features/reading_goals/presentation/reading_goals_screen.dart';
@@ -91,6 +92,7 @@ abstract final class Routes {
   static const String bookmarks = '/bookmarks';
   static const String readingGoals = '/goals';
   static const String annotationsExport = '/annotations';
+  static const String themePicker = '/settings/theme';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -352,6 +354,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.annotationsExport,
         builder: (context, state) => const AnnotationsExportScreen(),
+      ),
+      GoRoute(
+        path: Routes.themePicker,
+        builder: (context, state) => const ThemePickerScreen(),
       ),
     ],
   );

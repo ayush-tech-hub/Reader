@@ -41,4 +41,5 @@ abstract final class SettingKeys {
   static const String highContrast = 'high_contrast';
   static const String fontScale = 'font_scale';
   static const String dailyGoalMinutes = 'daily_goal_minutes';
+  static const String themeColor = 'theme_color';
 }

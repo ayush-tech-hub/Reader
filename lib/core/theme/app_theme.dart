@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 abstract final class AppTheme {
   static const _seed = Color(0xFF3F51B5);
 
-  static ThemeData light() => _base(Brightness.light);
+  static ThemeData light([Color? seed]) => _base(Brightness.light, seed);
 
-  static ThemeData dark() => _base(Brightness.dark);
+  static ThemeData dark([Color? seed]) => _base(Brightness.dark, seed);
 
   static ThemeData highContrastLight() => _highContrast(Brightness.light);
   static ThemeData highContrastDark() => _highContrast(Brightness.dark);
@@ -60,9 +60,9 @@ abstract final class AppTheme {
     );
   }
 
-  static ThemeData _base(Brightness brightness) {
+  static ThemeData _base(Brightness brightness, [Color? seed]) {
     final scheme = ColorScheme.fromSeed(
-      seedColor: _seed,
+      seedColor: seed ?? _seed,
       brightness: brightness,
     );
     return _buildBase(scheme);

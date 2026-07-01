@@ -208,6 +208,35 @@ class HighContrastNotifier extends Notifier<bool> {
   }
 }
 
+// ---- Theme color -------------------------------------------------------
+
+final themeColorProvider =
+    NotifierProvider<ThemeColorNotifier, Color?>(ThemeColorNotifier.new);
+
+class ThemeColorNotifier extends Notifier<Color?> {
+  @override
+  Color? build() {
+    _load();
+    return null;
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final v = prefs.getInt(SettingKeys.themeColor);
+    if (v != null) state = Color(v);
+  }
+
+  Future<void> setColor(Color? color) async {
+    state = color;
+    final prefs = await SharedPreferences.getInstance();
+    if (color == null) {
+      await prefs.remove(SettingKeys.themeColor);
+    } else {
+      await prefs.setInt(SettingKeys.themeColor, color.value);
+    }
+  }
+}
+
 /// Allowed discrete font-scale factors.
 const kFontScales = [0.85, 1.0, 1.15, 1.3, 1.5];
 

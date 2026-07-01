@@ -17,6 +17,7 @@ class OpenDocsApp extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
     final highContrast = ref.watch(highContrastProvider);
     final fontScale = ref.watch(fontScaleProvider);
+    final themeColor = ref.watch(themeColorProvider);
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
@@ -27,8 +28,12 @@ class OpenDocsApp extends ConsumerWidget {
         return l10n.appTitle;
       },
       debugShowCheckedModeBanner: false,
-      theme: highContrast ? AppTheme.highContrastLight() : AppTheme.light(),
-      darkTheme: highContrast ? AppTheme.highContrastDark() : AppTheme.dark(),
+      theme: highContrast
+          ? AppTheme.highContrastLight()
+          : AppTheme.light(themeColor),
+      darkTheme: highContrast
+          ? AppTheme.highContrastDark()
+          : AppTheme.dark(themeColor),
       themeMode: themeMode,
       routerConfig: router,
       localizationsDelegates: const [
