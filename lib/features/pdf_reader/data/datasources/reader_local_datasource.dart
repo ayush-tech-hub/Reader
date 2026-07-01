@@ -141,6 +141,14 @@ class ReaderLocalDataSource {
     return rows.map(_annotationFromRow).toList();
   }
 
+  Future<List<Annotation>> getAllAnnotations() async {
+    final rows = await _db.query(
+      'annotations',
+      orderBy: 'document_path ASC, page ASC, id ASC',
+    );
+    return rows.map(_annotationFromRow).toList();
+  }
+
   Future<Annotation> insertAnnotation(Annotation annotation) async {
     final id = await _db.insert('annotations', _annotationToRow(annotation));
     return Annotation(

@@ -40,4 +40,5 @@ abstract final class SettingKeys {
       'auto_remove_unused_languages';
   static const String highContrast = 'high_contrast';
   static const String fontScale = 'font_scale';
+  static const String dailyGoalMinutes = 'daily_goal_minutes';
 }

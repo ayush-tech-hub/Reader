@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/about/presentation/about_screen.dart';
+import '../../features/annotations/presentation/annotations_export_screen.dart';
 import '../../features/bookmarks/presentation/bookmarks_screen.dart';
 import '../../features/dictionary/presentation/dictionary_screen.dart';
+import '../../features/reading_goals/presentation/reading_goals_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_add_pages_screen.dart';
 import '../../features/reading_stats/presentation/reading_stats_screen.dart';
 import '../../features/workspace/presentation/workspace_screen.dart';
@@ -87,6 +89,8 @@ abstract final class Routes {
   static const String readingStats = '/stats';
   static const String workspace = '/workspace';
   static const String bookmarks = '/bookmarks';
+  static const String readingGoals = '/goals';
+  static const String annotationsExport = '/annotations';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -340,6 +344,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.bookmarks,
         builder: (context, state) => const BookmarksScreen(),
+      ),
+      GoRoute(
+        path: Routes.readingGoals,
+        builder: (context, state) => const ReadingGoalsScreen(),
+      ),
+      GoRoute(
+        path: Routes.annotationsExport,
+        builder: (context, state) => const AnnotationsExportScreen(),
       ),
     ],
   );

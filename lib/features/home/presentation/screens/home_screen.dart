@@ -116,6 +116,8 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.bar_chart, 'Reading Stats', Routes.readingStats),
       (Icons.tab_outlined, 'Workspace', Routes.workspace),
       (Icons.bookmark_border, 'All Bookmarks', Routes.bookmarks),
+      (Icons.track_changes, 'Reading Goals', Routes.readingGoals),
+      (Icons.draw_outlined, 'Annotations', Routes.annotationsExport),
     ];
 
     return Scaffold(

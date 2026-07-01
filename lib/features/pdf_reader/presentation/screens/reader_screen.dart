@@ -203,6 +203,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 PopupMenuItem(value: 'readAloud', child: Text(l10n.readAloud)),
                 const PopupMenuItem(
                     value: 'docInfo', child: Text('Document info')),
+                const PopupMenuItem(
+                    value: 'allAnnotations',
+                    child: Text('All annotations')),
                 const PopupMenuDivider(),
                 PopupMenuItem(value: 'share', child: Text(l10n.shareFile)),
               ],
@@ -379,6 +382,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         unawaited(_toggleReadAloud());
       case 'docInfo':
         unawaited(_showDocInfo());
+      case 'allAnnotations':
+        unawaited(context.push(Routes.annotationsExport));
       case 'share':
         unawaited(Share.shareXFiles([XFile(widget.path)]));
     }
