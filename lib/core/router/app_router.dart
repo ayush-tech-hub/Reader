@@ -136,6 +136,9 @@ import '../../features/tasks/presentation/task_manager_screen.dart';
 import '../../features/text_tools/presentation/color_mixer_screen.dart';
 import '../../features/budget/presentation/budget_tracker_screen.dart';
 import '../../features/text_tools/presentation/poem_generator_screen.dart';
+import '../../features/contacts/presentation/contact_notes_screen.dart';
+import '../../features/text_tools/presentation/mind_map_screen.dart';
+import '../../features/text_tools/presentation/numerology_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -277,6 +280,9 @@ abstract final class Routes {
   static const String colorMixer = '/tools/color-mixer';
   static const String budgetTracker = '/budget';
   static const String poemGenerator = '/tools/poem';
+  static const String contactNotes = '/contacts';
+  static const String mindMap = '/tools/mind-map';
+  static const String numerology = '/tools/numerology';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -925,6 +931,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.poemGenerator,
         builder: (context, state) => const PoemGeneratorScreen(),
+      ),
+      GoRoute(
+        path: Routes.contactNotes,
+        builder: (context, state) => const ContactNotesScreen(),
+      ),
+      GoRoute(
+        path: Routes.mindMap,
+        builder: (context, state) => const MindMapScreen(),
+      ),
+      GoRoute(
+        path: Routes.numerology,
+        builder: (context, state) => const NumerologyScreen(),
       ),
     ],
   );

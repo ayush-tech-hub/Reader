@@ -206,6 +206,9 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.palette_outlined, 'Color Mixer', Routes.colorMixer),
       (Icons.account_balance_wallet_outlined, 'Budget Tracker', Routes.budgetTracker),
       (Icons.edit_note, 'Poem Generator', Routes.poemGenerator),
+      (Icons.contacts_outlined, 'Contact Notes', Routes.contactNotes),
+      (Icons.account_tree_outlined, 'Mind Map', Routes.mindMap),
+      (Icons.looks_one_outlined, 'Numerology', Routes.numerology),
     ];
 
     return Scaffold(
