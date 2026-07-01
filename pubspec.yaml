@@ -4,7 +4,7 @@ description: >-
   storage analyzer, archive manager and PDF toolbox. No ads, no paywall,
   no subscription.
 publish_to: "none"
-version: 1.6.1+10
+version: 1.6.2+11
 
 environment:
   sdk: ">=3.5.0 <4.0.0"
