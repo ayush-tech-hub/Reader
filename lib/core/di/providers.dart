@@ -20,6 +20,7 @@ import '../../features/files_plus/data/file_tools_service.dart';
 import '../../features/files_plus/data/storage_scanner.dart';
 import '../../features/files_plus/data/tags_datasource.dart';
 import '../../features/library/data/document_index_service.dart';
+import '../../features/reading_stats/data/reading_stats_service.dart';
 import '../../features/pdf_reader/data/datasources/reader_local_datasource.dart';
 import '../../features/pdf_reader/data/repositories/pdf_reader_repository_impl.dart';
 import '../../features/pdf_reader/domain/repositories/pdf_reader_repository.dart';
@@ -124,6 +125,10 @@ final pdfToolsRepositoryProvider = Provider<PdfToolsRepository>(
 
 final documentIndexServiceProvider = Provider<DocumentIndexService>(
   (ref) => DocumentIndexService(ref.watch(appDatabaseProvider)),
+);
+
+final readingStatsServiceProvider = Provider<ReadingStatsService>(
+  (ref) => ReadingStatsService(ref.watch(appDatabaseProvider)),
 );
 
 final fileToolsServiceProvider = Provider<FileToolsService>(

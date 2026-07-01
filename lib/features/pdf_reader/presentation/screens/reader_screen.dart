@@ -31,15 +31,34 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   final _searchFieldController = TextEditingController();
   int _quarterTurns = 0;
   List<PdfOutlineNode> _outline = const [];
+  int? _sessionId;
 
   ReaderNotifier get _notifier =>
       ref.read(readerProvider(widget.path).notifier);
 
   @override
   void dispose() {
+    _endSession();
     _searcher.dispose();
     _searchFieldController.dispose();
     super.dispose();
+  }
+
+  Future<void> _startSession(int startPage) async {
+    _sessionId = await ref
+        .read(readingStatsServiceProvider)
+        .startSession(path: widget.path, startPage: startPage);
+  }
+
+  void _endSession() {
+    final sid = _sessionId;
+    if (sid == null) return;
+    _sessionId = null;
+    final endPage =
+        ref.read(readerProvider(widget.path)).currentPage;
+    ref
+        .read(readingStatsServiceProvider)
+        .endSession(sessionId: sid, endPage: endPage);
   }
 
   Future<String?> _askPassword() async {
@@ -201,6 +220,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               await _notifier.onDocumentOpened(document.pages.length);
               final outline = await document.loadOutline();
               if (mounted) setState(() => _outline = outline);
+              final startPage =
+                  ref.read(readerProvider(widget.path)).currentPage;
+              await _startSession(startPage);
             },
             onPageChanged: (pageNumber) {
               if (pageNumber != null) {

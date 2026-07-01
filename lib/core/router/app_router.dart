@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../features/about/presentation/about_screen.dart';
 import '../../features/dictionary/presentation/dictionary_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_add_pages_screen.dart';
+import '../../features/reading_stats/presentation/reading_stats_screen.dart';
+import '../../features/workspace/presentation/workspace_screen.dart';
 import '../../features/about/presentation/privacy_policy_screen.dart';
 import '../../features/accessibility/presentation/accessibility_screen.dart';
 import '../../features/ai/presentation/ai_tools_screen.dart';
@@ -81,6 +83,8 @@ abstract final class Routes {
   static const String imageReader = '/reader/image';
   static const String dictionary = '/tools/dictionary';
   static const String pdfAddPages = '/tools/pdf-add-pages';
+  static const String readingStats = '/stats';
+  static const String workspace = '/workspace';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -319,6 +323,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.pdfAddPages,
         builder: (context, state) => const PdfAddPagesScreen(),
+      ),
+      GoRoute(
+        path: Routes.readingStats,
+        builder: (context, state) => const ReadingStatsScreen(),
+      ),
+      GoRoute(
+        path: Routes.workspace,
+        builder: (context, state) {
+          final path = state.uri.queryParameters['path'];
+          return WorkspaceScreen(initialPath: path);
+        },
       ),
     ],
   );

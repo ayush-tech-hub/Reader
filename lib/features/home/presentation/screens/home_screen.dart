@@ -113,6 +113,8 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.receipt_long, 'Invoice Scan', Routes.invoiceScan),
       (Icons.draw, 'Sign PDF', Routes.pdfSign),
       (Icons.menu_book_outlined, 'Dictionary', Routes.dictionary),
+      (Icons.bar_chart, 'Reading Stats', Routes.readingStats),
+      (Icons.tab_outlined, 'Workspace', Routes.workspace),
     ];
 
     return Scaffold(

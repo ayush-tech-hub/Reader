@@ -125,6 +125,7 @@ class AppDatabase {
         value           TEXT NOT NULL
       )''');
     _createV2Tables(batch, ftsEngine: ftsEngine);
+    _createV3Tables(batch);
     await batch.commit(noResult: true);
   }
 
@@ -136,6 +137,11 @@ class AppDatabase {
       );
       final batch = db.batch();
       _createV2Tables(batch, ftsEngine: ftsEngine);
+      await batch.commit(noResult: true);
+    }
+    if (oldVersion < 3) {
+      final batch = db.batch();
+      _createV3Tables(batch);
       await batch.commit(noResult: true);
     }
   }
@@ -165,6 +171,29 @@ class AppDatabase {
     }
 
     return _FtsEngine.none;
+  }
+
+  /// v3: reading sessions for statistics.
+  void _createV3Tables(Batch batch) {
+    batch.execute('''
+      CREATE TABLE IF NOT EXISTS reading_sessions (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        path         TEXT    NOT NULL,
+        name         TEXT    NOT NULL,
+        started_at   INTEGER NOT NULL,
+        ended_at     INTEGER,
+        duration_s   INTEGER NOT NULL DEFAULT 0,
+        pages_start  INTEGER NOT NULL DEFAULT 1,
+        pages_end    INTEGER NOT NULL DEFAULT 1
+      )''');
+    batch.execute(
+      'CREATE INDEX IF NOT EXISTS idx_sessions_path '
+      'ON reading_sessions (path)',
+    );
+    batch.execute(
+      'CREATE INDEX IF NOT EXISTS idx_sessions_started '
+      'ON reading_sessions (started_at DESC)',
+    );
   }
 
   /// v2: tagging, full-text document index, folder sync pairs.
