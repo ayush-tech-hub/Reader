@@ -8,6 +8,7 @@ import '../../features/theme_picker/presentation/theme_picker_screen.dart';
 import '../../features/bookmarks/presentation/bookmarks_screen.dart';
 import '../../features/dictionary/presentation/dictionary_screen.dart';
 import '../../features/reading_goals/presentation/reading_goals_screen.dart';
+import '../../features/reading_notes/presentation/reading_notes_screen.dart';
 import '../../features/pdf_tools/presentation/screens/pdf_add_pages_screen.dart';
 import '../../features/reading_stats/presentation/reading_stats_screen.dart';
 import '../../features/workspace/presentation/workspace_screen.dart';
@@ -93,6 +94,7 @@ abstract final class Routes {
   static const String readingGoals = '/goals';
   static const String annotationsExport = '/annotations';
   static const String themePicker = '/settings/theme';
+  static const String readingNotes = '/notes';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -358,6 +360,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.themePicker,
         builder: (context, state) => const ThemePickerScreen(),
+      ),
+      GoRoute(
+        path: Routes.readingNotes,
+        builder: (context, state) => const ReadingNotesScreen(),
       ),
     ],
   );

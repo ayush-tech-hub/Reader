@@ -12,6 +12,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../generated/app_localizations.dart';
+import '../../../reading_notes/presentation/reading_notes_screen.dart';
 import '../../domain/entities/reader_entities.dart';
 import '../providers/reader_providers.dart';
 import '../widgets/annotation_overlay.dart';
@@ -206,6 +207,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 const PopupMenuItem(
                     value: 'allAnnotations',
                     child: Text('All annotations')),
+                const PopupMenuItem(
+                    value: 'pageNote', child: Text('Note for this page')),
                 const PopupMenuDivider(),
                 PopupMenuItem(value: 'share', child: Text(l10n.shareFile)),
               ],
@@ -384,6 +387,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         unawaited(_showDocInfo());
       case 'allAnnotations':
         unawaited(context.push(Routes.annotationsExport));
+      case 'pageNote':
+        unawaited(_openPageNote());
       case 'share':
         unawaited(Share.shareXFiles([XFile(widget.path)]));
     }
@@ -448,6 +453,16 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         ],
       ),
     ));
+  }
+
+  Future<void> _openPageNote() async {
+    final current = ref.read(readerProvider(widget.path)).currentPage;
+    if (!mounted) return;
+    await NoteEditorSheet.show(
+      context,
+      documentPath: widget.path,
+      page: current,
+    );
   }
 
   static String _fmtNum(int n) {
