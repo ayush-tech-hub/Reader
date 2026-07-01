@@ -84,6 +84,9 @@ import '../../features/text_tools/presentation/url_encoder_screen.dart';
 import '../../features/text_tools/presentation/readability_screen.dart';
 import '../../features/text_tools/presentation/date_calculator_screen.dart';
 import '../../features/reading_list/presentation/reading_list_screen.dart';
+import '../../features/pdf_tools/presentation/screens/image_to_pdf_screen.dart';
+import '../../features/flashcards/presentation/flashcard_screen.dart';
+import '../../features/text_tools/presentation/text_encryption_screen.dart';
 import '../di/providers.dart';
 
 abstract final class Routes {
@@ -173,6 +176,9 @@ abstract final class Routes {
   static const String readability = '/tools/readability';
   static const String dateCalculator = '/tools/date-calc';
   static const String readingList = '/reading-list';
+  static const String imageToPdf = '/tools/image-to-pdf';
+  static const String flashcards = '/flashcards';
+  static const String textEncryption = '/tools/cipher';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -613,6 +619,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.readingList,
         builder: (context, state) => const ReadingListScreen(),
+      ),
+      GoRoute(
+        path: Routes.imageToPdf,
+        builder: (context, state) => const ImageToPdfScreen(),
+      ),
+      GoRoute(
+        path: Routes.flashcards,
+        builder: (context, state) => const FlashcardScreen(),
+      ),
+      GoRoute(
+        path: Routes.textEncryption,
+        builder: (context, state) => const TextEncryptionScreen(),
       ),
     ],
   );

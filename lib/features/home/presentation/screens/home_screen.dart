@@ -156,6 +156,8 @@ class _DashboardTab extends ConsumerWidget {
       (Icons.spellcheck, 'Readability', Routes.readability),
       (Icons.calendar_month_outlined, 'Date Calculator', Routes.dateCalculator),
       (Icons.menu_book_outlined, 'Reading List', Routes.readingList),
+      (Icons.style_outlined, 'Flashcards', Routes.flashcards),
+      (Icons.lock_outlined, 'Ciphers', Routes.textEncryption),
     ];
 
     return Scaffold(
@@ -266,6 +268,8 @@ class _DashboardTab extends ConsumerWidget {
                 route: Routes.pdfCrop),
             _CardItem(Icons.invert_colors, 'Greyscale',
                 route: Routes.pdfGrayscale),
+            _CardItem(Icons.image_outlined, 'Images to PDF',
+                route: Routes.imageToPdf),
           ]),
           const SizedBox(height: 20),
 
