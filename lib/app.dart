@@ -34,6 +34,29 @@ class OpenDocsApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('en'), Locale('es'), Locale('hi')],
+      // Walks the device's full ranked list of preferred languages (not
+      // just the single "current" locale) so a user with multiple system
+      // languages configured gets the best supported match — e.g. if their
+      // top language isn't translated yet but their second choice is.
+      localeListResolutionCallback: (deviceLocales, supportedLocales) {
+        if (deviceLocales == null) return supportedLocales.first;
+        for (final device in deviceLocales) {
+          for (final supported in supportedLocales) {
+            if (device.languageCode == supported.languageCode &&
+                device.countryCode == supported.countryCode) {
+              return supported;
+            }
+          }
+        }
+        for (final device in deviceLocales) {
+          for (final supported in supportedLocales) {
+            if (device.languageCode == supported.languageCode) {
+              return supported;
+            }
+          }
+        }
+        return supportedLocales.first;
+      },
       // Riverpod state errors surface here; log and show a minimal widget
       // instead of a blank screen in release builds.
       builder: (context, child) {

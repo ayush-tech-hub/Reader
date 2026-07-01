@@ -3,12 +3,14 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../core/di/providers.dart';
+import '../../../core/router/app_router.dart';
 import '../../../generated/app_localizations.dart';
-import '../data/ml_engines.dart';
 import '../data/text_analysis.dart' as ai;
+import 'providers/language_pack_providers.dart';
 
 /// Local document intelligence: summarization, extractive Q&A over the
 /// search index, on-device OCR and translation. Everything runs
@@ -25,27 +27,6 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
   String? _documentPath;
   String _output = '';
   bool _busy = false;
-
-  // Set of language codes whose ML Kit models are on-device.
-  Set<String> _downloadedLanguages = {};
-  bool _modelsChecked = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkDownloadedModels();
-  }
-
-  Future<void> _checkDownloadedModels() async {
-    final downloaded =
-        await ref.read(translateEngineProvider).getDownloadedLanguages();
-    if (mounted) {
-      setState(() {
-        _downloadedLanguages = downloaded;
-        _modelsChecked = true;
-      });
-    }
-  }
 
   @override
   void dispose() {
@@ -144,104 +125,91 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
         return pages.join('\n\n');
       });
 
-  // (display name, BCP-47 code)
-  static const _languages = [
-    // ML Kit supported — models pre-downloaded at app startup
-    ('Hindi', 'hi'),
-    ('Bengali', 'bn'),
-    ('Telugu', 'te'),
-    ('Marathi', 'mr'),
-    ('Tamil', 'ta'),
-    ('Gujarati', 'gu'),
-    ('Kannada', 'kn'),
-    ('Malayalam', 'ml'),
-    ('Punjabi', 'pa'),
-    ('Urdu', 'ur'),
-    ('Spanish', 'es'),
-    ('French', 'fr'),
-    // Not in ML Kit's 58-language catalogue — shown but disabled
-    ('Odia', 'or'),
-    ('Assamese', 'as'),
-    ('Maithili', 'mai'),
-    ('Sanskrit', 'sa'),
-    ('Sindhi', 'sd'),
-    ('Nepali', 'ne'),
-    ('Konkani', 'kok'),
-    ('Manipuri', 'mni'),
-    ('Bodo', 'brx'),
-    ('Dogri', 'doi'),
-    ('Kashmiri', 'ks'),
-    ('Santali', 'sat'),
-  ];
-
   Future<void> _translate() async {
     if (!mounted) return;
-    final downloaded = _downloadedLanguages;
+    final languages = ref.read(languagePackProvider).languages;
     final picked = await showDialog<String>(
       context: context,
       builder: (ctx) => SimpleDialog(
         title: const Text('Select target language'),
         children: [
-          for (final (name, code) in _languages)
+          for (final lang in languages)
             _LanguageOption(
-              name: name,
-              code: code,
-              isSupported: TranslateEngine.supportedLanguageCodes.contains(
-                code,
-              ),
-              isDownloaded: downloaded.contains(code),
-              onTap: TranslateEngine.supportedLanguageCodes.contains(code)
-                  ? () => Navigator.of(ctx).pop(code)
-                  : null,
+              name: lang.displayName,
+              code: lang.code,
+              isDownloaded: lang.isDownloaded,
+              onTap: () => Navigator.of(ctx).pop(lang.code),
             ),
+          SimpleDialogOption(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              context.push(Routes.languagePacks);
+            },
+            child: const Row(
+              children: [
+                Icon(Icons.settings_outlined, size: 18),
+                SizedBox(width: 8),
+                Text('Manage languages…'),
+              ],
+            ),
+          ),
         ],
       ),
     );
     if (picked == null) return;
     _run(() async {
       final source = _output.isNotEmpty ? _output : await _documentText();
-      return ref.read(translateEngineProvider).translate(
+      final result = await ref.read(translateEngineProvider).translate(
             text: source.length > 4000 ? source.substring(0, 4000) : source,
             sourceLanguage: 'en',
             targetLanguage: picked,
           );
+      await ref.read(languagePackProvider.notifier).recordUsage(picked);
+      return result;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final supported = TranslateEngine.supportedLanguageCodes;
-    final allReady = _modelsChecked &&
-        supported.every((c) => _downloadedLanguages.contains(c));
-    final downloadedCount = _modelsChecked
-        ? supported.where(_downloadedLanguages.contains).length
-        : 0;
+    final packState = ref.watch(languagePackProvider);
+    final total = packState.languages.length;
+    final downloadedCount = packState.downloadedCount;
+    final allReady = !packState.loading && total > 0 && downloadedCount == total;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.aiAssistant)),
+      appBar: AppBar(
+        title: Text(l10n.aiAssistant),
+        actions: [
+          IconButton(
+            tooltip: 'Manage languages',
+            icon: const Icon(Icons.translate),
+            onPressed: () => context.push(Routes.languagePacks),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // Translation model status banner
-          if (_modelsChecked && !allReady)
+          if (!packState.loading && total > 0 && !allReady)
             Card(
               color: Theme.of(context).colorScheme.secondaryContainer,
               child: ListTile(
                 dense: true,
                 leading: const Icon(Icons.download_outlined),
-                title: const Text('Downloading translation models…'),
+                title: const Text('Translation models'),
                 subtitle: Text(
-                  '$downloadedCount / ${supported.length} languages ready for offline use',
+                  '$downloadedCount / $total languages ready for offline use',
                 ),
-                trailing: const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                trailing: IconButton(
+                  icon: const Icon(Icons.download),
+                  tooltip: 'Download more',
+                  onPressed: () => context.push(Routes.languagePacks),
                 ),
               ),
             )
-          else if (_modelsChecked && allReady)
+          else if (!packState.loading && allReady)
             Card(
               color: Theme.of(context).colorScheme.primaryContainer,
               child: ListTile(
@@ -251,14 +219,14 @@ class _AiToolsScreenState extends ConsumerState<AiToolsScreen> {
                   color: Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
                 title: Text(
-                  'All ${supported.length} translation models ready — fully offline',
+                  'All $total translation models ready — fully offline',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
                 ),
               ),
             ),
-          if (_modelsChecked) const SizedBox(height: 8),
+          if (!packState.loading) const SizedBox(height: 8),
           Card(
             child: ListTile(
               leading: const Icon(Icons.picture_as_pdf),
@@ -326,47 +294,30 @@ class _LanguageOption extends StatelessWidget {
   const _LanguageOption({
     required this.name,
     required this.code,
-    required this.isSupported,
     required this.isDownloaded,
     required this.onTap,
   });
 
   final String name;
   final String code;
-  final bool isSupported;
   final bool isDownloaded;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
 
-    Widget trailing;
-    if (!isSupported) {
-      trailing = Text(
-        'not available',
-        style: textTheme.labelSmall?.copyWith(color: colorScheme.outline),
-      );
-    } else if (isDownloaded) {
-      trailing = Icon(Icons.offline_pin, size: 16, color: colorScheme.primary);
-    } else {
-      trailing = Icon(
-        Icons.cloud_download_outlined,
-        size: 16,
-        color: colorScheme.secondary,
-      );
-    }
+    final trailing = isDownloaded
+        ? Icon(Icons.offline_pin, size: 16, color: colorScheme.primary)
+        : Icon(
+            Icons.cloud_download_outlined,
+            size: 16,
+            color: colorScheme.secondary,
+          );
 
     return ListTile(
       dense: true,
-      enabled: isSupported,
-      title: Text(
-        name,
-        style: textTheme.bodyMedium?.copyWith(
-          color: isSupported ? null : colorScheme.outline,
-        ),
-      ),
+      title: Text(name),
       trailing: trailing,
       onTap: onTap,
     );

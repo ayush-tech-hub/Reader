@@ -88,14 +88,16 @@ class MainActivity : FlutterActivity() {
 
         try {
             Log.d(TAG, "Initialising TranslateHandler")
-            val handler = TranslateHandler()
+            val handler = TranslateHandler(applicationContext)
             translateHandler = handler
             MethodChannel(messenger, "opendocs/translate")
                 .setMethodCallHandler(handler)
-            // Kick off background model downloads immediately so that
-            // translation is ready for offline use on the first attempt.
+            EventChannel(messenger, "opendocs/translate_progress")
+                .setStreamHandler(handler)
+            // Resume any language downloads that were still in flight when
+            // the app was last killed; does not eagerly fetch new ones.
             handler.prefetchModels()
-            Log.d(TAG, "TranslateHandler registered; model prefetch started")
+            Log.d(TAG, "TranslateHandler registered; pending downloads resumed")
         } catch (e: Throwable) {
             Log.e(TAG, "Failed to register translate channel — translation unavailable", e)
         }
